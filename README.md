@@ -3,7 +3,7 @@
 <h1>Personal Portfolio Website - v0.1.0</h1>
 
 <h2>
-  <a href="https://thepranaygupta.github.io/">thepranaygupta.github.io</a>
+  <a href="https://zlaabsi.github.io/">zlaabsi.github.io</a>
 </h2>
 
 <div align="center">

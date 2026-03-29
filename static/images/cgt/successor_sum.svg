@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="320" viewBox="0 0 650 320">
+  <!-- Successors in a sum of games G1 + G2 -->
+  <defs>
+    <marker id="arrow-s" markerWidth="9" markerHeight="6" refX="8.5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 9 3, 0 6" fill="#2C2418"/>
+    </marker>
+    <marker id="arrow-s-g1" markerWidth="9" markerHeight="6" refX="8.5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 9 3, 0 6" fill="#B8860B"/>
+    </marker>
+    <marker id="arrow-s-g2" markerWidth="9" markerHeight="6" refX="8.5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 9 3, 0 6" fill="#6B705C"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="325" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold">
+    Successeurs dans la somme G&#8321; + G&#8322;
+  </text>
+
+  <!-- Central node (y1, y2) -->
+  <circle cx="325" cy="100" r="28" fill="#B8860B" fill-opacity="0.12" stroke="#2C2418" stroke-width="2"/>
+  <text x="325" y="96" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold">(y&#8321;, y&#8322;)</text>
+  <text x="325" y="113" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#6B705C">position courante</text>
+
+  <!-- ===== Left branch: move in G1 ===== -->
+  <!-- Arrow down-left to (z1, y2) -->
+  <path d="M 300,120 C 260,160 160,170 130,208" fill="none" stroke="#B8860B" stroke-width="2" marker-end="url(#arrow-s-g1)"/>
+  <!-- Another successor in G1 -->
+  <path d="M 305,125 C 280,170 240,190 235,218" fill="none" stroke="#B8860B" stroke-width="2" marker-end="url(#arrow-s-g1)"/>
+
+  <!-- Label "move in G1" -->
+  <text x="140" y="165" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#B8860B" font-weight="bold" transform="rotate(-30, 140, 165)">
+    coup dans G&#8321;
+  </text>
+
+  <!-- Node (z1, y2) -->
+  <circle cx="120" cy="230" r="24" fill="white" stroke="#B8860B" stroke-width="1.8"/>
+  <text x="120" y="228" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418">(z&#8321;, y&#8322;)</text>
+  <text x="120" y="244" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="#6B705C">z&#8321; &#8712; Succ(y&#8321;)</text>
+
+  <!-- Node (z'1, y2) -->
+  <circle cx="230" cy="240" r="24" fill="white" stroke="#B8860B" stroke-width="1.8"/>
+  <text x="230" y="238" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418">(z'&#8321;, y&#8322;)</text>
+  <text x="230" y="254" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="#6B705C">z'&#8321; &#8712; Succ(y&#8321;)</text>
+
+  <!-- ===== Right branch: move in G2 ===== -->
+  <!-- Arrow down-right to (y1, z2) -->
+  <path d="M 350,120 C 390,160 490,170 520,208" fill="none" stroke="#6B705C" stroke-width="2" marker-end="url(#arrow-s-g2)"/>
+  <!-- Another successor in G2 -->
+  <path d="M 345,125 C 370,170 400,190 410,218" fill="none" stroke="#6B705C" stroke-width="2" marker-end="url(#arrow-s-g2)"/>
+
+  <!-- Label "move in G2" -->
+  <text x="510" y="165" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6B705C" font-weight="bold" transform="rotate(30, 510, 165)">
+    coup dans G&#8322;
+  </text>
+
+  <!-- Node (y1, z2) -->
+  <circle cx="530" cy="230" r="24" fill="white" stroke="#6B705C" stroke-width="1.8"/>
+  <text x="530" y="228" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418">(y&#8321;, z&#8322;)</text>
+  <text x="530" y="244" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="#6B705C">z&#8322; &#8712; Succ(y&#8322;)</text>
+
+  <!-- Node (y1, z'2) -->
+  <circle cx="415" cy="240" r="24" fill="white" stroke="#6B705C" stroke-width="1.8"/>
+  <text x="415" y="238" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418">(y&#8321;, z'&#8322;)</text>
+  <text x="415" y="254" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="#6B705C">z'&#8322; &#8712; Succ(y&#8322;)</text>
+
+  <!-- Bottom formula -->
+  <text x="325" y="300" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418" font-style="italic">
+    Succ(y&#8321;, y&#8322;) = { (z&#8321;, y&#8322;) : z&#8321; &#8712; Succ(y&#8321;) } &#8746; { (y&#8321;, z&#8322;) : z&#8322; &#8712; Succ(y&#8322;) }
+  </text>
+</svg>

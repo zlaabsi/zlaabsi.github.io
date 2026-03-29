@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="280" viewBox="0 0 650 280">
+  <!-- Nim game tree: fan-out from m+1 to all successors -->
+  <defs>
+    <marker id="arrow-t" markerWidth="9" markerHeight="6" refX="8.5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 9 3, 0 6" fill="#2C2418"/>
+    </marker>
+  </defs>
+
+  <!-- Root node: m+1 -->
+  <circle cx="325" cy="55" r="24" fill="#B8860B" fill-opacity="0.2" stroke="#B8860B" stroke-width="2"/>
+  <text x="325" y="61" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold" font-style="italic">m+1</text>
+
+  <!-- Fan-out edges -->
+  <!-- To node "m" -->
+  <line x1="308" y1="74" x2="80" y2="178" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-t)"/>
+  <!-- To node "m-1" -->
+  <line x1="315" y1="77" x2="195" y2="178" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-t)"/>
+  <!-- To node "..." (middle) -->
+  <line x1="323" y1="79" x2="318" y2="178" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-t)" stroke-dasharray="4,3"/>
+  <!-- To node "1" -->
+  <line x1="337" y1="77" x2="455" y2="178" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-t)"/>
+  <!-- To node "0" -->
+  <line x1="344" y1="74" x2="570" y2="178" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-t)"/>
+
+  <!-- Child nodes -->
+  <!-- Node "m" -->
+  <circle cx="70" cy="195" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
+  <text x="70" y="201" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-style="italic">m</text>
+  <text x="70" y="236" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B705C">retirer 1</text>
+
+  <!-- Node "m-1" -->
+  <circle cx="190" cy="195" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
+  <text x="190" y="200" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418" font-style="italic">m&#8722;1</text>
+  <text x="190" y="236" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B705C">retirer 2</text>
+
+  <!-- Dots "..." -->
+  <text x="315" y="201" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#6B705C">&#8943;</text>
+
+  <!-- Node "1" -->
+  <circle cx="450" cy="195" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
+  <text x="450" y="201" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-style="italic">1</text>
+  <text x="450" y="236" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B705C">retirer m</text>
+
+  <!-- Node "0" -->
+  <circle cx="570" cy="195" r="20" fill="#6B705C" fill-opacity="0.2" stroke="#6B705C" stroke-width="2"/>
+  <text x="570" y="201" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">0</text>
+  <text x="570" y="236" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B705C">retirer m+1</text>
+
+  <!-- Annotation -->
+  <text x="325" y="270" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418" font-style="italic">
+    Succ(m+1) = {0, 1, 2, ..., m}  &#8212;  tout tas de taille &#8804; m est accessible
+  </text>
+</svg>

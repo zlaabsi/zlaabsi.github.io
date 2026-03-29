@@ -1,0 +1,220 @@
+/* ===== Google Fonts ===== */
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ===== Light Mode (default) ===== */
+:root {
+  --theme-bg: #FAF7F2;
+  --theme-bg-secondary: #F0EBE3;
+  --theme-text: #2C2418;
+  --theme-text-secondary: #5C4F3D;
+  --theme-accent: #B8860B;
+  --theme-accent-hover: #A0522D;
+  --theme-accent-secondary: #6B705C;
+  --theme-border: #D4C9B8;
+  --theme-code-bg: #F0EBE3;
+  --theme-code-border: #D4C9B8;
+}
+
+/* ===== Dark Mode ===== */
+.dark {
+  --theme-bg: #1C1917;
+  --theme-bg-secondary: #292524;
+  --theme-text: #E8E0D4;
+  --theme-text-secondary: #A8998A;
+  --theme-accent: #D4A843;
+  --theme-accent-hover: #E0B84E;
+  --theme-accent-secondary: #8B9A6B;
+  --theme-border: #44403C;
+  --theme-code-bg: #292524;
+  --theme-code-border: #44403C;
+}
+
+/* ===== Override PaperMod CSS variables ===== */
+:root {
+  --gap: 24px;
+  --content-gap: 24px;
+  --nav-width: 1024px;
+  --main-width: 750px;
+  --header-height: 60px;
+  --footer-height: 60px;
+  --radius: 6px;
+
+  --theme: var(--theme-bg);
+  --entry: var(--theme-bg-secondary);
+  --primary: var(--theme-text);
+  --secondary: var(--theme-text-secondary);
+  --tertiary: var(--theme-border);
+  --content: var(--theme-text);
+  --code-bg: var(--theme-code-bg);
+  --border: var(--theme-border);
+}
+
+.dark {
+  --theme: var(--theme-bg);
+  --entry: var(--theme-bg-secondary);
+  --primary: var(--theme-text);
+  --secondary: var(--theme-text-secondary);
+  --tertiary: var(--theme-border);
+  --content: var(--theme-text);
+  --code-bg: var(--theme-code-bg);
+  --border: var(--theme-border);
+}
+
+/* ===== Typography ===== */
+body {
+  font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--theme-text);
+  background: var(--theme-bg);
+}
+
+h1, h2, h3, h4, h5, h6,
+.post-title,
+.first-entry .entry-title {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 700;
+  color: var(--theme-text);
+}
+
+.post-content {
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+/* ===== Code ===== */
+code, pre {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875rem;
+}
+
+pre {
+  background: var(--theme-code-bg) !important;
+  border: 1px solid var(--theme-code-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.post-content code:not(pre code) {
+  background: var(--theme-code-bg);
+  border: 1px solid var(--theme-code-border);
+  border-radius: 3px;
+  padding: 0.15em 0.35em;
+  font-size: 0.85em;
+}
+
+/* ===== Links ===== */
+.post-content a {
+  color: var(--theme-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.post-content a:hover {
+  color: var(--theme-accent-hover);
+}
+
+/* ===== Blockquotes ===== */
+blockquote {
+  border-left: 3px solid var(--theme-accent);
+  padding-left: 1rem;
+  margin-left: 0;
+  color: var(--theme-text-secondary);
+  font-style: italic;
+}
+
+/* ===== Table of Contents (sidebar float on large screens) ===== */
+@media (min-width: 1280px) {
+  .toc {
+    position: sticky;
+    top: 5rem;
+    float: right;
+    margin-right: -250px;
+    width: 220px;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    font-size: 0.85rem;
+    border-left: 2px solid var(--theme-border);
+    padding-left: 1rem;
+  }
+
+  .toc .inner {
+    padding: 0;
+  }
+}
+
+/* ===== "Cited as" block ===== */
+.citation-block {
+  background: var(--theme-code-bg);
+  border: 1px solid var(--theme-code-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+
+.citation-block summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--theme-text);
+}
+
+.citation-block pre {
+  margin-top: 0.75rem;
+  border: none;
+  background: transparent !important;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+/* ===== Footnotes ===== */
+.footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--theme-border);
+  font-size: 0.9rem;
+  color: var(--theme-text-secondary);
+}
+
+/* ===== Header/Nav ===== */
+.nav {
+  font-family: 'Source Serif 4', Georgia, serif;
+}
+
+#menu a {
+  color: var(--theme-text-secondary);
+}
+
+#menu a:hover,
+#menu .active {
+  color: var(--theme-accent);
+}
+
+/* ===== Tags ===== */
+.post-tags a {
+  background: var(--theme-bg-secondary);
+  color: var(--theme-text-secondary);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius);
+  padding: 0.2em 0.6em;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.post-tags a:hover {
+  color: var(--theme-accent);
+  border-color: var(--theme-accent);
+}
+
+/* ===== Footer ===== */
+.footer {
+  font-size: 0.85rem;
+  color: var(--theme-text-secondary);
+}
+
+/* ===== Reading time & meta ===== */
+.post-meta {
+  color: var(--theme-text-secondary);
+  font-size: 0.9rem;
+}

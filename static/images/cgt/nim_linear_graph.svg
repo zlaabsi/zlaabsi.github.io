@@ -1,71 +1,140 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="700" height="210" viewBox="0 0 700 210">
-  <defs>
-    <marker id="n" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#2C2418"/>
-    </marker>
-    <marker id="n-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#B8860B"/>
-    </marker>
-    <marker id="n-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#6B705C"/>
-    </marker>
-    <marker id="n-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#A0522D"/>
-    </marker>
-  </defs>
-  <text x="350" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">Restricted Nim (remove 1, 2, or 3 tokens)</text>
-  <line x1="58.0" y1="85.0" x2="86.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 56.6,78.1 Q 108.0,57.0 155.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <path d="M 56.6,78.1 Q 142.0,43.0 223.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
-  <line x1="126.0" y1="85.0" x2="154.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 124.6,78.1 Q 176.0,57.0 223.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <path d="M 124.6,78.1 Q 210.0,43.0 291.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
-  <line x1="194.0" y1="85.0" x2="222.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 192.6,78.1 Q 244.0,57.0 291.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <path d="M 192.6,78.1 Q 278.0,43.0 359.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
-  <line x1="262.0" y1="85.0" x2="290.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 260.6,78.1 Q 312.0,57.0 359.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <path d="M 260.6,78.1 Q 346.0,43.0 427.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
-  <line x1="330.0" y1="85.0" x2="358.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 328.6,78.1 Q 380.0,57.0 427.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <path d="M 328.6,78.1 Q 414.0,43.0 495.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
-  <line x1="398.0" y1="85.0" x2="426.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 396.6,78.1 Q 448.0,57.0 495.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <path d="M 396.6,78.1 Q 482.0,43.0 563.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
-  <line x1="466.0" y1="85.0" x2="494.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 464.6,78.1 Q 516.0,57.0 563.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <path d="M 464.6,78.1 Q 550.0,43.0 631.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
-  <line x1="534.0" y1="85.0" x2="562.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <path d="M 532.6,78.1 Q 584.0,57.0 631.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
-  <line x1="602.0" y1="85.0" x2="630.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-  <circle cx="652" cy="85" r="18" fill="#B8860B" stroke="#B8860B" stroke-width="2"/>
-    <text x="652" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">0</text>
-  <circle cx="584" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
-    <text x="584" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">1</text>
-  <circle cx="516" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
-    <text x="516" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">2</text>
-  <circle cx="448" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
-    <text x="448" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">3</text>
-  <circle cx="380" cy="85" r="18" fill="#B8860B" stroke="#B8860B" stroke-width="2"/>
-    <text x="380" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">4</text>
-  <circle cx="312" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
-    <text x="312" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">5</text>
-  <circle cx="244" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
-    <text x="244" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">6</text>
-  <circle cx="176" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
-    <text x="176" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">7</text>
-  <circle cx="108" cy="85" r="18" fill="#B8860B" stroke="#B8860B" stroke-width="2"/>
-    <text x="108" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">8</text>
-  <circle cx="40" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
-    <text x="40" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">9</text>
-  <text x="350" y="145" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#B8860B" font-weight="bold">K = {0, 4, 8}</text>
-  <text x="350" y="165" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B705C" font-style="italic">P-positions (losing): multiples of 4</text>
-  <g transform="translate(170, 195)">
-    <line x1="0" y1="0" x2="20" y2="0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
-    <text x="27" y="4" font-family="Georgia, serif" font-size="10" fill="#2C2418">remove 1</text>
-    <line x1="100" y1="0" x2="120" y2="0" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5"/>
-    <text x="127" y="4" font-family="Georgia, serif" font-size="10" fill="#6B705C">remove 2</text>
-    <line x1="200" y1="0" x2="220" y2="0" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3"/>
-    <text x="227" y="4" font-family="Georgia, serif" font-size="10" fill="#6B705C" fill-opacity="0.7">remove 3</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="230" viewBox="0 0 700 230">
+<style>
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #1C1917; }
+    .txt { fill: #E8E0D4; }
+    .txt-sec { fill: #8B9A6B; }
+    .accent { fill: #D4A843; }
+    .accent-stroke { stroke: #D4A843; }
+    .sienna { fill: #C97A50; }
+    .sienna-stroke { stroke: #C97A50; }
+    .olive { fill: #8B9A6B; }
+    .olive-stroke { stroke: #8B9A6B; }
+    .border-stroke { stroke: #44403C; }
+    .line { stroke: #E8E0D4; }
+    .line-light { stroke: #44403C; }
+    .node-fill { fill: #1C1917; }
+    .node-stroke { stroke: #E8E0D4; }
+    .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
+    .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
+    .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
+    .marker-dark { fill: #E8E0D4; }
+    .marker-accent { fill: #D4A843; }
+    .marker-olive { fill: #8B9A6B; }
+    .marker-sienna { fill: #C97A50; }
+    .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
+    .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
+    .kernel-fill { fill: #D4A843; }
+    .p-fill { fill: #8B9A6B; }
+    .n-fill { fill: #C97A50; }
+  }
+  .dark .bg { fill: #1C1917; }
+  .dark .txt { fill: #E8E0D4; }
+  .dark .txt-sec { fill: #8B9A6B; }
+  .dark .accent { fill: #D4A843; }
+  .dark .accent-stroke { stroke: #D4A843; }
+  .dark .sienna { fill: #C97A50; }
+  .dark .sienna-stroke { stroke: #C97A50; }
+  .dark .olive { fill: #8B9A6B; }
+  .dark .olive-stroke { stroke: #8B9A6B; }
+  .dark .border-stroke { stroke: #44403C; }
+  .dark .line { stroke: #E8E0D4; }
+  .dark .line-light { stroke: #44403C; }
+  .dark .node-fill { fill: #1C1917; }
+  .dark .node-stroke { stroke: #E8E0D4; }
+  .dark .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
+  .dark .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
+  .dark .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
+  .dark .marker-dark { fill: #E8E0D4; }
+  .dark .marker-accent { fill: #D4A843; }
+  .dark .marker-olive { fill: #8B9A6B; }
+  .dark .marker-sienna { fill: #C97A50; }
+  .dark .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
+  .dark .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
+  .dark .kernel-fill { fill: #D4A843; }
+  .dark .p-fill { fill: #8B9A6B; }
+  .dark .n-fill { fill: #C97A50; }
+</style>
+<defs>
+  <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-dark" fill="#2C2418"/>
+  </marker>
+  <marker id="arr-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-accent" fill="#B8860B"/>
+  </marker>
+  <marker id="arr-olive" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-olive" fill="#6B705C"/>
+  </marker>
+  <marker id="arr-sienna" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-sienna" fill="#A0522D"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+    <feDropShadow dx="1" dy="1" stdDeviation="1.5" flood-opacity="0.1"/>
+  </filter>
+</defs>
+<text x="350" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Restricted Nim (remove 1, 2, or 3 tokens)</text>
+<line x1="634.0" y1="85.0" x2="604.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 637.5,95.7 Q 584.0,135.0 532.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<path d="M 637.5,95.7 Q 550.0,160.0 464.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" marker-end="url(#arr-olive)"/>
+<line x1="566.0" y1="85.0" x2="536.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 569.5,95.7 Q 516.0,135.0 464.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<path d="M 569.5,95.7 Q 482.0,160.0 396.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" marker-end="url(#arr-olive)"/>
+<line x1="498.0" y1="85.0" x2="468.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 501.5,95.7 Q 448.0,135.0 396.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<path d="M 501.5,95.7 Q 414.0,160.0 328.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" marker-end="url(#arr-olive)"/>
+<line x1="430.0" y1="85.0" x2="400.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 433.5,95.7 Q 380.0,135.0 328.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<path d="M 433.5,95.7 Q 346.0,160.0 260.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" marker-end="url(#arr-olive)"/>
+<line x1="362.0" y1="85.0" x2="332.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 365.5,95.7 Q 312.0,135.0 260.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<path d="M 365.5,95.7 Q 278.0,160.0 192.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" marker-end="url(#arr-olive)"/>
+<line x1="294.0" y1="85.0" x2="264.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 297.5,95.7 Q 244.0,135.0 192.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<path d="M 297.5,95.7 Q 210.0,160.0 124.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" marker-end="url(#arr-olive)"/>
+<line x1="226.0" y1="85.0" x2="196.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 229.5,95.7 Q 176.0,135.0 124.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<path d="M 229.5,95.7 Q 142.0,160.0 56.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" marker-end="url(#arr-olive)"/>
+<line x1="158.0" y1="85.0" x2="128.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M 161.5,95.7 Q 108.0,135.0 56.1,96.8" fill="none" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" marker-end="url(#arr-olive)"/>
+<line x1="90.0" y1="85.0" x2="60.0" y2="85.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1.0" stroke-linecap="round" marker-end="url(#arr)"/>
+<circle cx="652" cy="85" r="18" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
+<text x="652" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">0</text>
+<text x="652" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=0</text>
+<circle cx="584" cy="85" r="18" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="584" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">1</text>
+<text x="584" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=1</text>
+<circle cx="516" cy="85" r="18" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="516" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">2</text>
+<text x="516" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=2</text>
+<circle cx="448" cy="85" r="18" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="448" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">3</text>
+<text x="448" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=3</text>
+<circle cx="380" cy="85" r="18" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
+<text x="380" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">4</text>
+<text x="380" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=0</text>
+<circle cx="312" cy="85" r="18" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="312" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">5</text>
+<text x="312" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=1</text>
+<circle cx="244" cy="85" r="18" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="244" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">6</text>
+<text x="244" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=2</text>
+<circle cx="176" cy="85" r="18" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="176" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">7</text>
+<text x="176" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=3</text>
+<circle cx="108" cy="85" r="18" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
+<text x="108" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">8</text>
+<text x="108" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=0</text>
+<circle cx="40" cy="85" r="18" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="40" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">9</text>
+<text x="40" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">γ=1</text>
+<text x="350" y="150" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">K = {0, 4, 8}</text>
+<text x="350" y="170" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="italic">P-positions (losing): multiples of 4  |  γ(n) = n mod 4</text>
+<g transform="translate(170, 200)">
+<line x1="0" y1="0" x2="20" y2="0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<text x="27" y="4" text-anchor="start" font-family="Georgia, serif" font-size="10" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">remove 1</text>
+<line x1="100" y1="0" x2="120" y2="0" class="olive-stroke" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5" stroke-linecap="round"/>
+<text x="127" y="4" text-anchor="start" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">remove 2</text>
+<line x1="200" y1="0" x2="220" y2="0" class="olive-stroke" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3" stroke-linecap="round"/>
+<text x="227" y="4" text-anchor="start" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">remove 3</text>
+</g>
 </svg>

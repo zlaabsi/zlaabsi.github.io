@@ -1,36 +1,93 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="560" height="280" viewBox="0 0 560 280">
-  <defs>
-    <marker id="s" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#2C2418"/>
-    </marker>
-    <marker id="s-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#B8860B"/>
-    </marker>
-    <marker id="s-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#6B705C"/>
-    </marker>
-    <marker id="s-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#A0522D"/>
-    </marker>
-  </defs>
-  <text x="280" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">Successors in the sum G₁ + G₂</text>
-  <circle cx="280" cy="80" r="26" fill="#B8860B" fill-opacity="0.1" stroke="#2C2418" stroke-width="2"/>
-  <text x="280" y="85" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">(y₁, y₂)</text>
-  <line x1="258.4" y1="94.4" x2="121.6" y2="185.6" stroke="#B8860B" stroke-width="2" marker-end="url(#s-accent)"/>
-  <circle cx="100" cy="200" r="22" fill="white" stroke="#B8860B" stroke-width="1.8"/>
-  <text x="100" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#2C2418">(z₁, y₂)</text>
-  <line x1="267.7" y1="102.9" x2="222.3" y2="187.1" stroke="#B8860B" stroke-width="2" marker-end="url(#s-accent)"/>
-  <circle cx="210" cy="210" r="22" fill="white" stroke="#B8860B" stroke-width="1.8"/>
-  <text x="210" y="215" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#2C2418">(z'₁, y₂)</text>
-  <text x="80" y="150" font-family="Georgia, serif" font-size="13" fill="#B8860B" font-weight="bold">move in G₁</text>
-  <line x1="301.6" y1="94.4" x2="438.4" y2="185.6" stroke="#6B705C" stroke-width="2" marker-end="url(#s-green)"/>
-  <circle cx="460" cy="200" r="22" fill="white" stroke="#6B705C" stroke-width="1.8"/>
-  <text x="460" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#2C2418">(y₁, z₂)</text>
-  <line x1="292.3" y1="102.9" x2="337.7" y2="187.1" stroke="#6B705C" stroke-width="2" marker-end="url(#s-green)"/>
-  <circle cx="350" cy="210" r="22" fill="white" stroke="#6B705C" stroke-width="1.8"/>
-  <text x="350" y="215" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#2C2418">(y₁, z'₂)</text>
-  <text x="475" y="150" font-family="Georgia, serif" font-size="13" fill="#6B705C" font-weight="bold">move in G₂</text>
-  <text x="280" y="265" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#2C2418" font-style="italic">
-    Succ(y₁, y₂) = { (z₁, y₂) : z₁ ∈ Succ(y₁) } ∪ { (y₁, z₂) : z₂ ∈ Succ(y₂) }
-  </text>
+<style>
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #1C1917; }
+    .txt { fill: #E8E0D4; }
+    .txt-sec { fill: #8B9A6B; }
+    .accent { fill: #D4A843; }
+    .accent-stroke { stroke: #D4A843; }
+    .sienna { fill: #C97A50; }
+    .sienna-stroke { stroke: #C97A50; }
+    .olive { fill: #8B9A6B; }
+    .olive-stroke { stroke: #8B9A6B; }
+    .border-stroke { stroke: #44403C; }
+    .line { stroke: #E8E0D4; }
+    .line-light { stroke: #44403C; }
+    .node-fill { fill: #1C1917; }
+    .node-stroke { stroke: #E8E0D4; }
+    .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
+    .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
+    .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
+    .marker-dark { fill: #E8E0D4; }
+    .marker-accent { fill: #D4A843; }
+    .marker-olive { fill: #8B9A6B; }
+    .marker-sienna { fill: #C97A50; }
+    .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
+    .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
+    .kernel-fill { fill: #D4A843; }
+    .p-fill { fill: #8B9A6B; }
+    .n-fill { fill: #C97A50; }
+  }
+  .dark .bg { fill: #1C1917; }
+  .dark .txt { fill: #E8E0D4; }
+  .dark .txt-sec { fill: #8B9A6B; }
+  .dark .accent { fill: #D4A843; }
+  .dark .accent-stroke { stroke: #D4A843; }
+  .dark .sienna { fill: #C97A50; }
+  .dark .sienna-stroke { stroke: #C97A50; }
+  .dark .olive { fill: #8B9A6B; }
+  .dark .olive-stroke { stroke: #8B9A6B; }
+  .dark .border-stroke { stroke: #44403C; }
+  .dark .line { stroke: #E8E0D4; }
+  .dark .line-light { stroke: #44403C; }
+  .dark .node-fill { fill: #1C1917; }
+  .dark .node-stroke { stroke: #E8E0D4; }
+  .dark .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
+  .dark .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
+  .dark .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
+  .dark .marker-dark { fill: #E8E0D4; }
+  .dark .marker-accent { fill: #D4A843; }
+  .dark .marker-olive { fill: #8B9A6B; }
+  .dark .marker-sienna { fill: #C97A50; }
+  .dark .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
+  .dark .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
+  .dark .kernel-fill { fill: #D4A843; }
+  .dark .p-fill { fill: #8B9A6B; }
+  .dark .n-fill { fill: #C97A50; }
+</style>
+<defs>
+  <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-dark" fill="#2C2418"/>
+  </marker>
+  <marker id="arr-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-accent" fill="#B8860B"/>
+  </marker>
+  <marker id="arr-olive" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-olive" fill="#6B705C"/>
+  </marker>
+  <marker id="arr-sienna" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-sienna" fill="#A0522D"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+    <feDropShadow dx="1" dy="1" stdDeviation="1.5" flood-opacity="0.1"/>
+  </filter>
+</defs>
+<text x="280" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Successors in the sum G₁ + G₂</text>
+<circle cx="280" cy="80" r="26" class="accent-bg node-stroke" fill="#B8860B" stroke="#2C2418" stroke-width="2" fill-opacity="0.1"/>
+<text x="280" y="85" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">(y₁, y₂)</text>
+<line x1="258.4" y1="94.4" x2="120.0" y2="186.7" class="accent-stroke" stroke="#B8860B" stroke-width="2" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr-accent)"/>
+<circle cx="100" cy="200" r="22" class="node-fill accent-stroke" fill="#FAF7F2" stroke="#B8860B" stroke-width="1.8" fill-opacity="1"/>
+<text x="100" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">(z₁, y₂)</text>
+<line x1="267.7" y1="102.9" x2="221.4" y2="188.9" class="accent-stroke" stroke="#B8860B" stroke-width="2" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr-accent)"/>
+<circle cx="210" cy="210" r="22" class="node-fill accent-stroke" fill="#FAF7F2" stroke="#B8860B" stroke-width="1.8" fill-opacity="1"/>
+<text x="210" y="215" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">(z'₁, y₂)</text>
+<text x="80" y="150" text-anchor="start" font-family="Georgia, serif" font-size="13" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">move in G₁</text>
+<line x1="301.6" y1="94.4" x2="440.0" y2="186.7" class="olive-stroke" stroke="#6B705C" stroke-width="2" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr-olive)"/>
+<circle cx="460" cy="200" r="22" class="node-fill olive-stroke" fill="#FAF7F2" stroke="#6B705C" stroke-width="1.8" fill-opacity="1"/>
+<text x="460" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">(y₁, z₂)</text>
+<line x1="292.3" y1="102.9" x2="338.6" y2="188.9" class="olive-stroke" stroke="#6B705C" stroke-width="2" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr-olive)"/>
+<circle cx="350" cy="210" r="22" class="node-fill olive-stroke" fill="#FAF7F2" stroke="#6B705C" stroke-width="1.8" fill-opacity="1"/>
+<text x="350" y="215" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">(y₁, z'₂)</text>
+<text x="475" y="150" text-anchor="start" font-family="Georgia, serif" font-size="13" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">move in G₂</text>
+<text x="280" y="265" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="normal" font-style="italic">Succ(y₁, y₂) = { (z₁, y₂) : z₁ ∈ Succ(y₁) } ∪ { (y₁, z₂) : z₂ ∈ Succ(y₂) }</text>
 </svg>

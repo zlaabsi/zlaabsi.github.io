@@ -1,0 +1,4 @@
+<figure class="anim-svg">
+  {{ readFile (printf "static/%s" (.Get "src")) | safeHTML }}
+  {{ with .Get "caption" }}<figcaption>{{ . }}</figcaption>{{ end }}
+</figure>

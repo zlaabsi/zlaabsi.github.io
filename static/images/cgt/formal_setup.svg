@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" viewBox="0 0 620 340">
+<style>
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #1C1917; }
+    .txt { fill: #E8E0D4; }
+    .txt-sec { fill: #8B9A6B; }
+    .accent { fill: #D4A843; }
+    .accent-stroke { stroke: #D4A843; }
+    .sienna { fill: #C97A50; }
+    .sienna-stroke { stroke: #C97A50; }
+    .olive { fill: #8B9A6B; }
+    .olive-stroke { stroke: #8B9A6B; }
+    .border-stroke { stroke: #44403C; }
+    .line { stroke: #E8E0D4; }
+    .line-light { stroke: #44403C; }
+    .node-fill { fill: #1C1917; }
+    .node-stroke { stroke: #E8E0D4; }
+    .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
+    .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
+    .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
+    .marker-dark { fill: #E8E0D4; }
+    .marker-accent { fill: #D4A843; }
+    .marker-olive { fill: #8B9A6B; }
+    .marker-sienna { fill: #C97A50; }
+    .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
+    .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
+    .kernel-fill { fill: #D4A843; }
+    .p-fill { fill: #8B9A6B; }
+    .n-fill { fill: #C97A50; }
+  }
+  .dark .bg { fill: #1C1917; }
+  .dark .txt { fill: #E8E0D4; }
+  .dark .txt-sec { fill: #8B9A6B; }
+  .dark .accent { fill: #D4A843; }
+  .dark .accent-stroke { stroke: #D4A843; }
+  .dark .sienna { fill: #C97A50; }
+  .dark .sienna-stroke { stroke: #C97A50; }
+  .dark .olive { fill: #8B9A6B; }
+  .dark .olive-stroke { stroke: #8B9A6B; }
+  .dark .border-stroke { stroke: #44403C; }
+  .dark .line { stroke: #E8E0D4; }
+  .dark .line-light { stroke: #44403C; }
+  .dark .node-fill { fill: #1C1917; }
+  .dark .node-stroke { stroke: #E8E0D4; }
+  .dark .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
+  .dark .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
+  .dark .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
+  .dark .marker-dark { fill: #E8E0D4; }
+  .dark .marker-accent { fill: #D4A843; }
+  .dark .marker-olive { fill: #8B9A6B; }
+  .dark .marker-sienna { fill: #C97A50; }
+  .dark .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
+  .dark .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
+  .dark .kernel-fill { fill: #D4A843; }
+  .dark .p-fill { fill: #8B9A6B; }
+  .dark .n-fill { fill: #C97A50; }
+</style>
+<defs>
+  <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-dark" fill="#2C2418"/>
+  </marker>
+  <marker id="arr-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-accent" fill="#B8860B"/>
+  </marker>
+  <marker id="arr-olive" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-olive" fill="#6B705C"/>
+  </marker>
+  <marker id="arr-sienna" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" class="marker-sienna" fill="#A0522D"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+    <feDropShadow dx="1" dy="1" stdDeviation="1.5" flood-opacity="0.1"/>
+  </filter>
+</defs>
+<text x="310" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Recursive classification of positions</text>
+<line x1="292.9" y1="80.4" x2="188.8" y2="143.6" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="327.1" y1="80.4" x2="431.2" y2="143.6" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="157.7" y1="170.8" x2="113.5" y2="227.6" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="182.3" y1="170.8" x2="226.5" y2="227.6" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="450.0" y1="175.0" x2="450.0" y2="223.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="100.0" y1="265.0" x2="100.0" y2="298.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="240.0" y1="265.0" x2="240.0" y2="298.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<circle cx="310" cy="70" r="20" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="310" y="75" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">A</text>
+<text x="336" y="75" text-anchor="start" font-family="Georgia, serif" font-size="11" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
+<circle cx="170" cy="155" r="20" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="170" y="160" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">B</text>
+<text x="196" y="160" text-anchor="start" font-family="Georgia, serif" font-size="11" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P</text>
+<circle cx="450" cy="155" r="20" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="450" y="160" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">C</text>
+<text x="476" y="160" text-anchor="start" font-family="Georgia, serif" font-size="11" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
+<circle cx="100" cy="245" r="20" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="100" y="250" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">D</text>
+<text x="126" y="250" text-anchor="start" font-family="Georgia, serif" font-size="11" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
+<circle cx="240" cy="245" r="20" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="240" y="250" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">E</text>
+<text x="266" y="250" text-anchor="start" font-family="Georgia, serif" font-size="11" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
+<circle cx="450" cy="245" r="20" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="450" y="250" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">F</text>
+<text x="476" y="250" text-anchor="start" font-family="Georgia, serif" font-size="11" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P (term.)</text>
+<circle cx="100" cy="320" r="20" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="100" y="325" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">G</text>
+<text x="126" y="325" text-anchor="start" font-family="Georgia, serif" font-size="11" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P (term.)</text>
+<circle cx="240" cy="320" r="20" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2.5" fill-opacity="0.2"/>
+<text x="240" y="325" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">H</text>
+<text x="266" y="325" text-anchor="start" font-family="Georgia, serif" font-size="11" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P (term.)</text>
+<text x="510" y="70" text-anchor="start" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Rules:</text>
+<text x="510" y="90" text-anchor="start" font-family="Georgia, serif" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">Terminal ⇒ 𝒫 (no move)</text>
+<text x="510" y="108" text-anchor="start" font-family="Georgia, serif" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">∃ child ∈ 𝒫 ⇒ 𝒩</text>
+<text x="510" y="126" text-anchor="start" font-family="Georgia, serif" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">∀ children ∈ 𝒩 ⇒ 𝒫</text>
+<g transform="translate(50, 330)">
+<circle cx="0" cy="0" r="8" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="1.5" fill-opacity="0.2"/>
+<text x="14" y="4" text-anchor="start" font-family="Georgia, serif" font-size="11" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">𝒫-position (previous player wins)</text>
+<circle cx="280" cy="0" r="8" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="1.5" fill-opacity="0.2"/>
+<text x="294" y="4" text-anchor="start" font-family="Georgia, serif" font-size="11" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">𝒩-position (next player wins)</text>
+</g>
+</svg>

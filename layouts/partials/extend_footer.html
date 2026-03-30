@@ -1,3 +1,21 @@
+<!-- ASCII background video (rotating) -->
+<video class="ascii-bg-video" autoplay muted playsinline>
+  <source src="/videos/ascii-bg.mp4" type="video/mp4">
+</video>
+<script>
+(function () {
+  var sources = ['/videos/ascii-bg.mp4', '/videos/ascii-bg-2.mp4', '/videos/ascii-bg-3.mp4'];
+  var current = 0;
+  var video = document.querySelector('.ascii-bg-video');
+  if (!video) return;
+  video.addEventListener('ended', function () {
+    current = (current + 1) % sources.length;
+    video.src = sources[current];
+    video.play();
+  });
+})();
+</script>
+
 <!-- Mermaid -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {

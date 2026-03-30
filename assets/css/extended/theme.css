@@ -254,6 +254,34 @@ blockquote {
   min-width: 0;
 }
 
+/* ===== ASCII video background ===== */
+.ascii-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+  /* Invert: black bg → white bg, white chars → dark chars */
+  filter: invert(1);
+  opacity: 0.30;
+}
+
+/* Dark mode: no invert, native black bg + white chars */
+[data-theme="dark"] .ascii-bg-video {
+  filter: none;
+  opacity: 0.30;
+}
+
+/* Disable on small screens to save battery */
+@media (max-width: 768px) {
+  .ascii-bg-video {
+    display: none;
+  }
+}
+
 /* ===== SVG dark mode ===== */
 /* <img> SVGs can't see [data-theme] — use filter to invert for dark mode.
    Inlined SVGs (via shortcode) use [data-theme="dark"] CSS selectors instead. */

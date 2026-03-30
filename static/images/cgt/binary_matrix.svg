@@ -1,88 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="680" height="300" viewBox="0 0 680 300">
-  <!-- Binary decomposition of Nim position (1, 3, 5) -->
-
-  <!-- Left side: decimal column vector -->
-  <g transform="translate(60, 50)">
-    <text x="0" y="0" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold" text-anchor="middle">Decimal</text>
-    <!-- Bracket -->
-    <text x="-25" y="57" font-family="Georgia, serif" font-size="60" fill="#2C2418" font-weight="100">⎡</text>
-    <text x="-25" y="97" font-family="Georgia, serif" font-size="60" fill="#2C2418" font-weight="100">⎢</text>
-    <text x="-25" y="137" font-family="Georgia, serif" font-size="60" fill="#2C2418" font-weight="100">⎣</text>
-    <text x="25" y="57" font-family="Georgia, serif" font-size="60" fill="#2C2418" font-weight="100">⎤</text>
-    <text x="25" y="97" font-family="Georgia, serif" font-size="60" fill="#2C2418" font-weight="100">⎥</text>
-    <text x="25" y="137" font-family="Georgia, serif" font-size="60" fill="#2C2418" font-weight="100">⎦</text>
-    <text x="0" y="60" font-family="Georgia, serif" font-size="22" fill="#2C2418" text-anchor="middle">1</text>
-    <text x="0" y="100" font-family="Georgia, serif" font-size="22" fill="#2C2418" text-anchor="middle">3</text>
-    <text x="0" y="140" font-family="Georgia, serif" font-size="22" fill="#2C2418" text-anchor="middle">5</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="240" viewBox="0 0 500 240">
+  <g transform="translate(120, 20)">
+    <text x="30" y="18" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6B705C" font-weight="bold">2²</text>
+    <text x="90" y="18" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6B705C" font-weight="bold">2¹</text>
+    <text x="150" y="18" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6B705C" font-weight="bold">2⁰</text>
+    <line x1="0" y1="28" x2="180" y2="28" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <line x1="0" y1="68" x2="180" y2="68" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <line x1="0" y1="108" x2="180" y2="108" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <line x1="0" y1="148" x2="180" y2="148" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <line x1="0" y1="28" x2="0" y2="148" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <line x1="60" y1="28" x2="60" y2="148" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <line x1="120" y1="28" x2="120" y2="148" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <line x1="180" y1="28" x2="180" y2="148" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3"/>
+    <text x="30" y="54" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#2C2418">0</text>
+    <text x="90" y="54" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#2C2418">0</text>
+    <text x="150" y="54" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="195" y="54" text-anchor="start" font-family="Georgia, serif" font-size="13" fill="#6B705C">← 1</text>
+    <text x="30" y="94" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#2C2418">0</text>
+    <text x="90" y="94" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="150" y="94" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="195" y="94" text-anchor="start" font-family="Georgia, serif" font-size="13" fill="#6B705C">← 3</text>
+    <text x="30" y="134" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="90" y="134" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#2C2418">0</text>
+    <text x="150" y="134" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="195" y="134" text-anchor="start" font-family="Georgia, serif" font-size="13" fill="#6B705C">← 5</text>
+    <line x1="0" y1="148" x2="180" y2="148" stroke="#2C2418" stroke-width="2"/>
+    <rect x="0" y="150" width="180" height="38" fill="#B8860B" fill-opacity="0.12" rx="3"/>
+    <text x="-35" y="174" text-anchor="end" font-family="Georgia, serif" font-size="13" fill="#B8860B" font-weight="bold">XOR</text>
+    <text x="30" y="174" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="90" y="174" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="150" y="174" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#B8860B" font-weight="bold">1</text>
+    <text x="195" y="174" text-anchor="start" font-family="Georgia, serif" font-size="13" fill="#B8860B" font-weight="bold">= 7</text>
   </g>
-
-  <!-- Equals sign -->
-  <text x="135" y="148" font-family="Georgia, serif" font-size="26" fill="#2C2418" text-anchor="middle">=</text>
-
-  <!-- Right side: Binary grid / table -->
-  <g transform="translate(220, 30)">
-    <!-- Column headers -->
-    <text x="0" y="0" font-family="Georgia, serif" font-size="15" fill="#6B705C" text-anchor="middle" font-weight="bold">2²</text>
-    <text x="70" y="0" font-family="Georgia, serif" font-size="15" fill="#6B705C" text-anchor="middle" font-weight="bold">2¹</text>
-    <text x="140" y="0" font-family="Georgia, serif" font-size="15" fill="#6B705C" text-anchor="middle" font-weight="bold">2⁰</text>
-
-    <!-- Row labels on the right -->
-    <text x="195" y="45" font-family="Georgia, serif" font-size="14" fill="#6B705C" text-anchor="start">← 1</text>
-    <text x="195" y="90" font-family="Georgia, serif" font-size="14" fill="#6B705C" text-anchor="start">← 3</text>
-    <text x="195" y="135" font-family="Georgia, serif" font-size="14" fill="#6B705C" text-anchor="start">← 5</text>
-
-    <!-- Grid lines -->
-    <!-- Horizontal lines -->
-    <line x1="-35" y1="12" x2="175" y2="12" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="-35" y1="57" x2="175" y2="57" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="-35" y1="102" x2="175" y2="102" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="-35" y1="147" x2="175" y2="147" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <!-- Vertical lines -->
-    <line x1="-35" y1="12" x2="-35" y2="147" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="35" y1="12" x2="35" y2="147" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="105" y1="12" x2="105" y2="147" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="175" y1="12" x2="175" y2="147" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-
-    <!-- Row 1: 1 = 0 0 1 -->
-    <text x="0" y="42" font-family="Georgia, serif" font-size="22" fill="#2C2418" text-anchor="middle">0</text>
-    <text x="70" y="42" font-family="Georgia, serif" font-size="22" fill="#2C2418" text-anchor="middle">0</text>
-    <text x="140" y="42" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-
-    <!-- Row 2: 3 = 0 1 1 -->
-    <text x="0" y="87" font-family="Georgia, serif" font-size="22" fill="#2C2418" text-anchor="middle">0</text>
-    <text x="70" y="87" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-    <text x="140" y="87" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-
-    <!-- Row 3: 5 = 1 0 1 -->
-    <text x="0" y="132" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-    <text x="70" y="132" font-family="Georgia, serif" font-size="22" fill="#2C2418" text-anchor="middle">0</text>
-    <text x="140" y="132" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-
-    <!-- Separator line before XOR row -->
-    <line x1="-35" y1="152" x2="175" y2="152" stroke="#2C2418" stroke-width="2"/>
-
-    <!-- XOR result row with background highlight -->
-    <rect x="-35" y="153" width="210" height="42" fill="#B8860B" fill-opacity="0.15" rx="3"/>
-    <line x1="-35" y1="195" x2="175" y2="195" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="-35" y1="153" x2="-35" y2="195" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="35" y1="153" x2="35" y2="195" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="105" y1="153" x2="105" y2="195" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-    <line x1="175" y1="153" x2="175" y2="195" stroke="#2C2418" stroke-width="1" stroke-opacity="0.3"/>
-
-    <!-- XOR label -->
-    <text x="-60" y="181" font-family="Georgia, serif" font-size="14" fill="#B8860B" text-anchor="end" font-weight="bold">XOR</text>
-
-    <!-- XOR values: 1 XOR 3 XOR 5 = 001 XOR 011 XOR 101 = 111 = 7 -->
-    <text x="0" y="181" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-    <text x="70" y="181" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-    <text x="140" y="181" font-family="Georgia, serif" font-size="22" fill="#B8860B" text-anchor="middle" font-weight="bold">1</text>
-
-    <!-- XOR result annotation -->
-    <text x="195" y="181" font-family="Georgia, serif" font-size="14" fill="#B8860B" text-anchor="start" font-weight="bold">= 7</text>
-  </g>
-
-  <!-- Bottom annotation -->
-  <text x="340" y="270" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-style="italic">
-    n₁ ⊕ n₂ ⊕ n₃ = 1 ⊕ 3 ⊕ 5 = 7 ≠ 0  ⟹  position N (premier joueur gagne)
+  <text x="250" y="230" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#2C2418" font-style="italic">
+    n₁ ⊕ n₂ ⊕ n₃ = 1 ⊕ 3 ⊕ 5 = 7 ≠ 0 ⇒ N-position (first player wins)
   </text>
 </svg>

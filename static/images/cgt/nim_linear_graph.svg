@@ -1,107 +1,71 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="700" height="250" viewBox="0 0 700 250">
-  <!-- Nim linear graph: 9 -> 8 -> ... -> 0 with kernel {0, 4, 8} -->
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="210" viewBox="0 0 700 210">
   <defs>
-    <marker id="arrow-nl" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto" markerUnits="strokeWidth">
+    <marker id="n" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
       <polygon points="0 0, 8 3, 0 6" fill="#2C2418"/>
     </marker>
-    <marker id="arrow-nl-accent" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto" markerUnits="strokeWidth">
-      <polygon points="0 0, 8 3, 0 6" fill="#B8860B" fill-opacity="0.5"/>
+    <marker id="n-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#B8860B"/>
+    </marker>
+    <marker id="n-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#6B705C"/>
+    </marker>
+    <marker id="n-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#A0522D"/>
     </marker>
   </defs>
-
-  <!-- Title -->
-  <text x="350" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold">
-    Graphe linéaire de Nim (retrait de 1, 2 ou 3 jetons)
-  </text>
-
-  <!-- Nodes arranged left to right: 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 -->
-  <!-- Spacing: 68px apart, starting at x=45 -->
-
-  <!-- Node 9 -->
-  <circle cx="45" cy="100" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
-  <text x="45" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418">9</text>
-
-  <!-- Node 8 (kernel) -->
-  <circle cx="113" cy="100" r="20" fill="#B8860B" fill-opacity="0.25" stroke="#B8860B" stroke-width="2.2"/>
-  <text x="113" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold">8</text>
-
-  <!-- Node 7 -->
-  <circle cx="181" cy="100" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
-  <text x="181" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418">7</text>
-
-  <!-- Node 6 -->
-  <circle cx="249" cy="100" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
-  <text x="249" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418">6</text>
-
-  <!-- Node 5 -->
-  <circle cx="317" cy="100" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
-  <text x="317" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418">5</text>
-
-  <!-- Node 4 (kernel) -->
-  <circle cx="385" cy="100" r="20" fill="#B8860B" fill-opacity="0.25" stroke="#B8860B" stroke-width="2.2"/>
-  <text x="385" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold">4</text>
-
-  <!-- Node 3 -->
-  <circle cx="453" cy="100" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
-  <text x="453" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418">3</text>
-
-  <!-- Node 2 -->
-  <circle cx="521" cy="100" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
-  <text x="521" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418">2</text>
-
-  <!-- Node 1 -->
-  <circle cx="589" cy="100" r="20" fill="white" stroke="#2C2418" stroke-width="1.8"/>
-  <text x="589" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418">1</text>
-
-  <!-- Node 0 (kernel) -->
-  <circle cx="657" cy="100" r="20" fill="#B8860B" fill-opacity="0.25" stroke="#B8860B" stroke-width="2.2"/>
-  <text x="657" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#2C2418" font-weight="bold">0</text>
-
-  <!-- Direct successor arrows (remove 1): straight line, each node -> next -->
-  <line x1="65" y1="100" x2="93" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="133" y1="100" x2="161" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="201" y1="100" x2="229" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="269" y1="100" x2="297" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="337" y1="100" x2="365" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="405" y1="100" x2="433" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="473" y1="100" x2="501" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="541" y1="100" x2="569" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-  <line x1="609" y1="100" x2="637" y2="100" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-
-  <!-- Remove 2: curved arcs skipping one node -->
-  <path d="M 65,88 Q 113,52 161,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-  <path d="M 133,88 Q 181,52 229,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-  <path d="M 201,88 Q 249,52 297,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-  <path d="M 269,88 Q 317,52 365,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-  <path d="M 337,88 Q 385,52 433,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-  <path d="M 405,88 Q 453,52 501,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-  <path d="M 473,88 Q 521,52 569,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-  <path d="M 541,88 Q 589,52 637,88" fill="none" stroke="#6B705C" stroke-width="1.2" marker-end="url(#arrow-nl)" stroke-opacity="0.6"/>
-
-  <!-- Remove 3: curved arcs skipping two nodes -->
-  <path d="M 65,85 Q 147,35 229,85" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#arrow-nl)" stroke-opacity="0.35"/>
-  <path d="M 133,85 Q 215,35 297,85" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#arrow-nl)" stroke-opacity="0.35"/>
-  <path d="M 201,85 Q 283,35 365,85" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#arrow-nl)" stroke-opacity="0.35"/>
-  <path d="M 269,85 Q 351,35 433,85" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#arrow-nl)" stroke-opacity="0.35"/>
-  <path d="M 337,85 Q 419,35 501,85" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#arrow-nl)" stroke-opacity="0.35"/>
-  <path d="M 405,85 Q 487,35 569,85" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#arrow-nl)" stroke-opacity="0.35"/>
-  <path d="M 473,85 Q 555,35 637,85" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#arrow-nl)" stroke-opacity="0.35"/>
-
-  <!-- Kernel label -->
-  <text x="350" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#B8860B" font-weight="bold">
-    K = {0, 4, 8}
-  </text>
-  <text x="350" y="198" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#6B705C" font-style="italic">
-    Positions perdantes (P-positions) : multiples de 4
-  </text>
-
-  <!-- Legend -->
-  <g transform="translate(160, 225)">
-    <line x1="0" y1="0" x2="25" y2="0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arrow-nl)"/>
-    <text x="32" y="4" font-family="Georgia, serif" font-size="11" fill="#2C2418">retirer 1</text>
-    <line x1="100" y1="0" x2="125" y2="0" stroke="#6B705C" stroke-width="1.2" stroke-opacity="0.6"/>
-    <text x="132" y="4" font-family="Georgia, serif" font-size="11" fill="#6B705C">retirer 2</text>
-    <line x1="200" y1="0" x2="225" y2="0" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.35"/>
-    <text x="232" y="4" font-family="Georgia, serif" font-size="11" fill="#6B705C" fill-opacity="0.6">retirer 3</text>
+  <text x="350" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">Restricted Nim (remove 1, 2, or 3 tokens)</text>
+  <line x1="58.0" y1="85.0" x2="86.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 56.6,78.1 Q 108.0,57.0 155.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <path d="M 56.6,78.1 Q 142.0,43.0 223.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
+  <line x1="126.0" y1="85.0" x2="154.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 124.6,78.1 Q 176.0,57.0 223.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <path d="M 124.6,78.1 Q 210.0,43.0 291.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
+  <line x1="194.0" y1="85.0" x2="222.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 192.6,78.1 Q 244.0,57.0 291.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <path d="M 192.6,78.1 Q 278.0,43.0 359.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
+  <line x1="262.0" y1="85.0" x2="290.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 260.6,78.1 Q 312.0,57.0 359.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <path d="M 260.6,78.1 Q 346.0,43.0 427.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
+  <line x1="330.0" y1="85.0" x2="358.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 328.6,78.1 Q 380.0,57.0 427.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <path d="M 328.6,78.1 Q 414.0,43.0 495.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
+  <line x1="398.0" y1="85.0" x2="426.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 396.6,78.1 Q 448.0,57.0 495.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <path d="M 396.6,78.1 Q 482.0,43.0 563.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
+  <line x1="466.0" y1="85.0" x2="494.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 464.6,78.1 Q 516.0,57.0 563.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <path d="M 464.6,78.1 Q 550.0,43.0 631.7,76.6" fill="none" stroke="#6B705C" stroke-width="0.8" marker-end="url(#n)" stroke-opacity="0.3"/>
+  <line x1="534.0" y1="85.0" x2="562.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <path d="M 532.6,78.1 Q 584.0,57.0 631.7,76.6" fill="none" stroke="#6B705C" stroke-width="1.0" marker-end="url(#n)" stroke-opacity="0.5"/>
+  <line x1="602.0" y1="85.0" x2="630.0" y2="85.0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+  <circle cx="652" cy="85" r="18" fill="#B8860B" stroke="#B8860B" stroke-width="2"/>
+    <text x="652" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">0</text>
+  <circle cx="584" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
+    <text x="584" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">1</text>
+  <circle cx="516" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
+    <text x="516" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">2</text>
+  <circle cx="448" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
+    <text x="448" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">3</text>
+  <circle cx="380" cy="85" r="18" fill="#B8860B" stroke="#B8860B" stroke-width="2"/>
+    <text x="380" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">4</text>
+  <circle cx="312" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
+    <text x="312" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">5</text>
+  <circle cx="244" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
+    <text x="244" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">6</text>
+  <circle cx="176" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
+    <text x="176" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">7</text>
+  <circle cx="108" cy="85" r="18" fill="#B8860B" stroke="#B8860B" stroke-width="2"/>
+    <text x="108" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418" font-weight="bold">8</text>
+  <circle cx="40" cy="85" r="18" fill="white" stroke="#2C2418" stroke-width="1.5"/>
+    <text x="40" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#2C2418">9</text>
+  <text x="350" y="145" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#B8860B" font-weight="bold">K = {0, 4, 8}</text>
+  <text x="350" y="165" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B705C" font-style="italic">P-positions (losing): multiples of 4</text>
+  <g transform="translate(170, 195)">
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#2C2418" stroke-width="1.5" marker-end="url(#n)"/>
+    <text x="27" y="4" font-family="Georgia, serif" font-size="10" fill="#2C2418">remove 1</text>
+    <line x1="100" y1="0" x2="120" y2="0" stroke="#6B705C" stroke-width="1.0" stroke-opacity="0.5"/>
+    <text x="127" y="4" font-family="Georgia, serif" font-size="10" fill="#6B705C">remove 2</text>
+    <line x1="200" y1="0" x2="220" y2="0" stroke="#6B705C" stroke-width="0.8" stroke-opacity="0.3"/>
+    <text x="227" y="4" font-family="Georgia, serif" font-size="10" fill="#6B705C" fill-opacity="0.7">remove 3</text>
   </g>
 </svg>

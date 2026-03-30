@@ -14,7 +14,7 @@ ShowReadingTime: true
 ShowCodeCopyButtons: true
 ---
 
-> *This post is adapted from academic notes I wrote in 2020 during my BSc in Mathematics at the National University Institute Jean-François Champollion, supervised by Alain Berthomieu. The content is not recent — it reflects what I was studying six years ago. I'm publishing it here because the results are timeless, and I think the presentation holds up.*
+> *This post is adapted from academic notes I wrote in 2020 during the third year of my undergraduate degree in Mathematics at the National University Institute Jean-François Champollion, supervised by Alain Berthomieu. The content is not recent — it reflects what I was studying six years ago. I'm publishing it here because the results are timeless, and I think the presentation holds up.*
 
 ## Introduction
 

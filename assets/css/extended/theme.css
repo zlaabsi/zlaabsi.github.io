@@ -16,17 +16,18 @@
 }
 
 /* ===== Dark Mode ===== */
-.dark {
-  --theme-bg: #1C1917;
-  --theme-bg-secondary: #292524;
-  --theme-text: #E8E0D4;
-  --theme-text-secondary: #A8998A;
+/* PaperMod uses data-theme="dark" on <html>, NOT .dark class */
+:root[data-theme="dark"] {
+  --theme-bg: #111111;
+  --theme-bg-secondary: #1a1a1a;
+  --theme-text: #f0f0f0;
+  --theme-text-secondary: #b0b0b0;
   --theme-accent: #D4A843;
   --theme-accent-hover: #E0B84E;
   --theme-accent-secondary: #8B9A6B;
-  --theme-border: #44403C;
-  --theme-code-bg: #292524;
-  --theme-code-border: #44403C;
+  --theme-border: #2a2a2a;
+  --theme-code-bg: #1a1a1a;
+  --theme-code-border: #2a2a2a;
 }
 
 /* ===== Override PaperMod CSS variables ===== */
@@ -39,25 +40,28 @@
   --footer-height: 60px;
   --radius: 6px;
 
-  --theme: var(--theme-bg);
-  --entry: var(--theme-bg-secondary);
-  --primary: var(--theme-text);
-  --secondary: var(--theme-text-secondary);
-  --tertiary: var(--theme-border);
-  --content: var(--theme-text);
-  --code-bg: var(--theme-code-bg);
-  --border: var(--theme-border);
+  --theme: #FAF7F2;
+  --entry: #F0EBE3;
+  --primary: #2C2418;
+  --secondary: #5C4F3D;
+  --tertiary: #D4C9B8;
+  --content: #2C2418;
+  --code-bg: #F0EBE3;
+  --border: #D4C9B8;
 }
 
+/* Must match PaperMod's selector specificity: :root[data-theme="dark"] */
+:root[data-theme="dark"],
 .dark {
-  --theme: var(--theme-bg);
-  --entry: var(--theme-bg-secondary);
-  --primary: var(--theme-text);
-  --secondary: var(--theme-text-secondary);
-  --tertiary: var(--theme-border);
-  --content: var(--theme-text);
-  --code-bg: var(--theme-code-bg);
-  --border: var(--theme-border);
+  --theme: #111111;
+  --entry: #1a1a1a;
+  --primary: #f0f0f0;
+  --secondary: #b0b0b0;
+  --tertiary: #2a2a2a;
+  --content: #f0f0f0;
+  --code-bg: #1a1a1a;
+  --code-block-bg: #1a1a1a;
+  --border: #2a2a2a;
 }
 
 /* ===== Typography ===== */
@@ -229,10 +233,24 @@ blockquote {
   font-size: 0.9rem;
 }
 
+/* ===== Center all images ===== */
+.post-content img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===== Center tables ===== */
+.post-content table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ===== SVG dark mode ===== */
-/* SVGs handle their own dark mode via embedded CSS — no filter needed */
-.dark .post-content img[src$=".svg"] {
-  filter: none;
+/* <img> SVGs can't see [data-theme] — use filter to invert for dark mode.
+   Inlined SVGs (via shortcode) use [data-theme="dark"] CSS selectors instead. */
+[data-theme="dark"] .post-content img[src$=".svg"] {
+  filter: invert(0.88) hue-rotate(180deg);
 }
 
 /* ===== Animated SVG shortcode ===== */

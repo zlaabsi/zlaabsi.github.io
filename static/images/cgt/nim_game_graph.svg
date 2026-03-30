@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="800" viewBox="0 0 820 800">
+<style>
+  .txt { fill: #1a1510; } .txt-dim { fill: #b0a898; }
+  .edge { stroke: #c0b8a8; } .marker-e { fill: #c0b8a8; }
+  .node-bg { fill: #FAF7F2; }
+  .p-bg { fill: #6B705C; fill-opacity: 0.15; } .p-st { stroke: #6B705C; }
+  .n-bg { fill: #A0522D; fill-opacity: 0.15; } .n-st { stroke: #A0522D; }
+  .p-lbl { fill: #4A5A40; } .n-lbl { fill: #7B3020; }
+  .h1-fill { fill: #A0522D; } .h2-fill { fill: #B8860B; } .h3-fill { fill: #6B705C; }
+  .h1-txt { fill: #8B2000; } .h2-txt { fill: #7A5A00; } .h3-txt { fill: #3A4A30; }
+
+  [data-theme="dark"] .txt { fill: #e8e0d4; } [data-theme="dark"] .txt-dim { fill: #555; }
+  [data-theme="dark"] .edge { stroke: #3a3a3a; } [data-theme="dark"] .marker-e { fill: #3a3a3a; }
+  [data-theme="dark"] .node-bg { fill: #111111; }
+  [data-theme="dark"] .p-bg { fill: #8B9A6B; fill-opacity: 0.2; } [data-theme="dark"] .p-st { stroke: #8B9A6B; }
+  [data-theme="dark"] .n-bg { fill: #C97A50; fill-opacity: 0.2; } [data-theme="dark"] .n-st { stroke: #C97A50; }
+  [data-theme="dark"] .p-lbl { fill: #8B9A6B; } [data-theme="dark"] .n-lbl { fill: #C97A50; }
+  [data-theme="dark"] .h1-fill { fill: #C97A50; } [data-theme="dark"] .h2-fill { fill: #D4A843; } [data-theme="dark"] .h3-fill { fill: #8B9A6B; }
+  [data-theme="dark"] .h1-txt { fill: #D49070; } [data-theme="dark"] .h2-txt { fill: #E0C060; } [data-theme="dark"] .h3-txt { fill: #A0B080; }
+</style>
+<defs>
+  <marker id="ae" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0,8 3,0 6" class="marker-e" fill="#c0b8a8"/>
+  </marker>
+</defs>
+<text x="410" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#1a1510" font-weight="bold">Game graph of Nim(1,1,3) — positions as heap vectors</text>
+<line x1="386.6" y1="98.7" x2="163.5" y2="243.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="400.0" y1="106.0" x2="400.0" y2="233.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="413.5" y1="98.6" x2="641.4" y2="243.2" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="407.3" y1="104.2" x2="559.9" y2="400.4" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="143.5" y1="270.9" x2="117.0" y2="558.1" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="152.3" y1="269.2" x2="219.9" y2="400.4" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="159.9" y1="260.8" x2="549.5" y2="412.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="157.9" y1="264.5" x2="567.3" y2="566.9" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="388.5" y1="266.1" x2="245.8" y2="404.7" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="416.0" y1="255.0" x2="638.0" y2="255.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="411.5" y1="266.1" x2="554.2" y2="404.7" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="652.3" y1="269.0" x2="580.5" y2="400.7" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="239.6" y1="432.8" x2="336.8" y2="562.4" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="246.0" y1="420.0" x2="548.0" y2="420.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="244.6" y1="426.6" x2="564.9" y2="571.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="571.5" y1="435.9" x2="582.9" y2="558.1" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="131.0" y1="580.0" x2="328.0" y2="580.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="131.0" y1="580.0" x2="563.0" y2="580.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="128.5" y1="588.6" x2="331.5" y2="718.2" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="366.0" y1="580.0" x2="563.0" y2="580.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="350.0" y1="596.0" x2="350.0" y2="708.0" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<line x1="571.5" y1="588.6" x2="368.5" y2="718.2" class="edge" stroke="#c0b8a8" stroke-width="1.2" stroke-linecap="round" marker-end="url(#ae)"/>
+<circle cx="400" cy="90" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="400" cy="90" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="400" y="95" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="400" y="66" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="h1-txt" fill="#8B2000">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h2-txt" fill="#7A5A00">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h3-txt" fill="#3A4A30">3</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<rect x="335.3" y="80.0" width="11" height="6" class="h1-fill" fill="#A0522D" rx="1.5" opacity="0.9"/>
+<rect x="349.3" y="80.0" width="11" height="6" class="h2-fill" fill="#B8860B" rx="1.5" opacity="0.9"/>
+<rect x="363.3" y="80.0" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="363.3" y="72.5" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="363.3" y="65.0" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<circle cx="145" cy="255" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="145" cy="255" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="145" y="260" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="145" y="231" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h2-txt" fill="#7A5A00">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h3-txt" fill="#3A4A30">3</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<text x="145" y="217" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510" font-style="italic">= (1,3)</text>
+<rect x="92.4" y="265.3" width="11" height="6" class="h2-fill" fill="#B8860B" rx="1.5" opacity="0.9"/>
+<rect x="106.4" y="265.3" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="106.4" y="257.8" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="106.4" y="250.3" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<circle cx="400" cy="255" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="400" cy="255" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="400" y="260" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="400" y="231" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="h1-txt" fill="#8B2000">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h2-txt" fill="#7A5A00">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h3-txt" fill="#3A4A30">2</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<rect x="334.1" y="245.8" width="11" height="6" class="h1-fill" fill="#A0522D" rx="1.5" opacity="0.9"/>
+<rect x="348.1" y="245.8" width="11" height="6" class="h2-fill" fill="#B8860B" rx="1.5" opacity="0.9"/>
+<rect x="362.1" y="245.8" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="362.1" y="238.3" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<circle cx="660" cy="255" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="660" cy="255" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="660" y="260" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="660" y="231" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="h1-txt" fill="#8B2000">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h2-txt" fill="#7A5A00">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h3-txt" fill="#3A4A30">1</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<rect x="683.5" y="272.2" width="11" height="6" class="h1-fill" fill="#A0522D" rx="1.5" opacity="0.9"/>
+<rect x="697.5" y="272.2" width="11" height="6" class="h2-fill" fill="#B8860B" rx="1.5" opacity="0.9"/>
+<rect x="711.5" y="272.2" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<circle cx="230" cy="420" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="230" cy="420" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="230" y="425" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="230" y="396" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h2-txt" fill="#7A5A00">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h3-txt" fill="#3A4A30">2</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<text x="230" y="382" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510" font-style="italic">= (1,2)</text>
+<rect x="183.2" y="442.2" width="11" height="6" class="h2-fill" fill="#B8860B" rx="1.5" opacity="0.9"/>
+<rect x="197.2" y="442.2" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="197.2" y="434.7" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<circle cx="570" cy="420" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="570" cy="420" r="16" class="p-bg p-st" fill="#4A5A40" stroke="#4A5A40" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="570" y="425" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="p-lbl" fill="#4A5A40" font-weight="bold" font-style="italic">𝒫</text>
+<text x="570" y="396" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="h1-txt" fill="#8B2000">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h2-txt" fill="#7A5A00">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<text x="570" y="382" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510" font-style="italic">= (1,1)</text>
+<rect x="597.2" y="425.2" width="11" height="6" class="h1-fill" fill="#A0522D" rx="1.5" opacity="0.9"/>
+<rect x="611.2" y="425.2" width="11" height="6" class="h2-fill" fill="#B8860B" rx="1.5" opacity="0.9"/>
+<circle cx="115" cy="580" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="115" cy="580" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="115" y="585" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="115" y="556" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h3-txt" fill="#3A4A30">3</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<text x="115" y="542" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510" font-style="italic">= (3)</text>
+<rect x="79.8" y="609.0" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="79.8" y="601.5" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="79.8" y="594.0" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<circle cx="350" cy="580" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="350" cy="580" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="350" y="585" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="350" y="556" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h3-txt" fill="#3A4A30">2</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<text x="350" y="542" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510" font-style="italic">= (2)</text>
+<rect x="369.1" y="605.3" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<rect x="369.1" y="597.8" width="11" height="6" class="h3-fill" fill="#6B705C" rx="1.5" opacity="0.9"/>
+<circle cx="585" cy="580" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="585" cy="580" r="16" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="585" y="585" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="n-lbl" fill="#7B3020" font-weight="bold" font-style="italic">𝒩</text>
+<text x="585" y="556" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="h2-txt" fill="#7A5A00">1</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<text x="585" y="542" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510" font-style="italic">= (1)</text>
+<rect x="605.3" y="598.3" width="11" height="6" class="h2-fill" fill="#B8860B" rx="1.5" opacity="0.9"/>
+<circle cx="350" cy="730" r="18" class="node-bg" fill="#FAF7F2" stroke="none"/>
+<circle cx="350" cy="730" r="16" class="p-bg p-st" fill="#4A5A40" stroke="#4A5A40" stroke-width="2.5" fill-opacity="0.18"/>
+<text x="350" y="735" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="p-lbl" fill="#4A5A40" font-weight="bold" font-style="italic">𝒫</text>
+<text x="350" y="706" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700"><tspan class="txt" fill="#1a1510">(</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">,</tspan><tspan class="txt-dim" fill="#b0a898">0</tspan><tspan class="txt" fill="#1a1510">)</tspan></text>
+<text x="350" y="692" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510" font-style="italic">= (0)</text>
+
+<circle cx="100" cy="762" r="7" class="p-bg p-st" fill="#4A5A40" stroke="#4A5A40" stroke-width="1.5" fill-opacity="0.18"/>
+<text x="113" y="766" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510">𝒫-position (previous player wins)</text>
+<circle cx="100" cy="780" r="7" class="n-bg n-st" fill="#7B3020" stroke="#7B3020" stroke-width="1.5" fill-opacity="0.18"/>
+<text x="113" y="784" font-family="Georgia, serif" font-size="11" class="txt" fill="#1a1510">𝒩-position (next player wins)</text>
+<rect x="560" y="769" width="10" height="6" fill="#A0522D" class="h1-fill" rx="1.5"/>
+<text x="575" y="774" font-family="Georgia, serif" font-size="10" class="txt" fill="#1a1510">heap 1</text>
+<rect x="640" y="769" width="10" height="6" fill="#B8860B" class="h2-fill" rx="1.5"/>
+<text x="655" y="774" font-family="Georgia, serif" font-size="10" class="txt" fill="#1a1510">heap 2</text>
+<rect x="720" y="769" width="10" height="6" fill="#6B705C" class="h3-fill" rx="1.5"/>
+<text x="735" y="774" font-family="Georgia, serif" font-size="10" class="txt" fill="#1a1510">heap 3</text>
+</svg>

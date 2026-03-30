@@ -257,27 +257,63 @@ Choose heap 2.
 
 ## Games as Directed Graphs
 
-**Definition.** A *game graph* is a triple $\varGamma = (S, A, s_0)$ where:
-- $S$ is a finite set of **positions** (vertices)
-- $A \subseteq S \times S$ is the set of **legal moves** (directed edges)
-- $s_0 \in S$ is the **starting position**
+**Definition.** A *game graph* is a triple $\varGamma = (V, A, v_0)$ where:
+- $V$ is a finite set of **positions** (vertices)
+- $A \subseteq V \times V$ is the set of **legal moves** (directed edges)
+- $v_0 \in V$ is the **starting position**
 - Terminal positions (no outgoing edges) correspond to the losing position for the player to move (normal play convention)
 
-The graph is **acyclic**: every game must terminate in finitely many moves. This is guaranteed by the existence of a *well-founded ordering* — a function $\mu : S \to \mathbb{N}$ such that $(x, y) \in A$ implies $\mu(y) < \mu(x)$. In Nim, for example, $\mu(n_1, \ldots, n_k) = n_1 + \cdots + n_k$ (the total number of tokens strictly decreases on every move).
+The graph is **acyclic**: every game must terminate in finitely many moves. This is guaranteed by the existence of a *well-founded ordering* — a function $\mu : V \to \mathbb{N}$ such that $(x, y) \in A$ implies $\mu(y) < \mu(x)$. In Nim, for example, $\mu(n_1, \ldots, n_k) = n_1 + \cdots + n_k$ (the total number of tokens strictly decreases on every move).
 
-When the starting position is understood from context, we write simply $\varGamma = (S, A)$.
+When the starting position is understood from context, we write simply $\varGamma = (V, A)$.
 
-**Successors.** For a vertex $x \in S$, the set of successors is $\operatorname{Succ}(x) = \{y \in S \mid (x, y) \in A\}$.
+**Successors.** For a vertex $x \in V$, the set of successors is $\operatorname{Succ}(x) = \{y \in V \mid (x, y) \in A\}$.
+
+**Example.** The full game graph of Nim(1,1,3). Each node is a position vector $(n_1, n_2, n_3)$ — the colored digits correspond to the three heaps. Positions with nim-sum $= 0$ are $\mathcal{P}$-positions (only $(1,1,0)$ and $(0,0,0)$); all others are $\mathcal{N}$-positions. Note how equivalent games (e.g. removing heap 1 or heap 2 from $(1,1,3)$) lead to the same multiset of heaps.
+
+![Game graph of Nim(1,1,3)](/images/cgt/nim_game_graph.svg)
 
 ### The Kernel of a Graph
 
-**Definition.** A *kernel* $K \subseteq S$ of a directed graph $(S, A)$ is a set of vertices that is simultaneously:
+**Definition.** A *kernel* $K \subseteq V$ of a directed graph $(V, A)$ is a set of vertices that is simultaneously:
 - **Stable:** $\forall x \in K, \; \operatorname{Succ}(x) \cap K = \emptyset$ (no arc between vertices of $K$)
 - **Absorbing:** $\forall x \notin K, \; \operatorname{Succ}(x) \cap K \neq \emptyset$ (every vertex outside $K$ has a successor in $K$)
 
 The kernel, when it exists, is exactly the set of $\mathcal{P}$**-positions** (losing positions for the player to move). From a kernel position, any move leads outside the kernel; from outside the kernel, there's always a move back into it.
 
 ![Kernel examples](/images/cgt/kernel_examples.svg)
+
+<details style="font-size: 0.85rem; color: var(--theme-text-secondary); margin-top: -0.5rem; margin-bottom: 1.5rem; text-align: center;">
+<summary style="cursor: pointer; font-weight: 700; font-size: 1rem;">Verification of each example</summary>
+
+<div style="text-align: center; margin-top: 0.75rem;">
+
+**(a)** $S=\{1,6\}$, arcs $1{\to}2, 2{\to}5, 3{\to}6, 4{\to}1, 5{\to}4, 6{\to}5$
+
+Stable: $\text{succ}(1)=\{2\}$, $\text{succ}(6)=\{5\}$ — none in $S$ ✓
+
+Not absorbing: $\text{succ}(2)=\{5\}$, $\text{succ}(5)=\{4\}$ — neither 2 nor 5 can reach $S$ ✗
+
+**(b)** $S=\{1,2,3\}$, arcs $1{\to}2, 4{\to}1, 4{\to}5, 5{\to}3, 6{\to}2$
+
+Absorbing: $\text{succ}(4)\cap S=\{1\}$, $\text{succ}(5)\cap S=\{3\}$, $\text{succ}(6)\cap S=\{2\}$ ✓
+
+Not stable: arc $1{\to}2$ between vertices of $S$ ✗
+
+**(c)** $K=\{2,6\}$, arcs $1{\to}2, 1{\to}4, 3{\to}5, 3{\to}6, 4{\to}2, 5{\to}6$
+
+Stable: $\text{succ}(2)=\emptyset$, $\text{succ}(6)=\emptyset$ — no arc between vertices of $K$ ✓
+
+Absorbing: $1{\to}2$, $3{\to}6$, $4{\to}2$, $5{\to}6$ ✓ → **Kernel** ✓
+
+**(d)** $K=\{3,6\}$, arcs $1{\to}3, 1{\to}5, 2{\to}3, 2{\to}4, 4{\to}6, 5{\to}6$
+
+Stable: $\text{succ}(3)=\emptyset$, $\text{succ}(6)=\emptyset$ ✓
+
+Absorbing: $1{\to}3$, $2{\to}3$, $4{\to}6$, $5{\to}6$ ✓ → **Kernel** ✓
+
+</div>
+</details>
 
 ### Nim as a Graph
 
@@ -299,8 +335,8 @@ If $n \bmod (p+1) = r$, the successors' Grundy values cover $\{0, 1, \ldots, p\}
 
 ### Sum of Games
 
-**Definition.** Given two games $\varGamma_1 = (S_1, A_1)$ and $\varGamma_2 = (S_2, A_2)$, their *sum* $\varGamma_1 + \varGamma_2 = (S, A)$ is defined by:
-- $S = S_1 \times S_2$
+**Definition.** Given two games $\varGamma_1 = (V_1, A_1)$ and $\varGamma_2 = (V_2, A_2)$, their *sum* $\varGamma_1 + \varGamma_2 = (V, A)$ is defined by:
+- $V = V_1 \times V_2$
 - From position $(x_1, x_2)$, a player may either move in $\varGamma_1$ (going to some $(y_1, x_2)$ with $y_1 \in \operatorname{Succ}(x_1)$) or move in $\varGamma_2$ (going to $(x_1, y_2)$ with $y_2 \in \operatorname{Succ}(x_2)$), but not both.
 
 $$
@@ -329,7 +365,7 @@ The term "mex" was coined by Conway [^4].
 
 **Examples:** $\operatorname{mex}\{\} = 0$, $\; \operatorname{mex}\{1,2,3\} = 0$, $\; \operatorname{mex}\{0,2,4\} = 1$, $\; \operatorname{mex}\{0,1,\ldots,n\} = n+1$.
 
-**Definition.** Let $\varGamma = (S, A, \gamma)$ be a game graph. The *Sprague-Grundy function* $\gamma : S \to \mathbb{N}$ is defined recursively:
+**Definition.** Let $\varGamma = (V, A)$ be a game graph. The *Sprague-Grundy function* $\gamma : V \to \mathbb{N}$ is defined recursively:
 
 $$
 \gamma(x) = \operatorname{mex}\bigl\{\gamma(y) \mid y \in \operatorname{Succ}(x)\bigr\}
@@ -370,7 +406,7 @@ $$
 \gamma(x_1, \ldots, x_n) = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)
 $$
 
-**Proof.** Let $(x_1, \ldots, x_n) \in S$ and set $b = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)$. We must show that $\gamma(x_1, \ldots, x_n) = b$, i.e., that $b = \operatorname{mex}\{\gamma(y) \mid y \in \operatorname{Succ}(x_1, \ldots, x_n)\}$.
+**Proof.** Let $(x_1, \ldots, x_n) \in V$ and set $b = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)$. We must show that $\gamma(x_1, \ldots, x_n) = b$, i.e., that $b = \operatorname{mex}\{\gamma(y) \mid y \in \operatorname{Succ}(x_1, \ldots, x_n)\}$.
 
 **Part 1: For every $a < b$, there exists a successor with Grundy value $a$.**
 
@@ -439,7 +475,7 @@ This closes the loop: the Sprague-Grundy value of the sum $\operatorname{Nim}(n_
 The connection to graph kernels is now immediate. Define:
 
 $$
-K = \{x \in S \mid \gamma(x) = 0\}
+K = \{x \in V \mid \gamma(x) = 0\}
 $$
 
 **Claim.** $K$ is a kernel of the game graph.
@@ -467,7 +503,7 @@ For standard Nim, $\gamma(n_i) = n_i$, so the algorithm is $O(k \log m)$ where $
 
 ### Pseudocode: Grundy Value Computation
 
-The Grundy function can be computed recursively with memoization. Given a game graph $(S, A)$, the following algorithm computes $\gamma(x)$ for any position $x$:
+The Grundy function can be computed recursively with memoization. Given a game graph $(V, A)$, the following algorithm computes $\gamma(x)$ for any position $x$:
 
 ```
 function GRUNDY(x, memo):

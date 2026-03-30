@@ -1,35 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="700" height="320" viewBox="0 0 700 320">
 <style>
-  @media (prefers-color-scheme: dark) {
-    .bg { fill: #1C1917; }
-    .txt { fill: #E8E0D4; }
-    .txt-sec { fill: #8B9A6B; }
-    .accent { fill: #D4A843; }
-    .accent-stroke { stroke: #D4A843; }
-    .sienna { fill: #C97A50; }
-    .sienna-stroke { stroke: #C97A50; }
-    .olive { fill: #8B9A6B; }
-    .olive-stroke { stroke: #8B9A6B; }
-    .border-stroke { stroke: #44403C; }
-    .line { stroke: #E8E0D4; }
-    .line-light { stroke: #44403C; }
-    .node-fill { fill: #1C1917; }
-    .node-stroke { stroke: #E8E0D4; }
-    .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
-    .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
-    .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
-    .marker-dark { fill: #E8E0D4; }
-    .marker-accent { fill: #D4A843; }
-    .marker-olive { fill: #8B9A6B; }
-    .marker-sienna { fill: #C97A50; }
-    .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
-    .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
-    .kernel-fill { fill: #D4A843; }
-    .p-fill { fill: #8B9A6B; }
-    .n-fill { fill: #C97A50; }
-  }
-  .dark .bg { fill: #1C1917; }
-  .dark .txt { fill: #E8E0D4; }
+  .dark .bg { fill: #111111; }
+  .dark .txt { fill: #f0f0f0; }
   .dark .txt-sec { fill: #8B9A6B; }
   .dark .accent { fill: #D4A843; }
   .dark .accent-stroke { stroke: #D4A843; }
@@ -37,15 +9,15 @@
   .dark .sienna-stroke { stroke: #C97A50; }
   .dark .olive { fill: #8B9A6B; }
   .dark .olive-stroke { stroke: #8B9A6B; }
-  .dark .border-stroke { stroke: #44403C; }
-  .dark .line { stroke: #E8E0D4; }
-  .dark .line-light { stroke: #44403C; }
-  .dark .node-fill { fill: #1C1917; }
-  .dark .node-stroke { stroke: #E8E0D4; }
+  .dark .border-stroke { stroke: #2a2a2a; }
+  .dark .line { stroke: #f0f0f0; }
+  .dark .line-light { stroke: #2a2a2a; }
+  .dark .node-fill { fill: #111111; }
+  .dark .node-stroke { stroke: #f0f0f0; }
   .dark .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
   .dark .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
   .dark .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
-  .dark .marker-dark { fill: #E8E0D4; }
+  .dark .marker-dark { fill: #f0f0f0; }
   .dark .marker-accent { fill: #D4A843; }
   .dark .marker-olive { fill: #8B9A6B; }
   .dark .marker-sienna { fill: #C97A50; }
@@ -99,32 +71,33 @@
 <circle cx="125" cy="130" r="16" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
 <text x="125" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">6</text>
 <text x="125" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P</text>
-<text x="75" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="sienna" fill="#A0522D" font-weight="normal" font-style="italic">2 cannot reach {1,6}</text>
+<text x="75" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="sienna" fill="#A0522D" font-weight="normal" font-style="italic">2, 5 cannot reach {1,6}</text>
 </g>
 <g transform="translate(180, 15)">
 <text x="75" y="0" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">(b) S = {1, 2, 3}</text>
 <text x="75" y="15" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">absorbing, not stable</text>
+<line x1="41.0" y1="65.0" x2="57.0" y2="65.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
 <line x1="25.0" y1="114.0" x2="25.0" y2="83.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="84.8" y1="77.7" x2="114.0" y2="115.7" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="109.0" y1="65.0" x2="93.0" y2="65.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="41.0" y1="65.0" x2="107.0" y2="65.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="84.8" y1="117.3" x2="114.0" y2="79.3" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="115.2" y1="117.3" x2="86.0" y2="79.3" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="41.0" y1="130.0" x2="57.0" y2="130.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
 <circle cx="25" cy="65" r="16" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
 <text x="25" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">1</text>
 <text x="25" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P</text>
-<circle cx="75" cy="65" r="16" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
-<text x="75" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">6</text>
-<text x="75" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
+<circle cx="75" cy="65" r="16" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
+<text x="75" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">2</text>
+<text x="75" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P</text>
 <circle cx="125" cy="65" r="16" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
-<text x="125" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">2</text>
+<text x="125" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">3</text>
 <text x="125" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P</text>
 <circle cx="25" cy="130" r="16" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
 <text x="25" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">4</text>
 <text x="25" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
-<circle cx="75" cy="130" r="16" class="kernel-fill accent-stroke" fill="#B8860B" stroke="#B8860B" stroke-width="2" fill-opacity="1"/>
-<text x="75" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">3</text>
-<text x="75" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">P</text>
+<circle cx="75" cy="130" r="16" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
+<text x="75" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">5</text>
+<text x="75" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
 <circle cx="125" cy="130" r="16" class="node-fill node-stroke" fill="#FAF7F2" stroke="#2C2418" stroke-width="1.5" fill-opacity="1"/>
-<text x="125" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">5</text>
+<text x="125" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="13" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">6</text>
 <text x="125" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">N</text>
 <text x="75" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="sienna" fill="#A0522D" font-weight="normal" font-style="italic">arc 1→2 : not stable</text>
 </g>

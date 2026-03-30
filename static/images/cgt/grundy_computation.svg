@@ -1,35 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="620" height="400" viewBox="0 0 620 400">
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="500" viewBox="0 0 620 500">
 <style>
-  @media (prefers-color-scheme: dark) {
-    .bg { fill: #1C1917; }
-    .txt { fill: #E8E0D4; }
-    .txt-sec { fill: #8B9A6B; }
-    .accent { fill: #D4A843; }
-    .accent-stroke { stroke: #D4A843; }
-    .sienna { fill: #C97A50; }
-    .sienna-stroke { stroke: #C97A50; }
-    .olive { fill: #8B9A6B; }
-    .olive-stroke { stroke: #8B9A6B; }
-    .border-stroke { stroke: #44403C; }
-    .line { stroke: #E8E0D4; }
-    .line-light { stroke: #44403C; }
-    .node-fill { fill: #1C1917; }
-    .node-stroke { stroke: #E8E0D4; }
-    .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
-    .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
-    .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
-    .marker-dark { fill: #E8E0D4; }
-    .marker-accent { fill: #D4A843; }
-    .marker-olive { fill: #8B9A6B; }
-    .marker-sienna { fill: #C97A50; }
-    .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
-    .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
-    .kernel-fill { fill: #D4A843; }
-    .p-fill { fill: #8B9A6B; }
-    .n-fill { fill: #C97A50; }
-  }
-  .dark .bg { fill: #1C1917; }
-  .dark .txt { fill: #E8E0D4; }
+  .dark .bg { fill: #111111; }
+  .dark .txt { fill: #f0f0f0; }
   .dark .txt-sec { fill: #8B9A6B; }
   .dark .accent { fill: #D4A843; }
   .dark .accent-stroke { stroke: #D4A843; }
@@ -37,15 +9,15 @@
   .dark .sienna-stroke { stroke: #C97A50; }
   .dark .olive { fill: #8B9A6B; }
   .dark .olive-stroke { stroke: #8B9A6B; }
-  .dark .border-stroke { stroke: #44403C; }
-  .dark .line { stroke: #E8E0D4; }
-  .dark .line-light { stroke: #44403C; }
-  .dark .node-fill { fill: #1C1917; }
-  .dark .node-stroke { stroke: #E8E0D4; }
+  .dark .border-stroke { stroke: #2a2a2a; }
+  .dark .line { stroke: #f0f0f0; }
+  .dark .line-light { stroke: #2a2a2a; }
+  .dark .node-fill { fill: #111111; }
+  .dark .node-stroke { stroke: #f0f0f0; }
   .dark .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
   .dark .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
   .dark .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
-  .dark .marker-dark { fill: #E8E0D4; }
+  .dark .marker-dark { fill: #f0f0f0; }
   .dark .marker-accent { fill: #D4A843; }
   .dark .marker-olive { fill: #8B9A6B; }
   .dark .marker-sienna { fill: #C97A50; }
@@ -73,49 +45,50 @@
   </filter>
 </defs>
 <text x="310" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Computing Grundy values bottom-up</text>
-<line x1="178.3" y1="262.2" x2="290.0" y2="336.7" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="441.7" y1="262.2" x2="330.0" y2="336.7" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="290.6" y1="180.4" x2="181.2" y2="238.7" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="329.4" y1="180.4" x2="438.8" y2="238.7" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="117.0" y1="120.9" x2="152.4" y2="227.2" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="130.8" y1="107.3" x2="287.3" y2="162.1" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="496.3" y1="117.2" x2="325.0" y2="331.3" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<line x1="488.0" y1="100.0" x2="134.0" y2="100.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
-<circle cx="310" cy="350" r="22" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2" fill-opacity="0.2"/>
-<text x="310" y="355" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">0</text>
-<text x="310" y="322" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">γ = 0</text>
-<circle cx="336" cy="324" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
-<text x="336" y="327" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">1</text>
-<circle cx="160" cy="250" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
-<text x="160" y="255" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">1</text>
-<text x="160" y="222" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 1</text>
-<circle cx="186" cy="224" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
-<text x="186" y="227" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">2</text>
-<circle cx="460" cy="250" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
-<text x="460" y="255" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">2</text>
-<text x="460" y="222" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 1</text>
-<circle cx="486" cy="224" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
-<text x="486" y="227" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">3</text>
-<circle cx="310" cy="170" r="22" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2" fill-opacity="0.2"/>
-<text x="310" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">3</text>
-<text x="310" y="142" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">γ = 0</text>
-<circle cx="336" cy="144" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
-<text x="336" y="147" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">4</text>
-<circle cx="110" cy="100" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
-<text x="110" y="105" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">4</text>
-<text x="110" y="72" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 2</text>
-<circle cx="136" cy="74" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
-<text x="136" y="77" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">5</text>
-<circle cx="510" cy="100" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
-<text x="510" y="105" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">5</text>
-<text x="510" y="72" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 1</text>
-<circle cx="536" cy="74" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
-<text x="536" y="77" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">6</text>
-<text x="40" y="42" text-anchor="start" font-family="Georgia, serif" font-size="11" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Computation order:</text>
-<text x="40" y="60" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">1. node 0: terminal ⇒ γ = 0</text>
-<text x="40" y="77" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">2. node 1: mex{γ(0)} = mex{0} = 1</text>
-<text x="40" y="94" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">3. node 2: mex{γ(0)} = mex{0} = 1</text>
-<text x="40" y="111" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">4. node 3: mex{γ(1),γ(2)} = mex{1} = 0</text>
-<text x="40" y="128" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">5. node 4: mex{γ(1),γ(3)} = mex{1,0} = 2</text>
-<text x="40" y="145" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">6. node 5: mex{γ(0),γ(4)} = mex{0,2} = 1</text>
+<line x1="178.6" y1="236.8" x2="289.7" y2="307.2" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="441.4" y1="236.8" x2="330.3" y2="307.2" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="290.6" y1="155.4" x2="181.2" y2="213.7" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="329.4" y1="155.4" x2="438.8" y2="213.7" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="116.8" y1="90.9" x2="152.6" y2="202.2" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="130.6" y1="77.7" x2="287.5" y2="136.6" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="496.3" y1="87.2" x2="325.0" y2="301.3" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<line x1="488.0" y1="70.0" x2="134.0" y2="70.0" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round" marker-end="url(#arr)"/>
+<circle cx="310" cy="320" r="22" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2" fill-opacity="0.2"/>
+<text x="310" y="325" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">0</text>
+<text x="310" y="292" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">γ = 0</text>
+<circle cx="336" cy="294" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
+<text x="336" y="297" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">1</text>
+<circle cx="160" cy="225" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
+<text x="160" y="230" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">1</text>
+<text x="160" y="197" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 1</text>
+<circle cx="186" cy="199" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
+<text x="186" y="202" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">2</text>
+<circle cx="460" cy="225" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
+<text x="460" y="230" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">2</text>
+<text x="460" y="197" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 1</text>
+<circle cx="486" cy="199" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
+<text x="486" y="202" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">3</text>
+<circle cx="310" cy="145" r="22" class="olive-bg olive-stroke" fill="#6B705C" stroke="#6B705C" stroke-width="2" fill-opacity="0.2"/>
+<text x="310" y="150" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">3</text>
+<text x="310" y="117" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="olive" fill="#6B705C" font-weight="bold" font-style="normal">γ = 0</text>
+<circle cx="336" cy="119" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
+<text x="336" y="122" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">4</text>
+<circle cx="110" cy="70" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
+<text x="110" y="75" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">4</text>
+<text x="110" y="42" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 2</text>
+<circle cx="136" cy="44" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
+<text x="136" y="47" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">5</text>
+<circle cx="510" cy="70" r="22" class="sienna-bg sienna-stroke" fill="#A0522D" stroke="#A0522D" stroke-width="2" fill-opacity="0.2"/>
+<text x="510" y="75" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">5</text>
+<text x="510" y="42" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="sienna" fill="#A0522D" font-weight="bold" font-style="normal">γ = 1</text>
+<circle cx="536" cy="44" r="8" class="accent " fill="#B8860B" stroke="none" stroke-width="0" fill-opacity="1"/>
+<text x="536" y="47" text-anchor="middle" font-family="Georgia, serif" font-size="8" class="bg" fill="#FAF7F2" font-weight="bold" font-style="normal">6</text>
+<line x1="40" y1="363" x2="580" y2="363" class="line-light" stroke="#2C2418" stroke-width="0.5" stroke-opacity="0.3" stroke-linecap="round"/>
+<text x="40" y="375" text-anchor="start" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Computation order:</text>
+<text x="40" y="395" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">1. node 0: terminal ⇒ γ = 0</text>
+<text x="40" y="412" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">2. node 1: mex{γ(0)} = mex{0} = 1</text>
+<text x="40" y="429" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">3. node 2: mex{γ(0)} = mex{0} = 1</text>
+<text x="40" y="446" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">4. node 3: mex{γ(1),γ(2)} = mex{1} = 0</text>
+<text x="40" y="463" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">5. node 4: mex{γ(1),γ(3)} = mex{1,0} = 2</text>
+<text x="40" y="480" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">6. node 5: mex{γ(0),γ(4)} = mex{0,2} = 1</text>
 </svg>

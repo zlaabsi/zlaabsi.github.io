@@ -18,12 +18,12 @@ OLIVE   = "#6B705C"
 BORDER  = "#D4C9B8"
 SIENNA  = "#A0522D"
 
-# Dark mode overrides
-DARK_BG     = "#1C1917"
-DARK_TEXT   = "#E8E0D4"
+# Dark mode overrides (matches darioamodei.com style)
+DARK_BG     = "#111111"
+DARK_TEXT   = "#f0f0f0"
 DARK_ACCENT = "#D4A843"
 DARK_OLIVE  = "#8B9A6B"
-DARK_BORDER = "#44403C"
+DARK_BORDER = "#2a2a2a"
 DARK_SIENNA = "#C97A50"
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "images", "cgt")
@@ -289,7 +289,10 @@ def gen_kernel_examples():
     W, H = 700, 320
     parts = [svg_header(W, H)]
 
-    def draw_graph(ox, oy, title, subtitle, nodes, edges, kernel_set, note=""):
+    def draw_graph(ox, oy, title, subtitle, nodes, edges, kernel_set, note="",
+                   curved_edges=None):
+        if curved_edges is None:
+            curved_edges = set()
         parts.append(f'<g transform="translate({ox}, {oy})">')
         parts.append(text(75, 0, title, 12, weight="bold"))
         parts.append(text(75, 15, subtitle, 10, color_class="txt-sec", color=OLIVE))
@@ -297,7 +300,10 @@ def gen_kernel_examples():
         for (a, b) in edges:
             ax, ay = nodes[a][:2]
             bx, by = nodes[b][:2]
-            parts.append(arrow_between(ax, ay, bx, by, 16, 16))
+            if (a, b) in curved_edges:
+                parts.append(curved_arrow(ax, ay, bx, by, 16, 16, bend=-30))
+            else:
+                parts.append(arrow_between(ax, ay, bx, by, 16, 16))
         # Draw nodes
         for nid, (nx, ny, label) in nodes.items():
             if nid in kernel_set:
@@ -318,12 +324,13 @@ def gen_kernel_examples():
                4: (25,130,"4"), 5: (75,130,"5"), 6: (125,130,"6")}
     edges_a = [(1,2),(3,6),(4,1),(5,4),(6,5),(2,5)]
     draw_graph(10, 15, "(a) S = {1, 6}", "stable, not absorbing",
-               nodes_a, edges_a, {1,6}, "2 cannot reach {1,6}")
+               nodes_a, edges_a, {1,6}, "2, 5 cannot reach {1,6}")
 
     # (b) Not a kernel: absorbing but not stable
-    nodes_b = {1: (25,65,"1"), 6: (75,65,"6"), 2: (125,65,"2"),
-               4: (25,130,"4"), 3: (75,130,"3"), 5: (125,130,"5")}
-    edges_b = [(4,1),(6,5),(2,6),(1,2)]
+    # S={1,2,3}: 1\u21922 breaks stability; 4\u21921, 5\u21923, 6\u21922 ensures absorbing
+    nodes_b = {1: (25,65,"1"), 2: (75,65,"2"), 3: (125,65,"3"),
+               4: (25,130,"4"), 5: (75,130,"5"), 6: (125,130,"6")}
+    edges_b = [(1,2),(4,1),(5,3),(6,2),(4,5)]
     draw_graph(180, 15, "(b) S = {1, 2, 3}", "absorbing, not stable",
                nodes_b, edges_b, {1,2,3}, "arc 1\u21922 : not stable")
 
@@ -366,31 +373,43 @@ def gen_kernel_examples():
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def gen_nim_linear_graph():
-    W, H = 700, 230
+    W, H = 750, 280
     parts = [svg_header(W, H)]
-    parts.append(text(350, 22, "Restricted Nim (remove 1, 2, or 3 tokens)", 15, weight="bold"))
+    parts.append(text(375, 22, "Restricted Nim (remove 1, 2, or 3 tokens)", 15, weight="bold"))
 
-    n_nodes = 10
-    spacing = 68
-    start_x = 652
-    cy = 85
-    r = 18
+    n_nodes = 9  # 0..8 — enough to show the pattern
+    spacing = 80
+    start_x = 700
+    cy = 100
+    r = 20
 
     node_xs = [start_x - i * spacing for i in range(n_nodes)]
-    # Draw edges first (right to left: high to low)
-    for i in range(n_nodes):
-        for step in range(1, 4):
-            j = i + step
-            if j < n_nodes:
-                opac = [1.0, 0.5, 0.3][step-1]
-                sw = [1.5, 1.0, 0.8][step-1]
-                if step == 1:
-                    parts.append(arrow_between(node_xs[i], cy, node_xs[j], cy, r, r,
-                                               sw=sw, opacity=opac))
-                else:
-                    parts.append(curved_arrow(node_xs[i], cy, node_xs[j], cy, r, r,
-                                              bend=-25*step, sw=sw, stroke_class="olive-stroke",
-                                              stroke=OLIVE, opacity=opac, marker="arr-olive"))
+
+    # Arrows: from position n to n-k (remove k tokens).
+    # node_xs[i] is rightmost for i=0, leftmost for i=8.
+    # So arrows go from left (high n) to right (low n).
+
+    # "remove 1": n → n-1 for all n
+    for i in range(1, n_nodes):
+        parts.append(arrow_between(node_xs[i], cy, node_xs[i-1], cy, r, r, sw=1.5))
+
+    # "remove 2": representative arcs (curves above the line)
+    for i in [3, 5, 7]:
+        j = i - 2
+        if j >= 0:
+            parts.append(curved_arrow(node_xs[i], cy, node_xs[j], cy, r, r,
+                                      bend=35, sw=1.2, stroke=OLIVE,
+                                      stroke_class="olive-stroke", opacity=0.6,
+                                      marker="arr-olive"))
+
+    # "remove 3": representative arcs (wider curves above)
+    for i in [4, 7]:
+        j = i - 3
+        if j >= 0:
+            parts.append(curved_arrow(node_xs[i], cy, node_xs[j], cy, r, r,
+                                      bend=55, sw=1.0, stroke=SIENNA,
+                                      stroke_class="sienna-stroke", opacity=0.45,
+                                      marker="arr-sienna"))
 
     # Draw nodes with Grundy values
     kernel = {0, 4, 8}
@@ -399,27 +418,29 @@ def gen_nim_linear_graph():
         label = str(i)
         grundy = i % 4
         if i in kernel:
-            parts.append(circle(x, cy, r, fill=ACCENT, stroke=ACCENT, sw=2,
+            parts.append(circle(x, cy, r, fill=ACCENT, stroke=ACCENT, sw=2.5,
                                 fill_class="kernel-fill", stroke_class="accent-stroke"))
-            parts.append(text(x, cy+5, label, 15, weight="bold"))
+            parts.append(text(x, cy+5, label, 16, weight="bold"))
         else:
             parts.append(circle(x, cy, r))
-            parts.append(text(x, cy+5, label, 15))
-        parts.append(text(x, cy+35, f"\u03b3={grundy}", 10, color_class="txt-sec", color=OLIVE))
+            parts.append(text(x, cy+5, label, 16))
+        parts.append(text(x, cy+38, f"\u03b3 = {grundy}", 11, color_class="txt-sec", color=OLIVE))
 
-    parts.append(text(350, 150, "K = {0, 4, 8}", 15, color_class="accent", color=ACCENT, weight="bold"))
-    parts.append(text(350, 170, "P-positions (losing): multiples of 4  |  \u03b3(n) = n mod 4", 12,
+    parts.append(text(375, 175, "K = {0, 4, 8}", 16, color_class="accent", color=ACCENT, weight="bold"))
+    parts.append(text(375, 196, "P-positions (losing): multiples of p+1 = 4  |  \u03b3(n) = n mod 4", 12,
                       color_class="txt-sec", color=OLIVE, style="italic"))
 
     # Legend
-    parts.append('<g transform="translate(170, 200)">')
-    parts.append(line(0, 0, 20, 0, marker="arr", sw=1.5))
-    parts.append(text(27, 4, "remove 1", 10, anchor="start"))
-    parts.append(line(100, 0, 120, 0, stroke=OLIVE, sw=1.0, stroke_class="olive-stroke", opacity=0.5))
-    parts.append(text(127, 4, "remove 2", 10, color_class="txt-sec", color=OLIVE, anchor="start"))
-    parts.append(line(200, 0, 220, 0, stroke=OLIVE, sw=0.8, stroke_class="olive-stroke", opacity=0.3))
-    parts.append(text(227, 4, "remove 3", 10, color_class="txt-sec", color=OLIVE, anchor="start"))
+    parts.append('<g transform="translate(150, 235)">')
+    parts.append(line(0, 0, 25, 0, marker="arr", sw=1.5))
+    parts.append(text(32, 4, "remove 1", 11, anchor="start"))
+    parts.append(line(130, 0, 155, 0, stroke=OLIVE, sw=1.2, stroke_class="olive-stroke", opacity=0.6))
+    parts.append(text(162, 4, "remove 2", 11, color_class="olive", color=OLIVE, anchor="start"))
+    parts.append(line(260, 0, 285, 0, stroke=SIENNA, sw=1.0, stroke_class="sienna-stroke", opacity=0.45))
+    parts.append(text(292, 4, "remove 3", 11, color_class="sienna", color=SIENNA, anchor="start"))
     parts.append("</g>")
+    parts.append(text(375, 270, "Representative arcs shown — every node n can move to n\u22121, n\u22122, n\u22123", 10,
+                      color_class="txt-sec", color=OLIVE, style="italic"))
     parts.append(svg_footer())
     write_svg("nim_linear_graph.svg", "\n".join(parts))
 
@@ -669,59 +690,24 @@ def gen_nim_gameplay_steps():
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def gen_grundy_computation():
-    W, H = 620, 400
+    W, H = 620, 500
     parts = [svg_header(W, H)]
     parts.append(text(310, 22, "Computing Grundy values bottom-up", 15, weight="bold"))
 
     # 6-node DAG:  0<-1, 0<-2, 1<-3, 2<-3, 1<-4, 3<-4, 0<-5, 4<-5
-    # Grundy: 0->0, 1->1, 2->1, 3->2, 4->0, 5->3
-    nodes = {
-        0: (310, 350, 0), 1: (160, 250, 1), 2: (460, 250, 1),
-        3: (310, 170, 2), 4: (110, 100, 0), 5: (510, 100, 3),
-    }
-    edges = [(1,0),(2,0),(3,1),(3,2),(4,1),(4,3),(5,0),(5,4)]
-    r = 22
-
-    # Draw edges
-    for (a, b) in edges:
-        ax, ay, _ = nodes[a]
-        bx, by, _ = nodes[b]
-        parts.append(arrow_between(ax, ay, bx, by, r, r))
-
-    # Draw nodes with Grundy values and mex annotations
-    mex_annotations = {
-        0: "mex({}) = 0",
-        1: "mex({0}) = 1",
-        2: "mex({0}) = 1",
-        3: "mex({1,1}) = 0 ? No: mex({1,1}) = mex({1}) = 0 ? No...",
-        4: "mex({1,2}) = 0",
-        5: "mex({0,0,3}) = mex({0,3}) = 1 ? No...",
-    }
-    # Correct mex annotations
-    mex_correct = {
-        0: "terminal \u21d2 \u03b3 = 0",
-        1: "mex{\u03b3(0)} = mex{0} = 1",
-        2: "mex{\u03b3(0)} = mex{0} = 1",
-        3: "mex{\u03b3(1),\u03b3(2)} = mex{1,1} = mex{1} = 0",
-        4: "mex{\u03b3(1),\u03b3(3)} = mex{1,0} = 2",
-        5: "mex{\u03b3(0),\u03b3(4)} = mex{0,2} = 1",
-    }
-    # Wait, let me recalculate:
     # node 0: terminal, gamma=0
     # node 1: Succ={0}, gamma = mex{0} = 1
     # node 2: Succ={0}, gamma = mex{0} = 1
     # node 3: Succ={1,2}, gamma = mex{1,1} = mex{1} = 0
-    # node 4: Succ={1,3}, gamma = mex{gamma(1),gamma(3)} = mex{1,0} = 2
-    # node 5: Succ={0,4}, gamma = mex{gamma(0),gamma(4)} = mex{0,2} = 1
-    # Hmm node 3: mex{gamma(1),gamma(2)} = mex{1,1} = mex of the SET {1} = 0. Yes.
-    # node 4: mex{1,0} = 2. OK.
-    # node 5: mex{0,2} = 1. OK.
-
-    # Let me fix the nodes dict:
+    # node 4: Succ={1,3}, gamma = mex{1,0} = 2
+    # node 5: Succ={0,4}, gamma = mex{0,2} = 1
     nodes = {
-        0: (310, 350, 0), 1: (160, 250, 1), 2: (460, 250, 1),
-        3: (310, 170, 0), 4: (110, 100, 2), 5: (510, 100, 1),
+        0: (310, 320, 0), 1: (160, 225, 1), 2: (460, 225, 1),
+        3: (310, 145, 0), 4: (110, 70, 2), 5: (510, 70, 1),
     }
+    edges = [(1,0),(2,0),(3,1),(3,2),(4,1),(4,3),(5,0),(5,4)]
+    r = 22
+
     mex_correct = {
         0: "terminal \u21d2 \u03b3 = 0",
         1: "mex{\u03b3(0)} = mex{0} = 1",
@@ -730,51 +716,47 @@ def gen_grundy_computation():
         4: "mex{\u03b3(1),\u03b3(3)} = mex{1,0} = 2",
         5: "mex{\u03b3(0),\u03b3(4)} = mex{0,2} = 1",
     }
-
-    # Redraw with correct values
-    parts_new = [svg_header(W, H)]
-    parts_new.append(text(310, 22, "Computing Grundy values bottom-up", 15, weight="bold"))
+    order = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6}
 
     # Draw edges
     for (a, b) in edges:
         ax, ay, _ = nodes[a]
         bx, by, _ = nodes[b]
-        parts_new.append(arrow_between(ax, ay, bx, by, r, r))
+        parts.append(arrow_between(ax, ay, bx, by, r, r))
 
-    # Draw computation order numbers
-    order = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6}
-
+    # Draw nodes
     for nid in sorted(nodes.keys()):
         nx, ny, gv = nodes[nid]
         if gv == 0:
-            parts_new.append(circle(nx, ny, r, fill=OLIVE, stroke=OLIVE, sw=2,
-                                    fill_class="olive-bg", stroke_class="olive-stroke", opacity=0.2))
+            parts.append(circle(nx, ny, r, fill=OLIVE, stroke=OLIVE, sw=2,
+                                fill_class="olive-bg", stroke_class="olive-stroke", opacity=0.2))
             gcls, gclr = "olive", OLIVE
         else:
-            parts_new.append(circle(nx, ny, r, fill=SIENNA, stroke=SIENNA, sw=2,
-                                    fill_class="sienna-bg", stroke_class="sienna-stroke", opacity=0.2))
+            parts.append(circle(nx, ny, r, fill=SIENNA, stroke=SIENNA, sw=2,
+                                fill_class="sienna-bg", stroke_class="sienna-stroke", opacity=0.2))
             gcls, gclr = "sienna", SIENNA
-        parts_new.append(text(nx, ny+5, str(nid), 15, weight="bold"))
-        parts_new.append(text(nx, ny-28, f"\u03b3 = {gv}", 12, color_class=gcls,
-                              color=gclr, weight="bold"))
+        parts.append(text(nx, ny+5, str(nid), 15, weight="bold"))
+        parts.append(text(nx, ny-28, f"\u03b3 = {gv}", 12, color_class=gcls,
+                          color=gclr, weight="bold"))
         # Order badge
-        parts_new.append(circle(nx+r+4, ny-r-4, 8, fill=ACCENT, stroke="none", sw=0,
-                                fill_class="accent", stroke_class=""))
-        parts_new.append(text(nx+r+4, ny-r-1, str(order[nid]), 8, color_class="bg",
-                              color=BG, weight="bold"))
+        parts.append(circle(nx+r+4, ny-r-4, 8, fill=ACCENT, stroke="none", sw=0,
+                            fill_class="accent", stroke_class=""))
+        parts.append(text(nx+r+4, ny-r-1, str(order[nid]), 8, color_class="bg",
+                          color=BG, weight="bold"))
 
-    # Mex annotations on the right
+    # Mex annotations BELOW the graph
     ann_x = 40
-    ann_y = 42
-    parts_new.append(text(ann_x, ann_y, "Computation order:", 11, weight="bold", anchor="start"))
+    ann_y = 375
+    parts.append(line(40, ann_y - 12, 580, ann_y - 12, sw=0.5, stroke_class="line-light", opacity=0.3))
+    parts.append(text(ann_x, ann_y, "Computation order:", 12, weight="bold", anchor="start"))
     for nid in range(6):
-        y = ann_y + 18 + nid * 17
-        parts_new.append(text(ann_x, y, f"{order[nid]}. node {nid}: {mex_correct[nid]}", 10,
-                              color_class="txt-sec", color=OLIVE, anchor="start",
-                              font="'JetBrains Mono', monospace"))
+        y = ann_y + 20 + nid * 17
+        parts.append(text(ann_x, y, f"{order[nid]}. node {nid}: {mex_correct[nid]}", 10,
+                          color_class="txt-sec", color=OLIVE, anchor="start",
+                          font="'JetBrains Mono', monospace"))
 
-    parts_new.append(svg_footer())
-    write_svg("grundy_computation.svg", "\n".join(parts_new))
+    parts.append(svg_footer())
+    write_svg("grundy_computation.svg", "\n".join(parts))
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -895,7 +877,7 @@ def gen_winning_move_strategy():
 
 def gen_formal_setup():
     """Small game tree illustrating the recursive P/N classification."""
-    W, H = 620, 340
+    W, H = 620, 380
     parts = [svg_header(W, H)]
     parts.append(text(310, 22, "Recursive classification of positions", 15, weight="bold"))
 
@@ -962,7 +944,7 @@ def gen_formal_setup():
                           color_class="txt-sec", color=OLIVE, anchor="start"))
 
     # Legend at bottom left
-    parts.append('<g transform="translate(50, 330)">')
+    parts.append('<g transform="translate(50, 365)">')
     parts.append(circle(0, 0, 8, fill=OLIVE, stroke=OLIVE, sw=1.5,
                         fill_class="olive-bg", stroke_class="olive-stroke", opacity=0.2))
     parts.append(text(14, 4, f"{P_SYM}-position (previous player wins)", 11, anchor="start"))

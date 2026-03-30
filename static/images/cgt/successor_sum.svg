@@ -1,35 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="560" height="280" viewBox="0 0 560 280">
 <style>
-  @media (prefers-color-scheme: dark) {
-    .bg { fill: #1C1917; }
-    .txt { fill: #E8E0D4; }
-    .txt-sec { fill: #8B9A6B; }
-    .accent { fill: #D4A843; }
-    .accent-stroke { stroke: #D4A843; }
-    .sienna { fill: #C97A50; }
-    .sienna-stroke { stroke: #C97A50; }
-    .olive { fill: #8B9A6B; }
-    .olive-stroke { stroke: #8B9A6B; }
-    .border-stroke { stroke: #44403C; }
-    .line { stroke: #E8E0D4; }
-    .line-light { stroke: #44403C; }
-    .node-fill { fill: #1C1917; }
-    .node-stroke { stroke: #E8E0D4; }
-    .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
-    .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
-    .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
-    .marker-dark { fill: #E8E0D4; }
-    .marker-accent { fill: #D4A843; }
-    .marker-olive { fill: #8B9A6B; }
-    .marker-sienna { fill: #C97A50; }
-    .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
-    .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
-    .kernel-fill { fill: #D4A843; }
-    .p-fill { fill: #8B9A6B; }
-    .n-fill { fill: #C97A50; }
-  }
-  .dark .bg { fill: #1C1917; }
-  .dark .txt { fill: #E8E0D4; }
+  .dark .bg { fill: #111111; }
+  .dark .txt { fill: #f0f0f0; }
   .dark .txt-sec { fill: #8B9A6B; }
   .dark .accent { fill: #D4A843; }
   .dark .accent-stroke { stroke: #D4A843; }
@@ -37,15 +9,15 @@
   .dark .sienna-stroke { stroke: #C97A50; }
   .dark .olive { fill: #8B9A6B; }
   .dark .olive-stroke { stroke: #8B9A6B; }
-  .dark .border-stroke { stroke: #44403C; }
-  .dark .line { stroke: #E8E0D4; }
-  .dark .line-light { stroke: #44403C; }
-  .dark .node-fill { fill: #1C1917; }
-  .dark .node-stroke { stroke: #E8E0D4; }
+  .dark .border-stroke { stroke: #2a2a2a; }
+  .dark .line { stroke: #f0f0f0; }
+  .dark .line-light { stroke: #2a2a2a; }
+  .dark .node-fill { fill: #111111; }
+  .dark .node-stroke { stroke: #f0f0f0; }
   .dark .accent-bg { fill: #D4A843; fill-opacity: 0.2; }
   .dark .olive-bg { fill: #8B9A6B; fill-opacity: 0.2; }
   .dark .sienna-bg { fill: #C97A50; fill-opacity: 0.2; }
-  .dark .marker-dark { fill: #E8E0D4; }
+  .dark .marker-dark { fill: #f0f0f0; }
   .dark .marker-accent { fill: #D4A843; }
   .dark .marker-olive { fill: #8B9A6B; }
   .dark .marker-sienna { fill: #C97A50; }

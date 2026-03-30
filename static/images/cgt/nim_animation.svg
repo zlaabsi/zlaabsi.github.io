@@ -234,19 +234,24 @@
   <line x1="45" y1="135" x2="260" y2="135" class="line" stroke="#1a1510" stroke-width="0.5" stroke-opacity="0.3"/>
   <line x1="45" y1="180" x2="260" y2="180" class="line" stroke="#1a1510" stroke-width="0.5" stroke-opacity="0.3"/>
 
-  <!-- Row 1 (n₁=1): 0 0 1 — constant until removed at phase 5 -->
+  <!-- Row 1 (n₁=1→0): 001 stays until phase 3 where heap 1 removed → 000 -->
   <text x="80" y="75" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text>
   <text x="150" y="75" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text>
-  <text x="220" y="75" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text>
+  <!-- n₁ bit 0: 1→0 at phase 3 -->
+  <g class="xor-p0"><text x="220" y="75" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text></g>
+  <g class="xor-p1"><text x="220" y="75" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text></g>
+  <g class="xor-p2"><text x="220" y="75" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text></g>
+  <g class="xor-p3"><text x="220" y="75" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text></g>
 
-  <!-- Row 2 (n₂): 011 → 010 at phase 3 -->
+  <!-- Row 2 (n₂): 011 → 010 at phase 2 (3→2: bit0 drops, bit1 stays) -->
   <text x="80" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text>
-  <!-- n₂ bit 1: 1→0 at phase 3 -->
-  <g class="xor-p0"><text x="150" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text></g>
-  <g class="xor-p1"><text x="150" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text></g>
-  <g class="xor-p2"><text x="150" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text></g>
-  <g class="xor-p3"><text x="150" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text></g>
-  <text x="220" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text>
+  <!-- n₂ bit 1: always 1 (stays set in both 3=011 and 2=010) -->
+  <text x="150" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text>
+  <!-- n₂ bit 0: 1→0 at phase 2 (3=011 → 2=010) -->
+  <g class="xor-p0"><text x="220" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text></g>
+  <g class="xor-p1"><text x="220" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-one" fill="#8B6914" font-weight="bold">1</text></g>
+  <g class="xor-p2"><text x="220" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text></g>
+  <g class="xor-p3"><text x="220" y="120" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="20" class="matrix-cell" fill="#1a1510">0</text></g>
 
   <!-- Row 3 (n₃): 101 → 010 at phase 1 -->
   <!-- n₃ bit 2: 1→0 -->

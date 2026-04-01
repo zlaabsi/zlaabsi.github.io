@@ -411,23 +411,43 @@ $$
 \gamma(x_1, \ldots, x_n) = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)
 $$
 
-**Proof.** Let $(x_1, \ldots, x_n) \in V$ and set $b = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)$. We must show that $\gamma(x_1, \ldots, x_n) = b$, i.e., that $b = \operatorname{mex}\{\gamma(y) \mid y \in \operatorname{Succ}(x_1, \ldots, x_n)\}$.
+**Proof.** Define a candidate function on the sum game by
 
-**Part 1: For every $a < b$, there exists a successor with Grundy value $a$.**
+$$
+F(x_1, \ldots, x_n) = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)
+$$
+
+We show that $F$ satisfies the same mex recursion as the Sprague-Grundy function:
+
+$$
+F(x) = \operatorname{mex}\{F(y) \mid y \in \operatorname{Succ}(x)\}
+$$
+
+Since the sum game is finite and acyclic, this recursion determines the Sprague-Grundy function uniquely, so it will follow that $F = \gamma$. Fix $(x_1, \ldots, x_n) \in V$ and set $b = F(x_1, \ldots, x_n)$.
+
+**Part 1: For every $a < b$, there exists a successor $y$ with $F(y) = a$.**
 
 Let $d = a \oplus b$. Since $a \neq b$, we have $d \neq 0$. Let $v$ be the position of the leading 1 in $d$ — this is the highest bit position where $a$ and $b$ differ. Since $a < b$ and all bits above position $v$ are the same in $a$ and $b$, the bit at position $v$ must be 1 in $b$ and 0 in $a$ (otherwise we would have $a > b$). Since $b = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)$ has a 1 at bit position $v$, and XOR is a bitwise sum mod 2, there exists some $i$ such that $\gamma_i(x_i)$ has a 1 at bit position $v$.
 
-Then $\gamma_i(x_i) \oplus d < \gamma_i(x_i)$ (the bit at position $v$ flips from 1 to 0, and higher bits are unchanged). By the definition of the Grundy function, there exists $x_i^* \in \operatorname{Succ}(x_i)$ with $\gamma_i(x_i^*) = \gamma_i(x_i) \oplus d$.
+Then $\gamma_i(x_i) \oplus d < \gamma_i(x_i)$ (the bit at position $v$ flips from 1 to 0, and higher bits are unchanged). Since $\gamma_i(x_i)$ is the mex of the successor values in $\varGamma_i$, every integer strictly smaller than $\gamma_i(x_i)$ occurs among them. Therefore there exists $x_i^* \in \operatorname{Succ}(x_i)$ with $\gamma_i(x_i^*) = \gamma_i(x_i) \oplus d$.
 
-The successor $(x_1, \ldots, x_i^*, \ldots, x_n)$ has Grundy value:
+The successor $(x_1, \ldots, x_i^*, \ldots, x_n)$ then satisfies:
 
 $$
-\gamma_i(x_i^*) \oplus \bigoplus_{j \neq i} \gamma_j(x_j) = (\gamma_i(x_i) \oplus d) \oplus \bigoplus_{j \neq i} \gamma_j(x_j) = b \oplus d = b \oplus (a \oplus b) = a
+F(x_1, \ldots, x_i^*, \ldots, x_n) = \gamma_i(x_i^*) \oplus \bigoplus_{j \neq i} \gamma_j(x_j) = (\gamma_i(x_i) \oplus d) \oplus \bigoplus_{j \neq i} \gamma_j(x_j) = b \oplus d = b \oplus (a \oplus b) = a
 $$
 
-**Part 2: No successor has Grundy value $b$.**
+**Part 2: No successor $y$ has $F(y) = b$.**
 
-Suppose for contradiction that some successor $(x_1, \ldots, x_i^*, \ldots, x_n)$ has $\gamma_i(x_i^*) \oplus \bigoplus_{j \neq i} \gamma_j(x_j) = b = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)$. Then $\gamma_i(x_i^*) = \gamma_i(x_i)$. But $x_i^* \in \operatorname{Succ}(x_i)$, and by definition of mex, no successor of $x_i$ can have the same Grundy value as $x_i$. Contradiction. $\square$
+Suppose for contradiction that some successor $(x_1, \ldots, x_i^*, \ldots, x_n)$ has $F(x_1, \ldots, x_i^*, \ldots, x_n) = b = F(x_1, \ldots, x_n)$. Then $\gamma_i(x_i^*) = \gamma_i(x_i)$. But $x_i^* \in \operatorname{Succ}(x_i)$, and by definition of mex, no successor of $x_i$ can have the same Grundy value as $x_i$. Contradiction.
+
+Thus every integer $a < b$ appears among the $F$-values of the successors, and $b$ itself does not. Therefore
+
+$$
+F(x_1, \ldots, x_n) = \operatorname{mex}\{F(y) \mid y \in \operatorname{Succ}(x_1, \ldots, x_n)\} = b
+$$
+
+Since this holds for every position, $F$ is the Sprague-Grundy function of the sum game. Hence $\gamma = F$, which is exactly the claimed formula. $\square$
 
 ### Theorem II: Every Impartial Game is Equivalent to a Nim Heap
 
@@ -451,7 +471,13 @@ Since the game is finite and every move strictly reduces the number of available
 
 **(ii)** If $K$ is a $\mathcal{P}$-position, then $\varGamma \sim \varGamma + K$.
 
-By Theorem I, the Grundy value of a sum is the XOR of the components' Grundy values. Since $K$ is a $\mathcal{P}$-position, $\gamma(K) = 0$, so $\gamma(\varGamma + K) = \gamma(\varGamma) \oplus 0 = \gamma(\varGamma)$. The Grundy value — and therefore the $\mathcal{P}/\mathcal{N}$ classification — is unchanged.
+Let $X$ be any impartial game. By Theorem I, the Grundy value of a sum is the XOR of the components' Grundy values. Since $K$ is a $\mathcal{P}$-position, $\gamma(K) = 0$, so
+
+$$
+\gamma((\varGamma + K) + X) = \gamma(\varGamma) \oplus \gamma(K) \oplus \gamma(X) = \gamma(\varGamma) \oplus 0 \oplus \gamma(X) = \gamma(\varGamma + X)
+$$
+
+Hence $(\varGamma + K) + X$ and $\varGamma + X$ have the same $\mathcal{P}/\mathcal{N}$ classification for every impartial game $X$. Therefore $\varGamma \sim \varGamma + K$.
 
 Now, $\varGamma + \operatorname{Nim}(\gamma(\varGamma))$ is a $\mathcal{P}$-position because its Grundy value is $\gamma(\varGamma) \oplus \gamma(\varGamma) = 0$ (by Theorem I and the fact below that $\gamma(\operatorname{Nim}(m)) = m$). Therefore, using the associativity of the game sum (which holds because the canonical bijection $(S_1 \times S_2) \times S_3 \cong S_1 \times (S_2 \times S_3)$ preserves the successor structure) and (ii):
 
@@ -587,7 +613,7 @@ if __name__ == "__main__":
         print(describe_position(list(position)), end="\n\n")
 
 # Heaps: [1, 3, 5]  |  Nim-sum: 7
-#   → Winning move: take 5 from heap 2 (5 → 0)  →  [1, 3, 0]
+#   → Winning move: take 3 from heap 2 (5 → 2)  →  [1, 3, 2]
 #
 # Heaps: [1, 3, 5, 5]  |  Nim-sum: 2
 #   → Winning move: take 2 from heap 1 (3 → 1)  →  [1, 1, 5, 5]
@@ -603,7 +629,7 @@ A few threads worth pulling on, for the curious:
 
 **Partizan games.** When the two players have *different* available moves (chess, Go, Hex), the theory extends to Conway's surreal numbers and partizan game values $G = \{G^L \mid G^R\}$. The algebra becomes much richer — and much harder [^4] [^5].
 
-**Computational game theory.** Computing Grundy values is polynomial for most "nice" games, but determining the winner of arbitrary combinatorial games can be PSPACE-complete. See Roughgarden's *Twenty Lectures on Algorithmic Game Theory* [^7] for the complexity-theoretic perspective.
+**Computational game theory.** For an explicitly given finite acyclic game graph, Grundy values can be computed by dynamic programming in time polynomial in the size of the graph, and often essentially linear in practice. The real difficulty is representation: when a game is given compactly by rules rather than by its full graph, the induced state space can still be exponentially large. Ferguson's notes [^7] give the classical impartial-game perspective.
 
 **Modern game search.** MCTS and AlphaZero-style approaches are in some sense the opposite of Sprague-Grundy: they don't compute exact values but learn approximate strategies through self-play. For impartial games, exact computation wins. For partizan games of practical size (Go, chess), approximation is the only option.
 

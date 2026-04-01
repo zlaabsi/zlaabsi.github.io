@@ -14,17 +14,49 @@ minify:
   disableXML: true
   minifyOutput: true
 
+frontmatter:
+  lastmod:
+    - lastmod
+    - ":fileModTime"
+
+outputFormats:
+  llms:
+    mediaType: "text/plain"
+    baseName: "llms"
+    isPlainText: true
+    notAlternative: true
+  llms-full:
+    mediaType: "text/plain"
+    baseName: "llms-full"
+    isPlainText: true
+    notAlternative: true
+
 outputs:
   home:
     - HTML
     - RSS
     - JSON
+    - llms
+    - llms-full
 
 params:
   env: production
   title: "Zakaria Laabsi"
   description: "Deep-dives on post-quantum cryptography, reasoning models, reinforcement learning, and applied mathematics."
   author: "Zakaria Laabsi"
+  keywords:
+    - post-quantum cryptography
+    - reinforcement learning
+    - reasoning models
+    - combinatorial game theory
+    - applied mathematics
+    - machine learning
+    - AI research
+    - embeddings quantization
+  images:
+    - "/images/og-v1.png"
+  schema:
+    publisherType: "Person"
   defaultTheme: light
   disableThemeToggle: false
   ShowReadingTime: true
@@ -44,7 +76,7 @@ params:
 
   homeInfoParams:
     Title: "Zakaria Laabsi"
-    Content: "Notes on AI, cryptography & mathematics"
+    Content: "Notes on AI & mathematics"
 
   socialIcons:
     - name: github

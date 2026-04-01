@@ -1,18 +1,63 @@
-<!-- ASCII background video (rotating) -->
-<video class="ascii-bg-video" autoplay muted playsinline>
+<!-- ASCII background video (rotating, persists across page navigations) -->
+<video class="ascii-bg-video" muted playsinline preload="none">
   <source src="/videos/ascii-bg.mp4" type="video/mp4">
 </video>
 <script>
 (function () {
-  var sources = ['/videos/ascii-bg.mp4', '/videos/ascii-bg-2.mp4', '/videos/ascii-bg-3.mp4'];
-  var current = 0;
   var video = document.querySelector('.ascii-bg-video');
   if (!video) return;
+  if (window.matchMedia('(max-width: 768px)').matches) return;
+
+  var sources = ['/videos/ascii-bg.mp4', '/videos/ascii-bg-2.mp4', '/videos/ascii-bg-3.mp4'];
+  var KEY = 'ascii-bg';
+
+  // Restore state from previous page
+  var saved = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+  var current = saved ? saved.index : 0;
+  var resumeTime = saved ? saved.time : 0;
+
+  video.src = sources[current];
+
+  function startVideo() {
+    if (resumeTime > 0) {
+      video.currentTime = resumeTime;
+      resumeTime = 0;
+    }
+    video.play().catch(function () {});
+  }
+
   video.addEventListener('ended', function () {
     current = (current + 1) % sources.length;
     video.src = sources[current];
     video.play();
   });
+
+  // Save state before navigating away
+  window.addEventListener('beforeunload', function () {
+    sessionStorage.setItem(KEY, JSON.stringify({
+      index: current,
+      time: video.currentTime
+    }));
+  });
+
+  // Load immediately if restoring, otherwise defer
+  if (saved) {
+    video.preload = 'auto';
+    video.addEventListener('canplaythrough', startVideo, { once: true });
+    video.load();
+  } else if ('requestIdleCallback' in window) {
+    requestIdleCallback(function () {
+      video.preload = 'auto';
+      video.addEventListener('canplaythrough', startVideo, { once: true });
+      video.load();
+    });
+  } else {
+    setTimeout(function () {
+      video.preload = 'auto';
+      video.addEventListener('canplaythrough', startVideo, { once: true });
+      video.load();
+    }, 2000);
+  }
 })();
 </script>
 

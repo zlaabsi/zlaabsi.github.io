@@ -1,0 +1,24 @@
+# {{ site.Title }}
+
+> {{ site.Params.description }}
+
+Author: {{ site.Params.author }}
+URL: {{ site.BaseURL }}
+
+---
+{{ range site.RegularPages }}{{ if and (not .Params.searchHidden) (ne .Layout "archives") (ne .Layout "search") }}
+## {{ .Title }}
+
+- URL: {{ .Permalink }}
+- Date: {{ .Date.Format "2006-01-02" }}
+{{- with .Description }}
+- Description: {{ . }}
+{{- end }}
+{{- with .Params.tags }}
+- Tags: {{ delimit . ", " }}
+{{- end }}
+
+{{ .Plain }}
+
+---
+{{ end }}{{ end }}

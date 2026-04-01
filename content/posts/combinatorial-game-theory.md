@@ -5,8 +5,13 @@ draft: false
 author: "Zakaria Laabsi"
 tags: ["game-theory", "combinatorics", "sprague-grundy", "nim", "graph-theory", "mathematics"]
 categories: ["mathematics"]
+keywords: ["Sprague-Grundy theorem", "nim game strategy", "combinatorial game theory", "nim-sum XOR", "Bouton theorem", "impartial games", "Grundy number", "game graph kernel", "mex function"]
 description: "A complete walkthrough of impartial combinatorial game theory: the game of Nim, nim-sum algebra, Bouton's theorem, game graphs, and the Sprague-Grundy theorems with proofs."
 summary: "Every impartial combinatorial game reduces to a single XOR computation. This post walks through the full theory — from Nim to the Sprague-Grundy theorem — with proofs, examples, and code."
+cover:
+  image: "/images/cgt/nim_game_graph.svg"
+  alt: "Game graph of Nim(1,1,3) showing P-positions and N-positions"
+  hidden: true
 ShowToc: true
 TocOpen: true
 math: true

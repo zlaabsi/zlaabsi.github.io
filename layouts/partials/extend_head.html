@@ -1,6 +1,12 @@
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
+<!-- Google Fonts (preconnect + preload to avoid FOUT) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:wght@400;500;600&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:wght@400;500;600&display=block">
+
 <!-- MathJax v3 (client-side rendering, same approach as lilianweng.github.io) -->
 {{ if .Param "math" }}
 <script>
@@ -17,4 +23,53 @@ MathJax = {
 };
 </script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+{{ end }}
+
+{{/* JSON-LD: Person schema on /about/ page */}}
+{{ if eq .RelPermalink "/about/" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Zakaria Laabsi",
+  "url": "https://zlaabsi.github.io/about/",
+  "sameAs": [
+    "https://github.com/zlaabsi",
+    "https://x.com/ZakShark"
+  ],
+  "alumniOf": {
+    "@type": "CollegeOrUniversity",
+    "name": "University of Montpellier"
+  },
+  "knowsAbout": [
+    "Post-quantum cryptography",
+    "Quantum computing",
+    "Reinforcement learning",
+    "Reasoning models",
+    "Interpretability",
+    "Combinatorial game theory",
+    "Applied mathematics",
+    "Machine learning",
+    "Embeddings quantization"
+  ]
+}
+</script>
+{{ end }}
+
+{{/* JSON-LD: WebSite + SearchAction on homepage */}}
+{{ if .IsHome }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": {{ site.Title }},
+  "url": {{ site.BaseURL }},
+  "description": {{ site.Params.description }},
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://zlaabsi.github.io/search/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 {{ end }}

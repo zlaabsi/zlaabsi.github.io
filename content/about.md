@@ -3,7 +3,7 @@ title: "About"
 layout: "single"
 url: "/about/"
 summary: "About Zakaria Laabsi"
-description: "Zakaria Laabsi — MSc in applied mathematics, writing about post-quantum cryptography, reinforcement learning, reasoning models, and the bridges between mathematics and AI."
+description: "Zakaria Laabsi — MSc in applied mathematics, writing across mathematics, AI, computation, and engineering, with a broad STEM focus from algorithms to physical systems."
 ShowToc: false
 ShowReadingTime: false
 ShowShareButtons: false
@@ -11,17 +11,20 @@ ShowPostNavLinks: false
 hidemeta: true
 ---
 
-Hi, I'm Zak. I document here what I explore — post-quantum cryptography, quantum computing, reasoning models, reinforcement learning, interpretability, game theory, physics and the bridges between mathematics and artificial intelligence.
+Hi, I'm Zakaria.
 
-MSc in applied mathematics & statistics (University of Montpellier).
+I use this site to document what I explore across mathematics, AI, computation, and engineering.
 
-### Research interests
+I am not focused on a single narrow field. What connects my work is a broader interest in STEM: models, algorithms, physical systems, and the way ideas move between theory and application. That can mean writing about post-quantum cryptography, reinforcement learning, game theory, retrieval systems, the game of Hex, Nash equilibria, or fluid mechanics.
 
-- Post-quantum cryptography & quantum computing
-- Reinforcement learning & reasoning models
-- Interpretability & mechanistic understanding of neural networks
-- Combinatorial game theory
-- Embeddings quantization & retrieval systems
+### Fields I work across
+
+- Applied mathematics
+- AI and machine learning
+- Game theory, algorithms, and reasoning
+- Engineering, simulation, and physical systems
+
+Outside STEM, I also read philosophy, especially works related to simulation, technology, and modernity.
 
 ### Projects
 

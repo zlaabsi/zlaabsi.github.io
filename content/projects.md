@@ -3,7 +3,7 @@ title: "Projects"
 layout: "single"
 url: "/projects/"
 summary: "Open-source projects"
-description: "Open-source projects by Zakaria Laabsi — embedding compression for RAG, generative front-end development, and applied mathematics tools."
+description: "Open-source projects by Zakaria Laabsi, from research prototypes to practical software tools."
 ShowToc: false
 ShowReadingTime: false
 hidemeta: true

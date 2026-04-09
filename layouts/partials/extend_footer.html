@@ -8,7 +8,7 @@
   if (!video) return;
   if (window.matchMedia('(max-width: 768px)').matches) return;
 
-  var sources = ['/videos/ascii-bg.mp4', '/videos/ascii-bg-2.mp4', '/videos/ascii-bg-3.mp4'];
+  var sources = ['/videos/ascii-bg.mp4', '/videos/ascii-bg-2.mp4'{{ if ne .Kind "page" }}, '/videos/ascii-bg-3.mp4'{{ end }}];
   var KEY = 'ascii-bg';
 
   // Restore state from previous page
@@ -58,6 +58,236 @@
       video.load();
     }, 2000);
   }
+})();
+</script>
+
+<!-- Image lightbox -->
+<script>
+(function () {
+  var container = document.querySelector('.post-content');
+  if (!container) return;
+
+  var overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+  document.body.appendChild(overlay);
+
+  function openImg(src, alt) {
+    overlay.innerHTML = '<img src="' + src + '" alt="">'
+      + (alt ? '<div class="lightbox-caption">' + alt + '</div>' : '');
+    overlay.offsetHeight;
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function openVideo(videoEl, captionText) {
+    var clone = videoEl.cloneNode(true);
+    clone.controls = true;
+    clone.autoplay = true;
+    clone.muted = false;
+    clone.loop = true;
+    // styling handled by CSS .lightbox-overlay video
+    overlay.innerHTML = '';
+    overlay.appendChild(clone);
+    if (captionText) {
+      var cap = document.createElement('div');
+      cap.className = 'lightbox-caption';
+      cap.textContent = captionText;
+      overlay.appendChild(cap);
+    }
+    overlay.offsetHeight;
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(function () {
+      var v = overlay.querySelector('video');
+      if (v) v.pause();
+      overlay.innerHTML = '';
+    }, 200);
+  }
+
+  container.addEventListener('click', function (e) {
+    // Handle images
+    var img = e.target.closest('img');
+    if (img) {
+      var caption = '';
+      var fig = img.closest('figure');
+      if (fig) {
+        var fc = fig.querySelector('figcaption');
+        if (fc) caption = fc.textContent;
+      }
+      openImg(img.src, caption || img.alt);
+      return;
+    }
+    // Handle videos
+    var video = e.target.closest('video');
+    if (video) {
+      var caption = '';
+      var fig = video.closest('figure') || video.closest('.post-video');
+      if (fig) {
+        var fc = fig.querySelector('figcaption');
+        if (fc) caption = fc.textContent;
+      }
+      openVideo(video, caption);
+      return;
+    }
+  });
+
+  overlay.addEventListener('click', close);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) close();
+  });
+})();
+</script>
+
+<!-- Review: spatial grid overlay (localhost or ?grid=1). Does not affect Manim assets. Toggle: G -->
+<style>
+  #review-grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99997;
+    pointer-events: none;
+    display: none;
+    --rg-line: rgba(220, 60, 60, 0.45);
+    --rg-label: rgba(255, 220, 120, 0.95);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    line-height: 1;
+  }
+  #review-grid-overlay.is-visible { display: block; }
+  #review-grid-overlay.rg-fine {
+    --rg-cols: 8;
+    --rg-rows: 8;
+  }
+  #review-grid-overlay:not(.rg-fine) {
+    --rg-cols: 4;
+    --rg-rows: 4;
+  }
+  .rg-layer {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--rg-cols), 1fr);
+    grid-template-rows: repeat(var(--rg-rows), 1fr);
+  }
+  .rg-cell {
+    border: 1px solid var(--rg-line);
+    box-sizing: border-box;
+    position: relative;
+    color: var(--rg-label);
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
+    padding: 3px 5px;
+  }
+  .rg-cell span {
+    opacity: 0.92;
+  }
+  #review-grid-edges {
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(120, 200, 255, 0.35);
+    box-sizing: border-box;
+  }
+  .rg-tick-h, .rg-tick-v {
+    position: absolute;
+    color: rgba(180, 230, 255, 0.85);
+    text-shadow: 0 0 3px #000;
+    font-size: 10px;
+  }
+  .rg-tick-h { bottom: 2px; transform: translateX(-50%); }
+  .rg-tick-v { left: 2px; transform: translateY(-50%); }
+</style>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var hostOk = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
+  if (!hostOk && params.get('grid') !== '1') return;
+
+  var root = document.createElement('div');
+  root.id = 'review-grid-overlay';
+  root.setAttribute('aria-hidden', 'true');
+
+  var edges = document.createElement('div');
+  edges.id = 'review-grid-edges';
+  root.appendChild(edges);
+
+  var layer = document.createElement('div');
+  layer.className = 'rg-layer';
+  root.appendChild(layer);
+
+  var ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+  function buildCells(fine) {
+    layer.innerHTML = '';
+    var n = fine ? 8 : 4;
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        var cell = document.createElement('div');
+        cell.className = 'rg-cell';
+        var lab = document.createElement('span');
+        lab.textContent = ROWS[r] + (c + 1);
+        cell.appendChild(lab);
+        layer.appendChild(cell);
+      }
+    }
+  }
+
+  function edgeTicks() {
+    edges.querySelectorAll('.rg-tick-h, .rg-tick-v').forEach(function (n) { n.remove(); });
+    var pct = [0, 25, 50, 75, 100];
+    pct.forEach(function (p) {
+      var h = document.createElement('div');
+      h.className = 'rg-tick-h';
+      h.style.left = p + '%';
+      h.textContent = p + '%';
+      edges.appendChild(h);
+      var v = document.createElement('div');
+      v.className = 'rg-tick-v';
+      v.style.top = p + '%';
+      v.textContent = p + '%';
+      edges.appendChild(v);
+    });
+  }
+
+  var fine = sessionStorage.getItem('reviewGridFine') === '1';
+  function applyFine() {
+    root.classList.toggle('rg-fine', fine);
+    buildCells(fine);
+    edgeTicks();
+    sessionStorage.setItem('reviewGridFine', fine ? '1' : '0');
+  }
+  applyFine();
+
+  var visible = params.get('grid') === '1' || sessionStorage.getItem('reviewGridVisible') === '1';
+  function setVisible(v) {
+    visible = v;
+    root.classList.toggle('is-visible', visible);
+    sessionStorage.setItem('reviewGridVisible', visible ? '1' : '0');
+  }
+  setVisible(visible);
+
+  document.body.appendChild(root);
+
+  if (hostOk || params.get('grid') === '1') {
+    console.info('[Review grid] g = show/hide, Shift+g = toggle 4×4 / 8×8, ?grid=1 = visible on load');
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (e.key === 'g' || e.key === 'G') {
+      if (e.shiftKey) {
+        fine = !fine;
+        applyFine();
+      } else {
+        setVisible(!visible);
+      }
+      e.preventDefault();
+    }
+  }, true);
 })();
 </script>
 

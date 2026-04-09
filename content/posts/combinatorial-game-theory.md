@@ -7,7 +7,7 @@ tags: ["game-theory", "combinatorics", "sprague-grundy", "nim", "graph-theory", 
 categories: ["mathematics"]
 keywords: ["Sprague-Grundy theorem", "nim game strategy", "combinatorial game theory", "nim-sum XOR", "Bouton theorem", "impartial games", "Grundy number", "game graph kernel", "mex function"]
 description: "A complete walkthrough of impartial combinatorial game theory: the game of Nim, nim-sum algebra, Bouton's theorem, game graphs, and the Sprague-Grundy theorems with proofs."
-summary: "Every impartial combinatorial game reduces to a single XOR computation. This post walks through the full theory — from Nim to the Sprague-Grundy theorem — with proofs, examples, and code."
+summary: "Every impartial combinatorial game reduces to a single XOR computation. This post walks through the full theory (from Nim to the Sprague-Grundy theorem) with proofs, examples, and code."
 cover:
   image: "/images/cgt/nim_game_graph.svg"
   alt: "Game graph of Nim(1,1,3) showing P-positions and N-positions"
@@ -19,19 +19,19 @@ ShowReadingTime: true
 ShowCodeCopyButtons: true
 ---
 
-> *This post is adapted from academic notes I wrote in 2020 during the third year of my undergraduate degree in Mathematics at the National University Institute Jean-François Champollion, supervised by Alain Berthomieu. The content is not recent — it reflects what I was studying six years ago. I'm publishing it here because the results are timeless, and I think the presentation holds up.*
+> *This post is adapted from academic notes I wrote in 2020 during the third year of my undergraduate degree in Mathematics at the National University Institute Jean-François Champollion, supervised by Alain Berthomieu. The content is not recent; it reflects what I was studying six years ago. I'm publishing it here because the results are timeless, and I think the presentation holds up.*
 
 ## Introduction
 
-Two players sit across from each other. There are several heaps of tokens on the table. On each turn, a player picks a heap and removes as many tokens as they want — at least one. The player who takes the last token wins. This is the game of **Nim**.
+Two players sit across from each other. There are several heaps of tokens on the table. On each turn, a player picks a heap and removes as many tokens as they want, at least one. The player who takes the last token wins. This is the game of **Nim**.
 
-The remarkable fact is that this game — and indeed *every* impartial combinatorial game — admits a complete mathematical solution. The winning strategy reduces to a single operation: **XOR**.
+The remarkable fact is that this game, and indeed *every* impartial combinatorial game, admits a complete mathematical solution. The winning strategy reduces to a single operation: **XOR**.
 
 The central result is the **Sprague-Grundy theorem**, proved independently by Roland Sprague (1935) [^1] and Patrick Michael Grundy (1939) [^2]. It states that every impartial game is equivalent to a Nim heap of a certain size. The size is computed recursively using the **Grundy function**, and the winning condition for a sum of games is determined by XOR-ing the Grundy values.
 
 Charles L. Bouton had already solved Nim itself in 1901 [^3], but Sprague and Grundy generalized the result to *all* impartial games by connecting game positions to directed acyclic graphs. John Conway later unified the theory in *On Numbers and Games* (1976) [^4], introducing surreal numbers and the formal framework that Berlekamp, Conway, and Guy expanded in *Winning Ways* (1982) [^5].
 
-This post walks through the full path: Nim, the nim-sum, Bouton's theorem, games as graphs, and the two Sprague-Grundy theorems — with complete proofs.
+This post walks through the full path: Nim, the nim-sum, Bouton's theorem, games as graphs, and the two Sprague-Grundy theorems, with complete proofs.
 
 ---
 
@@ -44,12 +44,12 @@ Before diving into Nim, we define precisely the class of games under study.
 1. **Two players** alternate turns.
 2. The game has a **finite set of positions** and a designated **starting position**.
 3. The rules define, for each position, the set of positions reachable in one move (the **options**).
-4. Both players have **complete information** — the full game state is visible to both.
+4. Both players have **complete information**: the full game state is visible to both.
 5. There is **no randomness** (no dice, no card draws).
 6. The game must **terminate** in finitely many moves (the *ending condition*).
 7. Under the **normal play convention**, the player who cannot move **loses**.
 
-A combinatorial game is called **impartial** if both players have exactly the same moves available from any position. Games like Nim are impartial. Games like Chess or Go, where each player has different pieces, are *partizan* — these fall outside our scope.
+A combinatorial game is called **impartial** if both players have exactly the same moves available from any position. Games like Nim are impartial. Games like Chess or Go, where each player has different pieces, are *partizan*; these fall outside our scope.
 
 ### $\mathcal{P}$-positions and $\mathcal{N}$-positions
 
@@ -63,7 +63,7 @@ These classes are characterized recursively:
 - A position is an $\mathcal{N}$-position if it has at least one option that is a $\mathcal{P}$-position.
 - A position is a $\mathcal{P}$-position if all of its options are $\mathcal{N}$-positions.
 
-The entire theory that follows is about computing which class a position belongs to — efficiently.
+The entire theory that follows is about computing which class a position belongs to, efficiently.
 
 ![Recursive classification of P and N positions](/images/cgt/formal_setup.svg)
 
@@ -71,9 +71,9 @@ The entire theory that follows is about computing which class a position belongs
 
 ## The Game of Nim
 
-Nim is played with $k$ heaps containing $n_1, n_2, \ldots, n_k$ tokens respectively. On each turn, a player chooses one heap and removes any positive number of tokens from it. Under the **normal play convention**, the player who takes the last token wins — equivalently, the player who cannot move loses.
+Nim is played with $k$ heaps containing $n_1, n_2, \ldots, n_k$ tokens respectively. On each turn, a player chooses one heap and removes any positive number of tokens from it. Under the **normal play convention**, the player who takes the last token wins; equivalently, the player who cannot move loses.
 
-A game state is a $k$-tuple $(n_1, n_2, \ldots, n_k) \in \mathbb{N}^k$. The terminal state is $(0, 0, \ldots, 0)$.
+A game state is a $k$-tuple $(n_1, n_2, \ldots, n_k) \in \mathbb{N}_0^k$, where $\mathbb{N}_0 = \{0,1,2,\ldots\}$. The terminal state is $(0, 0, \ldots, 0)$.
 
 ![Nim heaps](/images/cgt/nim_heaps.svg)
 
@@ -123,7 +123,7 @@ Starting from $(1, 3, 5)$, the nim-sum is $1 \oplus 3 \oplus 5 = 7 \neq 0$, so *
 **Move 3 (P1).** Restore zero: reduce heap 1 from 1 to 0. New position: $(0, 2, 2)$.
 - Check: $0 \oplus 2 \oplus 2 = 0$. $\checkmark$
 
-**Move 4 (P2).** P2 must move — say, reduce heap 2 from 2 to 1. New position: $(0, 1, 2)$.
+**Move 4 (P2).** P2 must move, say, reduce heap 2 from 2 to 1. New position: $(0, 1, 2)$.
 - Check: $0 \oplus 1 \oplus 2 = 3 \neq 0$.
 
 **Move 5 (P1).** Reduce heap 3 from 2 to 1: $(0, 1, 1)$, nim-sum $= 0$. $\checkmark$
@@ -136,7 +136,7 @@ The pattern is clear: P1 always restores nim-sum to 0, and P2 is forced to break
 
 ![Nim gameplay steps](/images/cgt/nim_gameplay_steps.svg)
 
-{{< anim-svg src="images/cgt/nim_animation.svg" caption="Animated: Playing out a Nim game from (1,3,5) — the binary matrix and nim-sum update after each move" >}}
+{{< anim-svg src="images/cgt/nim_animation.svg" caption="Animated: Playing out a Nim game from (1,3,5): the binary matrix and nim-sum update after each move" >}}
 
 ---
 
@@ -152,14 +152,14 @@ This is exactly the XOR operation from Boolean algebra.
 
 ### Algebraic Properties
 
-The pair $(\mathbb{N}, \oplus)$ forms an **abelian group**:
+The pair $(\mathbb{N}_0, \oplus)$ forms an **abelian group**:
 
-- $0$ is the **identity element**: $\forall a \in \mathbb{N}, \; a \oplus 0 = a$
-- **Self-inverse:** $\forall a \in \mathbb{N}, \; a \oplus a = 0$
-- **Commutativity:** $\forall (a,b) \in \mathbb{N}^2, \; a \oplus b = b \oplus a$
-- **Associativity:** $\forall (a,b,c) \in \mathbb{N}^3, \; (a \oplus b) \oplus c = a \oplus (b \oplus c)$
+- $0$ is the **identity element**: $\forall a \in \mathbb{N}_0, \; a \oplus 0 = a$
+- **Self-inverse:** $\forall a \in \mathbb{N}_0, \; a \oplus a = 0$
+- **Commutativity:** $\forall (a,b) \in \mathbb{N}_0^2, \; a \oplus b = b \oplus a$
+- **Associativity:** $\forall (a,b,c) \in \mathbb{N}_0^3, \; (a \oplus b) \oplus c = a \oplus (b \oplus c)$
 
-*Proof sketch.* Since the nim-sum operates **independently on each binary digit**, it suffices to verify each property at the bit level for $a, b, c \in \{0,1\}$ — the result then extends to all of $\mathbb{N}$ componentwise.
+*Proof sketch.* Since the nim-sum operates **independently on each binary digit**, it suffices to verify each property at the bit level for $a, b, c \in \{0,1\}$; the result then extends to all of $\mathbb{N}_0$ componentwise.
 
 The identity and self-inverse properties follow from the definition: XOR-ing with 0 changes nothing, and $x + x \equiv 0 \pmod{2}$ for $x \in \{0,1\}$.
 
@@ -167,7 +167,7 @@ For *associativity*, verify at the bit level: when $c = 0$, both sides reduce to
 
 For *commutativity*, set $x = a \oplus b$. Then $x \oplus b = a$ (by associativity and self-inverse), and $x \oplus a = b$, from which $b \oplus a = x = a \oplus b$. $\square$
 
-More precisely, $(\mathbb{N}, \oplus)$ is an abelian group of exponent 2 — every element is its own inverse. It is isomorphic to a countably infinite direct sum of copies of $\mathbb{Z}/2\mathbb{Z}$.
+More precisely, $(\mathbb{N}_0, \oplus)$ is an abelian group of exponent 2: every element is its own inverse. It is isomorphic to a countably infinite direct sum of copies of $\mathbb{Z}/2\mathbb{Z}$.
 
 ### XOR at the Bit Level
 
@@ -245,16 +245,16 @@ Since $k = 2 \neq 0$, this is an $\mathcal{N}$-position. A winning move exists.
 **Step 2.** Find the leading bit of $k = 2 = 010_2$. The leading 1 is at position $v = 1$.
 
 **Step 3.** Find a heap with a 1 at bit position $v = 1$:
-- $n_1 = 1 = 001_2$ — bit 1 is 0
-- $n_2 = 3 = 011_2$ — bit 1 is **1** $\checkmark$
-- $n_3 = 5 = 101_2$ — bit 1 is 0
-- $n_4 = 5 = 101_2$ — bit 1 is 0
+- $n_1 = 1 = 001_2$: bit 1 is 0
+- $n_2 = 3 = 011_2$: bit 1 is **1** $\checkmark$
+- $n_3 = 5 = 101_2$: bit 1 is 0
+- $n_4 = 5 = 101_2$: bit 1 is 0
 
 Choose heap 2.
 
 **Step 4.** Compute the new heap size: $n_2^* = n_2 \oplus k = 011_2 \oplus 010_2 = 001_2 = 1$. Since $1 < 3$, this is a valid move: remove $3 - 1 = 2$ tokens from heap 2.
 
-**Step 5.** Verify: the new position is $(1, 1, 5, 5)$ with nim-sum $1 \oplus 1 \oplus 5 \oplus 5 = 0$. The opponent is now in a $\mathcal{P}$-position — losing with perfect play.
+**Step 5.** Verify: the new position is $(1, 1, 5, 5)$ with nim-sum $1 \oplus 1 \oplus 5 \oplus 5 = 0$. The opponent is now in a $\mathcal{P}$-position: losing with perfect play.
 
 ![Winning move strategy](/images/cgt/winning_move_strategy.svg)
 
@@ -262,19 +262,19 @@ Choose heap 2.
 
 ## Games as Directed Graphs
 
-**Definition.** A *game graph* is a triple $\varGamma = (V, A, v_0)$ where:
+**Definition.** A *game graph* is a triple $\Gamma = (V, A, v_0)$ where:
 - $V$ is a finite set of **positions** (vertices)
 - $A \subseteq V \times V$ is the set of **legal moves** (directed edges)
 - $v_0 \in V$ is the **starting position**
 - Terminal positions (no outgoing edges) correspond to the losing position for the player to move (normal play convention)
 
-The graph is **acyclic**: every game must terminate in finitely many moves. This is guaranteed by the existence of a *well-founded ordering* — a function $\mu : V \to \mathbb{N}$ such that $(x, y) \in A$ implies $\mu(y) < \mu(x)$. In Nim, for example, $\mu(n_1, \ldots, n_k) = n_1 + \cdots + n_k$ (the total number of tokens strictly decreases on every move).
+The graph is **acyclic**: every game must terminate in finitely many moves. This is guaranteed by the existence of a *well-founded ordering*: a function $\mu : V \to \mathbb{N}_0$ such that $(x, y) \in A$ implies $\mu(y) < \mu(x)$. In Nim, for example, $\mu(n_1, \ldots, n_k) = n_1 + \cdots + n_k$ (the total number of tokens strictly decreases on every move).
 
-When the starting position is understood from context, we write simply $\varGamma = (V, A)$.
+When the starting position is understood from context, we write simply $\Gamma = (V, A)$.
 
 **Successors.** For a vertex $x \in V$, the set of successors is $\operatorname{Succ}(x) = \{y \in V \mid (x, y) \in A\}$.
 
-**Example.** The full game graph of Nim(1,1,3). Each node is a position vector $(n_1, n_2, n_3)$ — the colored digits correspond to the three heaps. Positions with nim-sum $= 0$ are $\mathcal{P}$-positions (only $(1,1,0)$ and $(0,0,0)$); all others are $\mathcal{N}$-positions. Note how equivalent games (e.g. removing heap 1 or heap 2 from $(1,1,3)$) lead to the same multiset of heaps.
+**Example.** The full game graph of Nim(1,1,3). Each node is a position vector $(n_1, n_2, n_3)$; the colored digits correspond to the three heaps. Positions with nim-sum $= 0$ are $\mathcal{P}$-positions (only $(1,1,0)$ and $(0,0,0)$); all others are $\mathcal{N}$-positions. Note how equivalent games (e.g. removing heap 1 or heap 2 from $(1,1,3)$) lead to the same multiset of heaps.
 
 ![Game graph of Nim(1,1,3)](/images/cgt/nim_game_graph.svg)
 
@@ -295,9 +295,9 @@ The kernel, when it exists, is exactly the set of $\mathcal{P}$**-positions** (l
 
 **(a)** $S=\{1,6\}$, arcs $1{\to}2, 2{\to}5, 3{\to}6, 4{\to}1, 5{\to}4, 6{\to}5$
 
-Stable: $\text{succ}(1)=\{2\}$, $\text{succ}(6)=\{5\}$ — none in $S$ ✓
+Stable: $\text{succ}(1)=\{2\}$, $\text{succ}(6)=\{5\}$: none in $S$ ✓
 
-Not absorbing: $\text{succ}(2)=\{5\}$, $\text{succ}(5)=\{4\}$ — neither 2 nor 5 can reach $S$ ✗
+Not absorbing: $\text{succ}(2)=\{5\}$, $\text{succ}(5)=\{4\}$: neither 2 nor 5 can reach $S$ ✗
 
 **(b)** $S=\{1,2,3\}$, arcs $1{\to}2, 4{\to}1, 4{\to}5, 5{\to}3, 6{\to}2$
 
@@ -307,7 +307,7 @@ Not stable: arc $1{\to}2$ between vertices of $S$ ✗
 
 **(c)** $K=\{2,6\}$, arcs $1{\to}2, 1{\to}4, 3{\to}5, 3{\to}6, 4{\to}2, 5{\to}6$
 
-Stable: $\text{succ}(2)=\emptyset$, $\text{succ}(6)=\emptyset$ — no arc between vertices of $K$ ✓
+Stable: $\text{succ}(2)=\emptyset$, $\text{succ}(6)=\emptyset$: no arc between vertices of $K$ ✓
 
 Absorbing: $1{\to}2$, $3{\to}6$, $4{\to}2$, $5{\to}6$ ✓ → **Kernel** ✓
 
@@ -322,9 +322,9 @@ Absorbing: $1{\to}3$, $2{\to}3$, $4{\to}6$, $5{\to}6$ ✓ → **Kernel** ✓
 
 ### Nim as a Graph
 
-**Trivial Nim** (single heap of $n$ tokens): $S = \{0, \ldots, n\}$, $A = \{(x, y) \mid y < x\}$. The kernel is $K = \{0\}$ — take everything.
+**Trivial Nim** (single heap of $n$ tokens): $S = \{0, \ldots, n\}$, $A = \{(x, y) \mid y < x\}$. The kernel is $K = \{0\}$: take everything.
 
-**Restricted Nim** (remove at most $p$ tokens per turn): $S = \{0, \ldots, n\}$, $A = \{(x, y) \mid x - p \leq y < x\}$. The kernel is $K = (p+1)\mathbb{N} \cap S$ — the multiples of $p+1$.
+**Restricted Nim** (remove at most $p$ tokens per turn): $S = \{0, \ldots, n\}$, $A = \{(x, y) \mid x - p \leq y < x\}$. The kernel is $K = (p+1)\mathbb{N}_0 \cap S$: the multiples of $p+1$.
 
 **Proposition.** *In Restricted Nim with parameter $p$, the Grundy value is $\gamma(n) = n \bmod (p+1)$.*
 
@@ -340,9 +340,9 @@ If $n \bmod (p+1) = r$, the successors' Grundy values cover $\{0, 1, \ldots, p\}
 
 ### Sum of Games
 
-**Definition.** Given two games $\varGamma_1 = (V_1, A_1)$ and $\varGamma_2 = (V_2, A_2)$, their *sum* $\varGamma_1 + \varGamma_2 = (V, A)$ is defined by:
+**Definition.** Given two games $\Gamma_1 = (V_1, A_1)$ and $\Gamma_2 = (V_2, A_2)$, their *sum* $\Gamma_1 + \Gamma_2 = (V, A)$ is defined by:
 - $V = V_1 \times V_2$
-- From position $(x_1, x_2)$, a player may either move in $\varGamma_1$ (going to some $(y_1, x_2)$ with $y_1 \in \operatorname{Succ}(x_1)$) or move in $\varGamma_2$ (going to $(x_1, y_2)$ with $y_2 \in \operatorname{Succ}(x_2)$), but not both.
+- From position $(x_1, x_2)$, a player may either move in $\Gamma_1$ (going to some $(y_1, x_2)$ with $y_1 \in \operatorname{Succ}(x_1)$) or move in $\Gamma_2$ (going to $(x_1, y_2)$ with $y_2 \in \operatorname{Succ}(x_2)$), but not both.
 
 $$
 \operatorname{Succ}(x_1, x_2) = \bigl(\operatorname{Succ}(x_1) \times \{x_2\}\bigr) \cup \bigl(\{x_1\} \times \operatorname{Succ}(x_2)\bigr)
@@ -360,17 +360,17 @@ This is the core of the theory.
 
 ### The Mex and the Grundy Function
 
-**Definition.** The *minimum excludant* (mex) of a set $T \subset \mathbb{N}$ is the smallest non-negative integer not in $T$:
+**Definition.** The *minimum excludant* (mex) of a set $T \subseteq \mathbb{N}_0$ is the smallest non-negative integer not in $T$:
 
 $$
-\operatorname{mex}(T) = \min\{n \in \mathbb{N} \mid n \notin T\}
+\operatorname{mex}(T) = \min\{n \in \mathbb{N}_0 \mid n \notin T\}
 $$
 
 The term "mex" was coined by Conway [^4].
 
 **Examples:** $\operatorname{mex}\{\} = 0$, $\; \operatorname{mex}\{1,2,3\} = 0$, $\; \operatorname{mex}\{0,2,4\} = 1$, $\; \operatorname{mex}\{0,1,\ldots,n\} = n+1$.
 
-**Definition.** Let $\varGamma = (V, A)$ be a game graph. The *Sprague-Grundy function* $\gamma : V \to \mathbb{N}$ is defined recursively:
+**Definition.** Let $\Gamma = (V, A)$ be a game graph. The *Sprague-Grundy function* $\gamma : V \to \mathbb{N}_0$ is defined recursively:
 
 $$
 \gamma(x) = \operatorname{mex}\bigl\{\gamma(y) \mid y \in \operatorname{Succ}(x)\bigr\}
@@ -401,11 +401,11 @@ We compute $\gamma$ bottom-up, starting from terminal nodes:
 
 ![Grundy computation](/images/cgt/grundy_computation.svg)
 
-The $\mathcal{P}$-positions (losing for the player to move) are exactly the nodes with $\gamma = 0$: nodes 0 and 3. From node 3, both successors (1 and 2) have $\gamma \neq 0$ — the player to move at node 3 cannot win.
+The $\mathcal{P}$-positions (losing for the player to move) are exactly the nodes with $\gamma = 0$: nodes 0 and 3. From node 3, both successors (1 and 2) have $\gamma \neq 0$; the player to move at node 3 cannot win.
 
 ### Theorem I: Additivity of the Grundy Function
 
-**Theorem** (Sprague-Grundy I). *Let $\varGamma = \varGamma_1 + \cdots + \varGamma_n$ be a sum of games. If $\gamma_i$ is the Sprague-Grundy function of $\varGamma_i$, then the Sprague-Grundy function of $\varGamma$ is:*
+**Theorem** (Sprague-Grundy I). *Let $\Gamma = \Gamma_1 + \cdots + \Gamma_n$ be a sum of games. If $\gamma_i$ is the Sprague-Grundy function of $\Gamma_i$, then the Sprague-Grundy function of $\Gamma$ is:*
 
 $$
 \gamma(x_1, \ldots, x_n) = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)
@@ -427,9 +427,9 @@ Since the sum game is finite and acyclic, this recursion determines the Sprague-
 
 **Part 1: For every $a < b$, there exists a successor $y$ with $F(y) = a$.**
 
-Let $d = a \oplus b$. Since $a \neq b$, we have $d \neq 0$. Let $v$ be the position of the leading 1 in $d$ — this is the highest bit position where $a$ and $b$ differ. Since $a < b$ and all bits above position $v$ are the same in $a$ and $b$, the bit at position $v$ must be 1 in $b$ and 0 in $a$ (otherwise we would have $a > b$). Since $b = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)$ has a 1 at bit position $v$, and XOR is a bitwise sum mod 2, there exists some $i$ such that $\gamma_i(x_i)$ has a 1 at bit position $v$.
+Let $d = a \oplus b$. Since $a \neq b$, we have $d \neq 0$. Let $v$ be the position of the leading 1 in $d$, i.e., the highest bit position where $a$ and $b$ differ. Since $a < b$ and all bits above position $v$ are the same in $a$ and $b$, the bit at position $v$ must be 1 in $b$ and 0 in $a$ (otherwise we would have $a > b$). Since $b = \gamma_1(x_1) \oplus \cdots \oplus \gamma_n(x_n)$ has a 1 at bit position $v$, and XOR is a bitwise sum mod 2, there exists some $i$ such that $\gamma_i(x_i)$ has a 1 at bit position $v$.
 
-Then $\gamma_i(x_i) \oplus d < \gamma_i(x_i)$ (the bit at position $v$ flips from 1 to 0, and higher bits are unchanged). Since $\gamma_i(x_i)$ is the mex of the successor values in $\varGamma_i$, every integer strictly smaller than $\gamma_i(x_i)$ occurs among them. Therefore there exists $x_i^* \in \operatorname{Succ}(x_i)$ with $\gamma_i(x_i^*) = \gamma_i(x_i) \oplus d$.
+Then $\gamma_i(x_i) \oplus d < \gamma_i(x_i)$ (the bit at position $v$ flips from 1 to 0, and higher bits are unchanged). Since $\gamma_i(x_i)$ is the mex of the successor values in $\Gamma_i$, every integer strictly smaller than $\gamma_i(x_i)$ occurs among them. Therefore there exists $x_i^* \in \operatorname{Succ}(x_i)$ with $\gamma_i(x_i^*) = \gamma_i(x_i) \oplus d$.
 
 The successor $(x_1, \ldots, x_i^*, \ldots, x_n)$ then satisfies:
 
@@ -451,38 +451,38 @@ Since this holds for every position, $F$ is the Sprague-Grundy function of the s
 
 ### Theorem II: Every Impartial Game is Equivalent to a Nim Heap
 
-**Theorem** (Sprague-Grundy II). *Every impartial game $\varGamma$ is equivalent to a single Nim heap of size $\gamma(\varGamma)$:*
+**Theorem** (Sprague-Grundy II). *Every impartial game $\Gamma$ is equivalent to a single Nim heap of size $\gamma(\Gamma)$:*
 
 $$
-\varGamma \sim \operatorname{Nim}(\gamma(\varGamma))
+\Gamma \sim \operatorname{Nim}(\gamma(\Gamma))
 $$
 
-Here, $\varGamma \sim \varGamma'$ means that $\varGamma$ and $\varGamma'$ have the same outcome ($\mathcal{P}$-position or $\mathcal{N}$-position) when added to any other game.
+Here, $\Gamma \sim \Gamma'$ means that $\Gamma$ and $\Gamma'$ have the same outcome ($\mathcal{P}$-position or $\mathcal{N}$-position) when added to any other game.
 
 **Proof.** We show two intermediate results:
 
-**(i)** For any game $\varGamma$, the sum $\varGamma + \varGamma$ is a $\mathcal{P}$-position.
+**(i)** For any game $\Gamma$, the sum $\Gamma + \Gamma$ is a $\mathcal{P}$-position.
 
 This follows from the **mirror strategy**: whenever the opponent moves in one copy, respond with the identical move in the other copy.
 
-More precisely: consider the game $\varGamma + \varGamma$ played on two identical copies. The second player's strategy is as follows — whenever the first player makes a move $x \to y$ in copy $i$, the second player responds with the same move $x \to y$ in copy $j \neq i$. This is always legal because the two copies are in identical states before the first player's turn.
+More precisely: consider the game $\Gamma + \Gamma$ played on two identical copies. The second player's strategy is as follows: whenever the first player makes a move $x \to y$ in copy $i$, the second player responds with the same move $x \to y$ in copy $j \neq i$. This is always legal because the two copies are in identical states before the first player's turn.
 
-Since the game is finite and every move strictly reduces the number of available positions, the first player will eventually be unable to move in both copies simultaneously. The second player, having always mirrored, will make the last move. Therefore $\varGamma + \varGamma$ is a $\mathcal{P}$-position — the first player loses.
+Since the game is finite and every move strictly reduces the number of available positions, the first player will eventually be unable to move in both copies simultaneously. The second player, having always mirrored, will make the last move. Therefore $\Gamma + \Gamma$ is a $\mathcal{P}$-position: the first player loses.
 
-**(ii)** If $K$ is a $\mathcal{P}$-position, then $\varGamma \sim \varGamma + K$.
+**(ii)** If $K$ is a $\mathcal{P}$-position, then $\Gamma \sim \Gamma + K$.
 
 Let $X$ be any impartial game. By Theorem I, the Grundy value of a sum is the XOR of the components' Grundy values. Since $K$ is a $\mathcal{P}$-position, $\gamma(K) = 0$, so
 
 $$
-\gamma((\varGamma + K) + X) = \gamma(\varGamma) \oplus \gamma(K) \oplus \gamma(X) = \gamma(\varGamma) \oplus 0 \oplus \gamma(X) = \gamma(\varGamma + X)
+\gamma((\Gamma + K) + X) = \gamma(\Gamma) \oplus \gamma(K) \oplus \gamma(X) = \gamma(\Gamma) \oplus 0 \oplus \gamma(X) = \gamma(\Gamma + X)
 $$
 
-Hence $(\varGamma + K) + X$ and $\varGamma + X$ have the same $\mathcal{P}/\mathcal{N}$ classification for every impartial game $X$. Therefore $\varGamma \sim \varGamma + K$.
+Hence $(\Gamma + K) + X$ and $\Gamma + X$ have the same $\mathcal{P}/\mathcal{N}$ classification for every impartial game $X$. Therefore $\Gamma \sim \Gamma + K$.
 
-Now, $\varGamma + \operatorname{Nim}(\gamma(\varGamma))$ is a $\mathcal{P}$-position because its Grundy value is $\gamma(\varGamma) \oplus \gamma(\varGamma) = 0$ (by Theorem I and the fact below that $\gamma(\operatorname{Nim}(m)) = m$). Therefore, using the associativity of the game sum (which holds because the canonical bijection $(S_1 \times S_2) \times S_3 \cong S_1 \times (S_2 \times S_3)$ preserves the successor structure) and (ii):
+Now, $\Gamma + \operatorname{Nim}(\gamma(\Gamma))$ is a $\mathcal{P}$-position because its Grundy value is $\gamma(\Gamma) \oplus \gamma(\Gamma) = 0$ (by Theorem I and the fact below that $\gamma(\operatorname{Nim}(m)) = m$). Therefore, using the associativity of the game sum (which holds because the canonical bijection $(S_1 \times S_2) \times S_3 \cong S_1 \times (S_2 \times S_3)$ preserves the successor structure) and (ii):
 
 $$
-\varGamma \sim \varGamma + \underbrace{\bigl(\varGamma + \operatorname{Nim}(\gamma(\varGamma))\bigr)}_{\mathcal{P}\text{-position}} \sim \underbrace{(\varGamma + \varGamma)}_{\mathcal{P}\text{-position}} + \operatorname{Nim}(\gamma(\varGamma)) \sim \operatorname{Nim}(\gamma(\varGamma)) \quad \square
+\Gamma \sim \Gamma + \underbrace{\bigl(\Gamma + \operatorname{Nim}(\gamma(\Gamma))\bigr)}_{\mathcal{P}\text{-position}} \sim \underbrace{(\Gamma + \Gamma)}_{\mathcal{P}\text{-position}} + \operatorname{Nim}(\gamma(\Gamma)) \sim \operatorname{Nim}(\gamma(\Gamma)) \quad \square
 $$
 
 ### Grundy Value of a Nim Heap
@@ -623,11 +623,11 @@ if __name__ == "__main__":
 
 ## Closing Thoughts
 
-The Sprague-Grundy theorem reduces every finite impartial game — no matter how complex its rules — to a single integer, and the analysis of a sum of such games to a single XOR. The theory is complete: it tells you exactly who wins and how.
+The Sprague-Grundy theorem reduces every finite impartial game, no matter how complex its rules, to a single integer, and the analysis of a sum of such games to a single XOR. The theory is complete: it tells you exactly who wins and how.
 
 A few threads worth pulling on, for the curious:
 
-**Partizan games.** When the two players have *different* available moves (chess, Go, Hex), the theory extends to Conway's surreal numbers and partizan game values $G = \{G^L \mid G^R\}$. The algebra becomes much richer — and much harder [^4] [^5].
+**Partizan games.** When the two players have *different* available moves (chess, Go, Hex), the theory extends to Conway's surreal numbers and partizan game values $G = \{G^L \mid G^R\}$. The algebra becomes much richer, and much harder [^4] [^5].
 
 **Computational game theory.** For an explicitly given finite acyclic game graph, Grundy values can be computed by dynamic programming in time polynomial in the size of the graph, and often essentially linear in practice. The real difficulty is representation: when a game is given compactly by rules rather than by its full graph, the induced state space can still be exponentially large. Ferguson's notes [^7] give the classical impartial-game perspective.
 

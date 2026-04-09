@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="700" height="360" viewBox="0 0 700 360">
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="480" viewBox="0 0 700 480">
 <style>
   .dark .bg { fill: #111111; }
   .dark .txt { fill: #f0f0f0; }
@@ -23,9 +23,6 @@
   .dark .marker-sienna { fill: #C97A50; }
   .dark .xor-bg { fill: #D4A843; fill-opacity: 0.12; }
   .dark .highlight-bg { fill: #D4A843; fill-opacity: 0.08; }
-  .dark .kernel-fill { fill: #D4A843; }
-  .dark .p-fill { fill: #8B9A6B; }
-  .dark .n-fill { fill: #C97A50; }
 </style>
 <defs>
   <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
@@ -34,71 +31,114 @@
   <marker id="arr-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
     <polygon points="0 0, 8 3, 0 6" class="marker-accent" fill="#B8860B"/>
   </marker>
-  <marker id="arr-olive" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-    <polygon points="0 0, 8 3, 0 6" class="marker-olive" fill="#6B705C"/>
-  </marker>
-  <marker id="arr-sienna" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-    <polygon points="0 0, 8 3, 0 6" class="marker-sienna" fill="#A0522D"/>
-  </marker>
   <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
     <feDropShadow dx="1" dy="1" stdDeviation="1.5" flood-opacity="0.1"/>
   </filter>
 </defs>
-<text x="350" y="22" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Winning move algorithm: (1, 3, 5, 5) with k = 2</text>
-<g transform="translate(30, 45)">
-<text x="0" y="0" text-anchor="start" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Step 1: Binary decomposition</text>
-<text x="80" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">2²</text>
-<text x="115" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">2¹</text>
-<text x="150" y="25" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">2⁰</text>
-<text x="35" y="45" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n1=1</text>
-<text x="80" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">0</text>
-<text x="115" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">0</text>
-<text x="150" y="45" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<text x="35" y="69" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n2=3</text>
-<text x="80" y="69" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="normal" font-style="normal">0</text>
-<text x="115" y="69" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<text x="150" y="69" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<text x="35" y="93" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n3=5</text>
-<text x="80" y="93" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<text x="115" y="93" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">0</text>
-<text x="150" y="93" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<text x="35" y="117" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n4=5</text>
-<text x="80" y="117" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<text x="115" y="117" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">0</text>
-<text x="150" y="117" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<line x1="60" y1="129" x2="185" y2="129" class="line" stroke="#2C2418" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round"/>
-<text x="45" y="141" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">⊕</text>
-<text x="80" y="141" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">0</text>
-<text x="115" y="141" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">1</text>
-<text x="150" y="141" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">0</text>
-<text x="195" y="141" text-anchor="start" font-family="Georgia, serif" font-size="11" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">= k = 2 = 010₂</text>
-<rect x="63" y="13" width="35" height="130" class="xor-bg" fill="#B8860B" fill-opacity="0.08" rx="2"/>
-<text x="80" y="170" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">↑ v=1</text>
+
+<!-- Title -->
+<text x="350" y="24" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold">Winning move algorithm: (1, 3, 5, 5) with k = 2</text>
+
+<!-- ============================================================ -->
+<!-- STEP 1: Binary decomposition (left column, y=45..220)        -->
+<!-- ============================================================ -->
+<g transform="translate(30, 50)">
+  <text x="0" y="0" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold">Step 1: Binary decomposition</text>
+
+  <!-- Column headers -->
+  <text x="100" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C">2²</text>
+  <text x="135" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C">2¹</text>
+  <text x="170" y="28" text-anchor="middle" font-family="Georgia, serif" font-size="10" class="txt-sec" fill="#6B705C">2⁰</text>
+
+  <!-- Highlight column for bit v=1 (the 2¹ column) -->
+  <rect x="118" y="16" width="35" height="130" class="xor-bg" fill="#B8860B" fill-opacity="0.08" rx="2"/>
+
+  <!-- Row: n1=1 -->
+  <text x="50" y="50" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C">n₁=1</text>
+  <text x="100" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418">0</text>
+  <text x="135" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="bold">0</text>
+  <text x="170" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+
+  <!-- Row: n2=3 -->
+  <text x="50" y="74" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C">n₂=3</text>
+  <text x="100" y="74" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418">0</text>
+  <text x="135" y="74" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+  <text x="170" y="74" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+
+  <!-- Row: n3=5 -->
+  <text x="50" y="98" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C">n₃=5</text>
+  <text x="100" y="98" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+  <text x="135" y="98" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="bold">0</text>
+  <text x="170" y="98" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+
+  <!-- Row: n4=5 -->
+  <text x="50" y="122" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="10" class="txt-sec" fill="#6B705C">n₄=5</text>
+  <text x="100" y="122" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+  <text x="135" y="122" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="txt" fill="#2C2418" font-weight="bold">0</text>
+  <text x="170" y="122" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+
+  <!-- XOR line -->
+  <line x1="80" y1="132" x2="200" y2="132" stroke="#2C2418" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- XOR result -->
+  <text x="62" y="148" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="accent" fill="#B8860B" font-weight="bold">⊕</text>
+  <text x="100" y="148" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">0</text>
+  <text x="135" y="148" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">1</text>
+  <text x="170" y="148" text-anchor="middle" font-family="Georgia, serif" font-size="14" class="accent" fill="#B8860B" font-weight="bold">0</text>
+
+  <!-- k value -->
+  <text x="200" y="148" text-anchor="start" font-family="Georgia, serif" font-size="11" class="accent" fill="#B8860B" font-weight="bold">= k = 2 = 010₂</text>
+
+  <!-- Arrow pointing to highlighted column -->
+  <text x="135" y="172" text-anchor="middle" font-family="Georgia, serif" font-size="9" class="accent" fill="#B8860B" font-weight="bold">↑ v=1</text>
 </g>
-<g transform="translate(260, 45)">
-<text x="0" y="0" text-anchor="start" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Step 2: Find heap with bit v=1</text>
-<text x="10" y="25" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n₁ = 1 = 001₂  bit 1 = 0</text>
-<text x="10" y="47" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">n₂ = 3 = 011₂  bit 1 = 1 ✔</text>
-<text x="10" y="69" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n₃ = 5 = 101₂  bit 1 = 0</text>
-<text x="10" y="91" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n₄ = 5 = 101₂  bit 1 = 0</text>
-<text x="10" y="120" text-anchor="start" font-family="Georgia, serif" font-size="11" class="accent" fill="#B8860B" font-weight="bold" font-style="normal">⇒ Choose heap 2 (n₂ = 3)</text>
+
+<!-- ============================================================ -->
+<!-- STEP 2: Find heap (right column, y=50..175)                  -->
+<!-- ============================================================ -->
+<g transform="translate(380, 50)">
+  <text x="0" y="0" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold">Step 2: Find heap with bit v=1</text>
+
+  <text x="10" y="28" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C">n₁ = 1 = 001₂  bit 1 = 0</text>
+  <text x="10" y="50" font-family="'JetBrains Mono', monospace" font-size="11" class="accent" fill="#B8860B" font-weight="bold">n₂ = 3 = 011₂  bit 1 = 1 ✔</text>
+  <text x="10" y="72" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C">n₃ = 5 = 101₂  bit 1 = 0</text>
+  <text x="10" y="94" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C">n₄ = 5 = 101₂  bit 1 = 0</text>
+
+  <text x="10" y="122" font-family="Georgia, serif" font-size="11" class="accent" fill="#B8860B" font-weight="bold">⇒ Choose heap 2 (n₂ = 3)</text>
 </g>
-<g transform="translate(260, 195)">
-<text x="0" y="0" text-anchor="start" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Step 3: Compute winning move</text>
-<text x="10" y="25" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">n₂* = n₂ ⊕ k = 3 ⊕ 2</text>
-<text x="10" y="45" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">     = 011₂ ⊕ 010₂ = 001₂ = 1</text>
-<text x="10" y="65" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">Verify: 1 &lt; 3  ✔</text>
-<text x="10" y="85" text-anchor="start" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">Remove 2 tokens from heap 2</text>
+
+<!-- ============================================================ -->
+<!-- STEP 3: Compute move (right column, y=205..310)              -->
+<!-- ============================================================ -->
+<g transform="translate(380, 205)">
+  <text x="0" y="0" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold">Step 3: Compute winning move</text>
+
+  <text x="10" y="28" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C">n₂* = n₂ ⊕ k = 3 ⊕ 2</text>
+  <text x="10" y="50" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C">   = 011₂ ⊕ 010₂ = 001₂ = 1</text>
+  <text x="10" y="78" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C">Verify: 1 &lt; 3  ✔</text>
+  <text x="10" y="100" font-family="'JetBrains Mono', monospace" font-size="11" class="txt-sec" fill="#6B705C">Remove 2 tokens from heap 2</text>
 </g>
-<g transform="translate(30, 240)">
-<text x="0" y="0" text-anchor="start" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">Result:</text>
-<rect x="5" y="10" width="180" height="50" class="sienna-bg" fill="#A0522D" fill-opacity="0.1" rx="6"/>
-<text x="95" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">(1, 3, 5, 5)</text>
-<text x="95" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="sienna" fill="#A0522D" font-weight="normal" font-style="normal">nim-sum = 2 ≠ 0</text>
-<text x="205" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="20" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="normal">→</text>
-<rect x="220" y="10" width="180" height="50" class="olive-bg" fill="#6B705C" fill-opacity="0.1" rx="6"/>
-<text x="310" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold" font-style="normal">(1, 1, 5, 5)</text>
-<text x="310" y="50" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="olive" fill="#6B705C" font-weight="normal" font-style="normal">nim-sum = 0  ✔</text>
+
+<!-- ============================================================ -->
+<!-- RESULT (full width, y=345..415)                              -->
+<!-- ============================================================ -->
+<g transform="translate(60, 345)">
+  <text x="0" y="0" font-family="Georgia, serif" font-size="12" class="txt" fill="#2C2418" font-weight="bold">Result:</text>
+
+  <!-- Before box -->
+  <rect x="5" y="12" width="180" height="50" class="sienna-bg" fill="#A0522D" fill-opacity="0.1" rx="6" filter="url(#shadow)"/>
+  <text x="95" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold">(1, 3, 5, 5)</text>
+  <text x="95" y="53" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="sienna" fill="#A0522D">nim-sum = 2 ≠ 0</text>
+
+  <!-- Arrow -->
+  <line x1="200" y1="37" x2="240" y2="37" stroke="#2C2418" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- After box -->
+  <rect x="250" y="12" width="180" height="50" class="olive-bg" fill="#6B705C" fill-opacity="0.1" rx="6" filter="url(#shadow)"/>
+  <text x="340" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="15" class="txt" fill="#2C2418" font-weight="bold">(1, 1, 5, 5)</text>
+  <text x="340" y="53" text-anchor="middle" font-family="Georgia, serif" font-size="11" class="olive" fill="#6B705C">nim-sum = 0  ✔</text>
 </g>
-<text x="350" y="345" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt-sec" fill="#6B705C" font-weight="normal" font-style="italic">The opponent is now in a P-position (losing with perfect play)</text>
+
+<!-- Bottom annotation -->
+<text x="350" y="460" text-anchor="middle" font-family="Georgia, serif" font-size="12" class="txt-sec" fill="#6B705C" font-style="italic">The opponent is now in a 𝒫-position (losing with perfect play)</text>
 </svg>

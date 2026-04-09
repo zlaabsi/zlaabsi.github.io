@@ -306,3 +306,148 @@ blockquote {
   max-width: 100%;
   height: auto;
 }
+
+/* ===== Figure grid ===== */
+.figure-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.figure-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.figure-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.figure-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+
+.figure-grid figure {
+  margin: 0;
+  text-align: center;
+}
+.figure-grid figure img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.figure-grid figcaption {
+  font-size: 0.78rem;
+  color: var(--secondary);
+  margin-top: 0.4rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .figure-grid.cols-3,
+  .figure-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .figure-grid.cols-2,
+  .figure-grid.cols-3,
+  .figure-grid.cols-4 { grid-template-columns: 1fr; }
+}
+
+/* ===== Video shortcode ===== */
+.post-video {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.post-video video {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 6px;
+}
+
+.post-video figcaption {
+  font-size: 0.85rem;
+  color: var(--theme-text-secondary);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Light mode: transparent videos have light text — invert to make readable */
+.post-video video {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Dark mode: no invert needed — light text on dark page already readable */
+[data-theme="dark"] .post-video video {
+  filter: none;
+}
+
+/* ===== Image & video lightbox ===== */
+.post-content img,
+.post-content video {
+  cursor: zoom-in;
+}
+
+/* Video in lightbox: adapt bg to theme (Manim text is light on transparent) */
+.lightbox-overlay video {
+  filter: none !important;
+  background: #1a1a1a !important;
+}
+/* Light mode: dark bg for video (light text readable) */
+/* Dark mode: same dark bg */
+[data-theme="dark"] .lightbox-overlay video {
+  background: #1a1a1a !important;
+}
+/* Light mode: images keep white bg; dark mode: dark bg for images */
+[data-theme="dark"] .lightbox-overlay img {
+  background: #222;
+}
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s;
+  padding: 2rem;
+}
+.lightbox-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.lightbox-overlay img {
+  max-width: 95vw;
+  max-height: 92vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95);
+  transition: transform 0.2s ease;
+}
+.lightbox-overlay video {
+  max-width: 92vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 6px;
+  padding: 1rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95);
+  transition: transform 0.2s ease;
+}
+.lightbox-overlay.active img,
+.lightbox-overlay.active video {
+  transform: scale(1);
+}
+
+.lightbox-caption {
+  color: #ccc;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 80vw;
+  margin-top: 0.8rem;
+  line-height: 1.4;
+}

@@ -571,3 +571,193 @@ blockquote {
 .python-runner__output.is-error {
   color: #ffb4b4;
 }
+
+/* ===== Semantic Search ===== */
+
+.semantic-search-header .post-description {
+  max-width: 62ch;
+}
+
+.semantic-search-shell {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  background:
+    radial-gradient(circle at top left, rgba(108, 155, 255, 0.08), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(0, 185, 124, 0.09), transparent 34%),
+    var(--entry);
+}
+
+.semantic-search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: end;
+}
+
+.semantic-search-field {
+  display: block;
+}
+
+.semantic-search-field__label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.semantic-search-field input {
+  width: 100%;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 2px);
+  background: color-mix(in srgb, var(--theme) 68%, transparent);
+  color: var(--primary);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.semantic-search-field input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.semantic-search-submit {
+  min-width: 8.5rem;
+  height: 3.15rem;
+  border: 0;
+  border-radius: calc(var(--radius) + 2px);
+  background: linear-gradient(135deg, #111827, #2a5c9a);
+  color: #f8fbff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+
+.semantic-search-submit:hover {
+  transform: translateY(-1px);
+}
+
+.semantic-search-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  align-items: center;
+}
+
+.semantic-search-status,
+.semantic-search-stats {
+  font-size: 0.92rem;
+  color: var(--secondary);
+}
+
+.semantic-search-status[data-tone="loading"] {
+  color: #8d6e2f;
+}
+
+.semantic-search-status[data-tone="ready"] {
+  color: #1f7a58;
+}
+
+.semantic-search-status[data-tone="error"] {
+  color: #a23e48;
+}
+
+.semantic-search-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.semantic-search-chips button {
+  border: 1px solid color-mix(in srgb, var(--border) 80%, var(--primary));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+.semantic-search-chips button:hover {
+  border-color: var(--primary);
+}
+
+.semantic-search-note {
+  margin: 0.9rem 0 0;
+  color: var(--secondary);
+  font-size: 0.92rem;
+}
+
+.semantic-search-empty {
+  margin: 1.2rem 0 0;
+  padding: 1rem 1.05rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--secondary);
+}
+
+.semantic-search-results {
+  margin-top: 1.25rem;
+}
+
+.semantic-search-result {
+  position: relative;
+  overflow: hidden;
+}
+
+.semantic-search-result__title {
+  display: inline-block;
+  max-width: calc(100% - 0.5rem);
+}
+
+.semantic-search-result__badges {
+  display: inline-flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-left: 0.75rem;
+  vertical-align: middle;
+}
+
+.semantic-search-result__badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1b2b44;
+  background: #dbeafe;
+}
+
+.semantic-search-result__badge--kind {
+  color: #174c3a;
+  background: #d1fae5;
+}
+
+@media (max-width: 680px) {
+  .semantic-search-form {
+    grid-template-columns: 1fr;
+  }
+
+  .semantic-search-submit {
+    width: 100%;
+  }
+
+  .semantic-search-result__badges {
+    display: flex;
+    margin: 0.55rem 0 0;
+  }
+}

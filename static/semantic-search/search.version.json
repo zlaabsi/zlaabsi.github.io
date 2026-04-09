@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-04-09T17:15:20.403Z",
+  "pages": 3,
+  "chunks": 27,
+  "model": "Xenova/all-MiniLM-L6-v2",
+  "transformersVersion": "4.0.1",
+  "dim": 384,
+  "bits": 4
+}

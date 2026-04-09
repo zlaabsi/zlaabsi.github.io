@@ -1,0 +1,12 @@
+{
+  "name": "zlaabsi-github-io",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:semantic-search": "node scripts/build_semantic_search.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.0.1",
+    "@zlaabsi/turboquant-wasm": "0.1.1"
+  }
+}

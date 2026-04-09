@@ -1,0 +1,70 @@
+{{- define "main" }}
+
+{{- $search := resources.Get "js/semantic-search.js" | js.Build (dict
+  "targetPath" "assets/js/semantic-search.js"
+  "params" (dict
+    "semanticIndexUrl" "/semantic-search/search.index.bin"
+    "semanticMetaUrl" "/semantic-search/search.meta.json"
+    "semanticVersionUrl" "/semantic-search/search.version.json"
+    "embeddingModel" "Xenova/all-MiniLM-L6-v2"
+    "transformersVersion" "4.0.1"
+    "turboquantVersion" "0.1.1"
+    "resultLimit" 8
+    "semanticLimit" 12
+    "keywordLimit" 8
+  )
+) | resources.Minify | fingerprint }}
+
+<header class="page-header semantic-search-header">
+  <h1>{{- (printf "%s&nbsp;" .Title ) | htmlUnescape -}}
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+  </h1>
+  <div class="post-description">
+    Semantic + exact-match search across the published site. The query is embedded in your browser, and the compressed index is searched locally with TurboQuant.
+  </div>
+</header>
+
+<section class="semantic-search-shell" data-semantic-search>
+  <form id="semanticSearchForm" class="semantic-search-form">
+    <label class="semantic-search-field" for="semanticSearchInput">
+      <span class="semantic-search-field__label">Query</span>
+      <input
+        id="semanticSearchInput"
+        type="search"
+        inputmode="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="{{ .Params.placeholder | default `Search concepts, methods, and posts...` }}"
+        aria-label="Semantic search"
+      >
+    </label>
+    <button type="submit" class="semantic-search-submit">Search</button>
+  </form>
+
+  <div class="semantic-search-toolbar">
+    <div id="semanticSearchStatus" class="semantic-search-status" data-tone="loading">Loading semantic index...</div>
+    <div id="semanticSearchStats" class="semantic-search-stats"></div>
+  </div>
+
+  <div class="semantic-search-chips" aria-label="Suggested searches">
+    <button type="button" data-semantic-query="quantization">quantization</button>
+    <button type="button" data-semantic-query="nim xor strategy">nim xor strategy</button>
+    <button type="button" data-semantic-query="browser vector search">browser vector search</button>
+    <button type="button" data-semantic-query="sprague grundy theorem">sprague grundy theorem</button>
+  </div>
+
+  <p class="semantic-search-note">
+    Published pages only. Short queries stay exact-match first; longer queries merge exact and semantic ranking.
+  </p>
+
+  <p id="semanticSearchEmpty" class="semantic-search-empty" hidden></p>
+  <ul id="semanticSearchResults" class="semantic-search-results" aria-live="polite"></ul>
+</section>
+
+<script defer crossorigin="anonymous" src="{{ $search.RelPermalink }}" integrity="{{ $search.Data.Integrity }}"></script>
+
+{{- end }}{{/* end main */}}

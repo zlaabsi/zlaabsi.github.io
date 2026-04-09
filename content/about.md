@@ -30,6 +30,7 @@ Outside STEM, I also read philosophy, especially works related to simulation, te
 ### Projects
 
 - [turboquant-embed](https://github.com/zlaabsi/turboquant-embed) — TurboQuant algorithm for embedding compression in RAG pipelines
+- [turboquant-wasm](https://github.com/zlaabsi/turboquant-wasm) — Rust-to-WASM TurboQuant for browser-side vector search, local-first RAG, and edge runtimes
 - [GenieFront](https://github.com/zlaabsi/geniefront) — Generative vision for front-end development
 
 [GitHub](https://github.com/zlaabsi) · [X](https://x.com/ZakShark) · [Email](mailto:zakaria.laabsi@gmail.com)

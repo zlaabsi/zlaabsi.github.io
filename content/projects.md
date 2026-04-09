@@ -10,4 +10,5 @@ hidemeta: true
 ---
 
 - [turboquant-embed](https://github.com/zlaabsi/turboquant-embed) — Reference implementation of TurboQuant for embedding quantization in retrieval-augmented generation pipelines. Data-oblivious, training-free compression with strong retrieval quality on BeIR benchmarks. ([Technical deep-dive](/posts/turboquant-embed/))
+- [turboquant-wasm](https://github.com/zlaabsi/turboquant-wasm) — Rust-to-WASM TurboQuant for browser-side vector search, local-first RAG, and edge runtimes.
 - [GenieFront](https://github.com/zlaabsi/geniefront) — Generative vision for front-end development, turning visual designs into production code.

@@ -30,7 +30,7 @@ Outside STEM, I also read philosophy, especially works related to simulation, te
 ### Projects
 
 - [turboquant-embed](https://github.com/zlaabsi/turboquant-embed) — TurboQuant algorithm for embedding compression in RAG pipelines
-- [turboquant-wasm](https://github.com/zlaabsi/turboquant-wasm) — Instead of sending your documents to a server like Pinecone, Weaviate, etc. to search through them, the entire search engine runs in the browser tab itself via WebAssembly
+- [turboquant-wasm](https://github.com/zlaabsi/turboquant-wasm) — Rust-to-WASM TurboQuant for browser-side vector search, local-first RAG, and edge runtimes. Instead of sending your documents to a server like Pinecone, Weaviate, etc. to search through them, the entire search engine runs in the browser tab itself via WebAssembly
 - [GenieFront](https://github.com/zlaabsi/geniefront) — Generative vision for front-end development
 
 [GitHub](https://github.com/zlaabsi) · [X](https://x.com/ZakShark) · [Email](mailto:zakaria.laabsi@gmail.com)

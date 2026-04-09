@@ -171,24 +171,43 @@ More precisely, $(\mathbb{N}_0, \oplus)$ is an abelian group of exponent 2: ever
 
 ### XOR at the Bit Level
 
-At the single-bit level, the nim-sum is the XOR truth table:
+<div class="cgt-xor-center">
+  <p>At the single-bit level, the nim-sum is the XOR truth table:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>a</th>
+        <th>b</th>
+        <th>a &oplus; b</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td>0</td><td>0</td></tr>
+      <tr><td>0</td><td>1</td><td>1</td></tr>
+      <tr><td>1</td><td>0</td><td>1</td></tr>
+      <tr><td>1</td><td>1</td><td>0</td></tr>
+    </tbody>
+  </table>
 
-| $a$ | $b$ | $a \oplus b$ |
-|:---:|:---:|:---:|
-| 0 | 0 | 0 |
-| 0 | 1 | 1 |
-| 1 | 0 | 1 |
-| 1 | 1 | 0 |
-
-**Worked computation of $1 \oplus 3 \oplus 5$:**
-
-| | $2^2$ | $2^1$ | $2^0$ |
-|:---|:---:|:---:|:---:|
-| $1$ | 0 | 0 | 1 |
-| $3$ | 0 | 1 | 1 |
-| Column XOR so far | 0 | 1 | 0 |
-| $5$ | 1 | 0 | 1 |
-| **Final XOR** | **1** | **1** | **1** |
+  <p><strong>Worked computation of 1 &oplus; 3 &oplus; 5:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>2<sup>2</sup></th>
+        <th>2<sup>1</sup></th>
+        <th>2<sup>0</sup></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+      <tr><td>3</td><td>0</td><td>1</td><td>1</td></tr>
+      <tr><td>Column XOR so far</td><td>0</td><td>1</td><td>0</td></tr>
+      <tr><td>5</td><td>1</td><td>0</td><td>1</td></tr>
+      <tr><td><strong>Final XOR</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td><strong>1</strong></td></tr>
+    </tbody>
+  </table>
+</div>
 
 Reading the result: $111_2 = 7$. Therefore $1 \oplus 3 \oplus 5 = 7 \neq 0$, confirming that $(1, 3, 5)$ is an $\mathcal{N}$-position.
 
@@ -557,9 +576,9 @@ function MEX(S):
 
 ### Python: Nim Solver
 
-Here is a clean Python implementation of the Nim solver:
+Here is a clean Python implementation of the Nim solver. You can run it directly in the browser to see the output:
 
-```python
+{{< python-run >}}
 """Nim Game Solver — Sprague-Grundy strategy using XOR (nim-sum)."""
 
 from functools import reduce
@@ -617,7 +636,7 @@ if __name__ == "__main__":
 #
 # Heaps: [1, 3, 5, 5]  |  Nim-sum: 2
 #   → Winning move: take 2 from heap 1 (3 → 1)  →  [1, 1, 5, 5]
-```
+{{< /python-run >}}
 
 ---
 

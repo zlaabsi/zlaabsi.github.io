@@ -1,0 +1,21 @@
+{{- $code := .Inner | strings.TrimSpace -}}
+<div class="python-runner">
+  <div class="python-runner__toolbar">
+    <span class="python-runner__label">Runnable Python</span>
+    <div class="python-runner__actions">
+      <button type="button" class="python-runner__run">Run</button>
+      <button type="button" class="python-runner__clear">Clear Output</button>
+      <span class="python-runner__status" aria-live="polite"></span>
+    </div>
+  </div>
+  {{ highlight $code "python" "" }}
+  <div class="python-runner__output-wrap">
+    <div class="python-runner__output-label">Output</div>
+    <pre class="python-runner__output is-empty">Click Run to execute this example in your browser.</pre>
+  </div>
+  <div
+    class="python-runner__source"
+    hidden
+    data-code="{{ $code | base64Encode }}"
+  ></div>
+</div>

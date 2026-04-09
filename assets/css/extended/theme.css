@@ -451,3 +451,123 @@ blockquote {
   margin-top: 0.8rem;
   line-height: 1.4;
 }
+
+/* ===== Centered XOR tables for CGT ===== */
+.post-content .cgt-xor-center {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.post-content .cgt-xor-center p {
+  margin: 0.75rem auto;
+  max-width: 42rem;
+}
+
+.post-content .cgt-xor-center table {
+  width: auto;
+  margin: 0.75rem auto 1.25rem;
+}
+
+.post-content .cgt-xor-center table th,
+.post-content .cgt-xor-center table td {
+  text-align: center;
+}
+
+.post-content .cgt-xor-center table td:first-child,
+.post-content .cgt-xor-center table th:first-child {
+  white-space: nowrap;
+}
+
+/* ===== Runnable Python blocks ===== */
+.python-runner {
+  margin: 1.75rem 0;
+}
+
+.python-runner__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.python-runner__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.python-runner__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.python-runner__run,
+.python-runner__clear {
+  border: 1px solid var(--border);
+  background: var(--entry);
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 0.38rem 0.85rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.python-runner__run:hover,
+.python-runner__clear:hover {
+  border-color: var(--secondary);
+}
+
+.python-runner__run[disabled] {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.python-runner__status {
+  min-height: 1em;
+  font-size: 0.82rem;
+  color: var(--secondary);
+}
+
+.python-runner .highlight {
+  margin-top: 0;
+}
+
+.python-runner__output-wrap {
+  margin-top: 0.75rem;
+}
+
+.python-runner__output-label {
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.python-runner__output {
+  margin: 0;
+  min-height: 3.25rem;
+  padding: 0.95rem 1rem;
+  background: var(--code-block-bg);
+  color: rgb(213, 213, 214);
+  border-radius: var(--radius);
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.python-runner__output.is-empty {
+  color: var(--secondary);
+}
+
+.python-runner__output.is-error {
+  color: #ffb4b4;
+}

@@ -316,3 +316,135 @@
     }
   });
 </script>
+
+<!-- Runnable Python blocks -->
+<script>
+(function () {
+  var runners = document.querySelectorAll('.python-runner');
+  if (!runners.length) return;
+
+  var pyodideVersion = '0.29.3';
+  var pyodideIndexURL = 'https://cdn.jsdelivr.net/pyodide/v' + pyodideVersion + '/full/';
+  var pyodideReady = null;
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[data-pyodide-loader]');
+      if (existing) {
+        existing.addEventListener('load', function () { resolve(); }, { once: true });
+        existing.addEventListener('error', reject, { once: true });
+        if (window.loadPyodide) resolve();
+        return;
+      }
+      var script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.dataset.pyodideLoader = 'true';
+      script.onload = function () { resolve(); };
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+  }
+
+  async function ensurePyodide() {
+    if (window.__sitePyodide) return window.__sitePyodide;
+    if (!pyodideReady) {
+      pyodideReady = (async function () {
+        if (!window.loadPyodide) {
+          await loadScript(pyodideIndexURL + 'pyodide.js');
+        }
+        var pyodide = await window.loadPyodide({ indexURL: pyodideIndexURL });
+        window.__sitePyodide = pyodide;
+        return pyodide;
+      })();
+    }
+    return pyodideReady;
+  }
+
+  function setStatus(runner, text) {
+    var node = runner.querySelector('.python-runner__status');
+    if (node) node.textContent = text || '';
+  }
+
+  function setOutput(runner, text, opts) {
+    var node = runner.querySelector('.python-runner__output');
+    if (!node) return;
+    var options = opts || {};
+    node.textContent = text;
+    node.classList.toggle('is-empty', !!options.empty);
+    node.classList.toggle('is-error', !!options.error);
+  }
+
+  function decodeBase64Unicode(value) {
+    if (!value) return '';
+    var bytes = Uint8Array.from(atob(value), function (char) {
+      return char.charCodeAt(0);
+    });
+    return new TextDecoder().decode(bytes);
+  }
+
+  async function executePython(code) {
+    var pyodide = await ensurePyodide();
+    pyodide.globals.set('__site_user_code', code);
+    try {
+      return pyodide.runPython(`
+import contextlib
+import io
+import traceback
+
+_ns = {"__name__": "__main__"}
+_stdout = io.StringIO()
+_stderr = io.StringIO()
+
+with contextlib.redirect_stdout(_stdout), contextlib.redirect_stderr(_stderr):
+    try:
+        exec(__site_user_code, _ns)
+    except Exception:
+        traceback.print_exc()
+
+_stdout.getvalue() + _stderr.getvalue()
+      `);
+    } finally {
+      pyodide.globals.delete('__site_user_code');
+    }
+  }
+
+  runners.forEach(function (runner) {
+    var runButton = runner.querySelector('.python-runner__run');
+    var clearButton = runner.querySelector('.python-runner__clear');
+    var source = runner.querySelector('.python-runner__source');
+    var initialCode = source ? decodeBase64Unicode(source.dataset.code || '') : '';
+    var idleText = 'Click Run to execute this example in your browser.';
+
+    if (!runButton || !clearButton || !initialCode) return;
+
+    clearButton.addEventListener('click', function () {
+      setStatus(runner, '');
+      setOutput(runner, idleText, { empty: true });
+    });
+
+    runButton.addEventListener('click', async function () {
+      runButton.disabled = true;
+      setStatus(runner, window.__sitePyodide ? 'Running...' : 'Loading Python runtime...');
+      setOutput(runner, 'Running...', { empty: true });
+
+      try {
+        var output = await executePython(initialCode);
+        var trimmed = (output || '').replace(/\s+$/, '');
+        if (trimmed) {
+          setOutput(runner, trimmed, { empty: false, error: false });
+        } else {
+          setOutput(runner, '(no output)', { empty: true, error: false });
+        }
+        setStatus(runner, 'Done');
+      } catch (err) {
+        var message = err && err.message ? err.message : String(err);
+        setOutput(runner, message, { empty: false, error: true });
+        setStatus(runner, 'Execution failed');
+      } finally {
+        runButton.disabled = false;
+      }
+    });
+  });
+})();
+</script>

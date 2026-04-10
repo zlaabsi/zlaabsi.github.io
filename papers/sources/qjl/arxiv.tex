@@ -1,0 +1,667 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usepackage{xcolor}
+\usepackage[colorlinks,citecolor=orange,linkcolor=cyan]{hyperref}
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage[capitalize,nameinlink,noabbrev]{cleveref}
+\usepackage{caption}
+
+\usepackage{multirow}
+
+% \usepackage{times}
+\usepackage{latexsym}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+
+\usepackage{float}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{thm-restate}
+
+
+\usepackage{booktabs}
+\usepackage{siunitx} 
+
+\input{notations.tex}
+\input{bib_macros}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\bv}[1]{\mathbf{#1}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\hash}{\operatorname{MinHash}}
+\newcommand{\prodqjl}{\operatorname{{\tt Prod_{QJL}}}}
+\newcommand{\unif}{\operatorname{Unif}}
+\newcommand{\mean}{\operatorname{mean}}
+\let\norm\relax
+\newcommand{\norm}[1]{\|#1\|}
+\DeclareMathOperator*{\nnz}{nnz}
+
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{observation}[theorem]{Observation}
+
+\newcommand{\algrule}[1][.2pt]{\par\vskip.2\baselineskip\hrule height #1\par\vskip.2\baselineskip}
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+
+\definecolor{HighlightColor}{rgb}{0.7,0.1,0.70}
+\newcommand{\revised}[1]{{\color{HighlightColor}#1}}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{microtype}
+
+% \usepackage{inconsolata}
+
+
+\title{QJL: 1-Bit Quantized JL Transform for KV Cache Quantization with Zero Overhead}
+
+
+\newcommand{\amir}[1]{\textcolor{red}{Amir: #1}}
+\newcommand{\majid}[1]{\textcolor{blue}{Majid: #1}}
+
+
+\newcommand{\email}[1]{\href{mailto:#1}{\color{black} \texttt{#1}}}
+
+\author{%
+  Amir Zandieh \\
+  Independent Researcher\\
+  \email{amir.zed512@gmail.com} \\
+  \and 
+  Majid Daliri \\
+  New York University \\
+  \email{daliri.majid@nyu.edu} \\
+  \and
+  Insu Han\thanks{Work done while at Yale University.} \\
+  Adobe Research \\
+  \email{insuh@adobe.com} \\
+  % Yale University\\
+  % \texttt{insu.han@yale.edu} \\
+}
+
+
+\begin{document}
+\maketitle
+\begin{abstract}
+    Serving LLMs requires substantial memory due to the storage requirements of Key-Value (KV) embeddings in the KV cache, which grows with sequence length. 
+    An effective approach to compress KV cache is quantization.
+    However, traditional quantization methods face significant memory overhead due to the need to store quantization constants (at least a zero point and a scale) in full precision per data block.
+    Depending on the block size, this overhead can add 1 or 2 bits per quantized number.
+    We introduce QJL, a new quantization approach that consists of a Johnson-Lindenstrauss (JL) transform followed by sign-bit quantization. 
+    In contrast to existing methods, QJL eliminates memory overheads by removing the need for storing quantization constants.
+    We propose an asymmetric estimator for the inner product of two vectors and demonstrate that applying QJL to one vector and a standard JL transform without quantization to the other provides an unbiased estimator with minimal distortion.
+    We have developed an efficient implementation of the QJL sketch and its corresponding inner product estimator, incorporating a lightweight CUDA kernel for optimized computation.
+    When applied across various LLMs and NLP tasks to quantize the KV cache to only 3 bits, QJL demonstrates a more than fivefold reduction in KV cache memory usage without compromising accuracy, all while achieving faster runtime. Codes are available at \url{https://github.com/amirzandieh/QJL}.
+\end{abstract}
+
+
+\section{Introduction}
+Large language models (LLMs) have garnered significant attention and demonstrated remarkable success in recent years. 
+Their applications span various domains, including chatbot systems~\cite{achiam2023gpt,claude} to text-to-image~\cite{ramesh2022hierarchical,firefly,midjourney}, text-to-video synthesis~\cite{sora}, coding assistant~\cite{copilot} and even multimodal domain across text, audio, image, and video~\cite{gpt4o}. 
+The Transformer architecture with self-attention mechanism~\cite{vaswani2017attention} is at the heart of these LLMs as it enables capturing intrinsic pairwise correlations across tokens in the input sequence.
+The ability of LLMs grows along with their model size~\cite{kaplan2020scaling}, which leads to computational challenges in terms of huge memory consumption.
+
+% Such a challenge becomes even more significant when deploying LLMs to end users.
+% % 
+% For auto-regressive models, the {\it KV cache} mechanism can make the generation process fast and efficient by storing all previously generated Key-Value (KV) embeddings in cache memory.
+% To resolve this, a common approach for token generations of 
+% In particular, when auto-regressive models generate tokens,  for efficient generation process is is widely used 
+
+Deploying auto-regressive transformers during the generation phase is costly because commercial AI models must simultaneously serve millions of end users while meeting strict latency requirements. 
+One significant challenge is the substantial memory needed to store all previously generated key-value (KV) embeddings in cache to avoid recomputations. 
+This has become a major memory and speed bottleneck, especially for long context lengths.
+Additionally, the GPU must load the entire KV cache from its main memory to shared memory for each token generated, resulting in low arithmetic intensity and leaving most GPU threads idle. 
+Therefore, reducing the KV cache size while maintaining accuracy is crucial. 
+
+
+There are several approaches to address this challenge. 
+One method involves reducing the number of heads in the KV cache using multi-query attention~\cite{shazeer2019fast} and multi-group attention~\cite{ainslie2023gqa}, but these require fine-tuning the pre-trained models or training from scratch.
+Another line of work tries to reduce the KV cache size by pruning or evicting unimportant tokens~\cite{zhang2024h2o, liu2024scissorhands, xiao2023efficient, zandieh2024subgen}. 
+Additionally, some recent works tackle the issue from a system perspective, such as offloading~\cite{sheng2023flexgen} or using virtual memory and paging techniques in the attention mechanism~\cite{kwon2023efficient}.
+
+A simple yet effective approach is to quantize the floating-point numbers (FPN) in the KV cache using fewer bits.
+% instead of storing floating-point numbers in high precision.
+% Unlike model weights quantization~\cite{dettmers2024qlora, frantar2022gptq}, such approach must be a fast, online process to support the fast, real-time requirements of token generation.
+Several quantization methods have been proposed specifically for the KV cache~\cite{yue2024wkvquant, yang2024no, dong2024qaq, kang2024gear, zhang2024kv}.
+Most recently, KIVI~\cite{liu2024kivi} and KVQuant~\cite{hooper2024kvquant} proposed per-channel quantization for the key cache to achieve better performance.
+However, all existing quantization methods for the KV cache face significant ``memory overhead'' issues.
+Specifically, all these methods group the data into blocks, either channel-wise or token-wise, and calculate and store quantization constants (at least a zero point and a scale) for each group.
+Depending on the group size, this overhead can add approximately 1 or 2 additional bits per quantized number, which results in significant computational overhead. 
+In this work, our goal is to develop an efficient, data-oblivious quantization method, referred to as a \emph{sketching technique}. This method, which we call QJL, does not need to be tuned by or adapted to the input data with significantly less overhead than prior works, without any loss in performance. 
+
+% with negligible overhead
+% on key cache based on randomized sketching techniques.
+
+% we delve into the intricacies of large language models, focusing on their underlying transformer architecture and the crucial role played by the self-attention module. Furthermore, we investigate the implications of memory usage during the generation process and explore potential strategies to mitigate its impact, thereby paving the way for more efficient and scalable generation methods in the realm of natural language processing.
+
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{./pics/fig_llm_decoding.pdf}
+%     \caption{Overview of prompt and decoding phases during token generation in auto-regressive LLM}\label{fig-llm-decoding}
+% \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{./fig_llm_decoding.pdf}
+    % \vspace{-0.15in}
+    
+    % \includegraphics[width=0.8\textwidth]{./pics/block_diagram.pdf}
+    \includegraphics[width=1.\textwidth]{./fig_qjl3.pdf}
+    \vspace{-0.1in}
+    \caption{Overview of the KV cache quantization via Quantized JL (QJL) transform}\label{fig-qjl}
+\end{figure}
+\subsection{Overview of Contributions} 
+
+The decoding phase in the attention mechanism involves the following computations: (1) computing attention scores by applying the softmax function to the inner product between the current query embedding and all previously generated keys, and (2) multiplying the attention scores with all previously generated values. 
+To make the attention score calculations in step (1) more memory efficient, we quantize the keys in the cache.
+We introduce a quantization scheme for key embeddings, named QJL, leveraging randomized sketching techniques. Alongside, we develop a high-accuracy estimator for the inner product of query/key pairs, crucial for mitigating errors amplified by the softmax operation in attention score calculations.
+
+Firstly, we revisit a fundamental concept in numerical linear algebra: applying a Johnson-Lindenstrauss (JL) transform, i.e., a random Gaussian projection, to a pair of vectors and then computing the inner product of the projected vectors provides an unbiased and low-distortion estimator for their original inner product~\cite{dasgupta2003elementary}.
+To address the key cache quantization problem, our aim is to quantize the result after applying the JL transform to a key embedding, ideally to just a single bit. 
+Surprisingly, we prove that by applying the JL transform to a key embedding and then quantizing the result to a single bit (the sign bit), while applying the same JL transform to the query embedding without quantization, we still obtain an unbiased estimator of their inner product (see \cref{lem:est_unbiased}). 
+Moreover, the distortion of this estimator is small and comparable to that of the standard JL transform (see \cref{lem_distortion_inner_prod_est}).
+In \cref{thm-distortion}, we demonstrate that the proposed inner product estimator based on QJL achieves a relative distortion of $1\pm\varepsilon$ on the final attention scores. 
+Notably, the number of required bits for representing quantized keys is independent of the embedding dimension and scales logarithmically with the context length, using a fixed number of bits per token.
+
+
+Thus the QJL sketch combines a JL transform—a random Gaussian projection—with quantization to the sign bit.
+An overview of this approach is illustrated in \cref{fig-qjl}.
+Unlike previous methods, the QJL sketch can quantize vectors with zero overhead because it does not require grouping the data and storing quantization constants (zeros and scales) per group.
+Furthermore, this is a data-oblivious algorithm that does not rely on specific input, requires no tuning, and can be easily parallelized and applied in real-time. 
+
+
+
+
+% This motivates us to develop a memory-efficient inner product estimator for key rather than query. 
+% Observing this, we propose an asymmetric inner product estimator, i.e., sketching on the key should be memory efficient rather than the query. 
+
+
+% is the inner product between query and key embeddings. To make this memory efficient, we make use of randomized sketching techniques to estimate the inner product for query/key pairs accurately. The most common approach is the Johnson-Lindenstrauss (JL) transform~\cite{johnson1986extensions}, a randomized dimensionality reduction technique while preserving the inner product of inputs. In essence, it applies the identical random projection to both input vectors. However, in the KV cache mechanism, we note that only key embeddings are stored in the cache memory and query is given in a streaming setting. Observing this, we propose an asymmetric inner product estimator, i.e., sketching on the key should be memory efficient rather than the query. 
+
+\iffalse
+
+To this end, we apply the JL transform to the key and then take their signs only while the query is projected by the same JL matrix. 
+Somewhat surprisingly, we show that such an asymmetric transform becomes an unbiased estimator of their inner product (in \cref{lem:est_unbiased}) and the distortion of the estimator is as low as the standard JL transform (in \cref{lem_distortion_inner_prod_est}). The distortion on the attention scores with the proposed inner product estimator is provided in \cref{thm-distortion}.
+We refer this to QJL transform and an overview of quantizing query and key via QJL is described in \cref{fig-qjl}. Since QJL projects the key into the space with a small dimension number and each one is the sign bit, the quantized key has fewer bits per floating-point number. 
+Unlike previous methods, the QJL transform can quantize vectors with zero overhead because it does not require either grouping the data or storing quantization constants (zeros and scales) per group.
+Furthermore, this is a data-oblivious algorithm that does not rely on specific input, requires no tuning, and can be easily parallelized and applied in real-time. 
+
+
+% key embeddings $\k \in \mathbb{R}^d$ to some $\Tilde{\k}$ such that there exists an efficient algorithm to estimate $\langle \q , \k \rangle$ using $\q$ and $\Tilde{\k}$.
+% We start with the key quantization problem, which requires higher accuracy since the softmax operation in attention score calculations can dramatically amplify errors in inner product estimates.
+% Prior work has shown that key cache quantization is more challenging and requires special treatment, such as channel-wise quantization~\cite{liu2024kivi, hooper2024kvquant}.
+
+% As shown in \cref{eq_attn_scores}, obtaining 
+% The attention score requires computing the inner products of a query embedding $\q$ and all keys in the cache. 
+% Our goal is to design a key quantization scheme that supports accurate estimation of the inner product between the quantized key embeddings and the query embedding $\q$.
+% More precisely, we want to quantize key embeddings $\k \in \mathbb{R}^d$ to some $\Tilde{\k}$ such that there exists an efficient algorithm to estimate $\langle \q , \k \rangle$ using $\q$ and $\Tilde{\k}$.
+% We introduce a new key quantization approach based on an efficient sketch, which we refer to as QJL. 
+% First, let us recall the well-known fact in numerical linear algebra that applying a Johnson-Lindenstrauss (JL) transform, i.e., a random Gaussian projection, on a pair of vectors provides an unbiased and low-distortion estimator for their inner product~\cite{dasgupta2003elementary}.
+% We prove that one can quantize one of the two vectors after applying the JL transform to a single bit (the sign bit) and still obtain an unbiased and low-distortion inner product estimator.
+% Thus the QJL sketch is a JL transform—a random Gaussian projection—followed by quantization to the sign bit.
+% Unlike previous methods, the QJL sketch can quantize vectors with zero overhead because it does not require grouping the data and storing quantization constants (zeros and scales) per group.
+
+% We demonstrate that an asymmetric inner product estimator, applying QJL to one vector and a standard JL transform without quantization to the other, is an unbiased low-distortion estimator.
+% In contrast, a symmetric estimator that applies quantization to both JL-transformed vectors is biased, leading to significant accumulated errors when applied across multiple layers. 
+% Thus, our asymmetric approach is crucial. 
+\fi
+
+The value cache quantization used to make step (2) memory efficient is known to be a straightforward task, and a standard token-wise quantization is very effective and efficient in practice, as observed in prior work~\cite{liu2024kivi, hooper2024kvquant}. 
+Hence, we follow the same approach for the value therein.
+
+Furthermore, we analyzed the distribution of outliers in large language models (LLMs). 
+We observed that while there are no significant outliers in the initial layers, certain fixed key embedding channels (coordinates) in the deeper layers exhibit considerably larger magnitudes (see \cref{fig:outliers_over_layers}). 
+To address this, we identify these outlier channels during the prompt phase and simply apply two independent copies of our quantizer to the outliers and inliers separately.
+
+The QJL transform and its accompanying inner product estimator are highly efficient and GPU-friendly algorithms. 
+In particular, we provide a lightweight CUDA kernel for their efficient computation. We apply QJL and our inner product estimator to compress the KV cache in several LLMs, including Llama-2~\cite{touvron2023llama} and its fine-tuned models by long sequence~\cite{longchat2023}, under various NLP tasks. 
+Our results show that quantizing the KV cache to only 3 bits per FPN results in no accuracy drop compared to the exact model with 16 bits per FPN while reducing cache memory usage by over fivefold and increasing the generation speed significantly for long contexts. 
+For example, our proposed quantization shows better F1 scores on long-range question-answering tasks from LongBench~\cite{bai2023longbench} (a collection of long-context datasets) compared to the recent KV cache quantization methods, while minimizing memory overheads.
+
+% \amir{Say some quantitative statements about the experimental results.}
+
+
+\section{Preliminaries: Token Generation in Attention}
+
+% \paragraph{Notations.} We use bold lowercase letters for vectors and uppercase letters for matrices or sets throughout. 
+% The Gamma function is denoted by $\Gamma$, e.g., $\Gamma(\ell+1)=\ell!$ for integers $\ell$. 
+
+
+% \subsection{}
+Deploying auto-regressive language models for inference involves performing attention decoding in an online setting, where key and value embeddings from each transformer layer are cached in memory to remove redundant computations. 
+% Every token is generated at once, then the corresponding query vector is applied to 
+The model sequentially uses and updates the KV cache to generate the next token, one at a time.
+
+More precisely, in every phase of token generation, the stream of tokens is represented by a triplet of vectors called by the query, key, and value embeddings, respectively. 
+Let $\q_i, \k_i, \v_i \in \RR^d$ be the triplet at $i$-th generation phase and $n$ be the total number of tokens in the stream so far either in the prompt encoding (prefill) or the generation (decoding) phase. Then, the attention output in $n$-th generation phase can be written as
+\begin{equation} \label{eq_attn_output}
+    {\bm o}_{n} = \sum_{i \in [n]} {\tt Score}(i) \cdot \v_i, 
+\end{equation}
+where ${\tt Score} \in \RR^n$ is the vector of attention scores defined as:
+\begin{equation}\label{eq_attn_scores}
+{\tt Score} :={\tt softmax}\left(
+[\langle \q_n, \k_1 \rangle, \langle \q_n, \k_2 \rangle, \ldots \langle \q_n, \k_n \rangle]
+\right).
+\end{equation}
+
+The output embedding ${\bm o}_n$ will be used for computing the next tokens in the stream $\q_{n+1}, \k_{n+1}, \v_{n+1}$ unless the generation phase terminates. 
+Observe that to compute output ${\bm o}_{n}$, one needs to store all previous key and value embeddings $\{\k_i, \v_i\}_{i \in [n]}$ and keeping them in full precision requires significant memory for long-context inputs. 
+The time complexity to compete \cref{eq_attn_scores} is $O(nd)$ due to the computation of $n$ inner products. 
+Additionally, the inference speed is also impacted by the KV cache size, as the KV cache must be loaded from GPU main memory for every token generated, resulting in low arithmetic intensity and underutilization of GPU cores~\cite{pope2023efficiently}.
+In this work, we focus on compressing the KV cache by quantizing tokens, thereby reducing the memory required to store each key or value embedding in the cache.
+
+
+% Note that the output only relies on 
+% Let us represent the stream of tokens in a specific attention layer as the following sets of vectors:
+% \[
+% \Q_n := \{ \q_1, \q_2, \ldots \q_n\} ,~~~ \K_n := \{ \k_1, \k_2, \ldots \k_n\} ,~~~\text{and}~~~ \V_n := \{ \v_1, \v_2, \ldots \v_n\},
+% \]
+% where $\q_i, \k_i, \v_i \in \RR^d$ are the query, key, and value embedding vectors, respectively.
+
+% To avoid recalculating previous tokens during the decoding phase, the key/value token sets $\K_n, \V_n$ are cached in the memory.
+% The objective of attention decoding is to compute the attention output as:
+
+% where ${\tt Score} \in \RR^n$ is the vector of attention scores defined as:
+% \begin{equation}\label{eq_attn_scores}
+% {\tt Score} :={\tt softmax}\left( {\bf qK} \right),~\text{and}~~ {\bf qK} = [\langle \q, \k_1 \rangle, \langle \q, \k_2 \rangle, \ldots \langle \q, \k_n \rangle].
+% \end{equation}
+% Here, ${\bf qK} \in \RR^n$ is the vector of all inner products between the latest query embedding $\q_n$ and all key embeddings generated and cached so far $\K_n$.
+
+
+\section{Quantized Johnson-Lindenstrauss (QJL) Transform}
+Our goal is to save memory space for storing the KV cache while the inner product between query and key remains undistorted. 
+To achieve this, we first transform the embedding vectors using a random projection that preserves the inner products, acting as a preconditioning step, and then quantize the result. 
+Specifically, we project the input vectors onto a random subspace by applying the Johnson-Lindenstrauss (JL) transform~\cite{johnson1986extensions}, which amounts to multiplying by a random Gaussian matrix. 
+The inner product of the resulting vectors after applying this projection provides an unbiased and low-distortion estimator for the inner product of the original vectors~\cite{dasgupta2003elementary}.
+We introduce a 1-bit Johnson-Lindenstrauss transform, comprising a JL transformation followed by quantization to a single sign bit, and demonstrate its ability to offer an unbiased and low-distortion inner product estimator. 
+We complement our binary quantizer by developing an unbiased estimator for the inner product of the quantized vector with any arbitrary vector. 
+This inner product estimator is asymmetric, as one of the vectors is quantized to a single bit while the other remains unquantized, making it well-suited for the KV cache mechanism.
+The Quantized Johnson-Lindenstrauss (QJL) transformation, acting as a 1-bit quantizer, alongside our proposed estimator, is formally defined in the following definition:
+\begin{definition}[QJL and inner product estimator]\label{def:asym_hash}
+    For any positive integers $d, m$, let $\S \in \RR^{m \times d}$ be a JL transform matrix, i.e., entries of $\S$ are i.i.d. samples from the zero mean and unit variance Normal distribution. The QJL is a mapping function $\Hc_S: \RR^d \to \{-1, +1\}^m$ defined as:
+    \begin{equation}
+    \Hc_S(\k) := {\tt sign}(\S \k) ~~\text{ for any } \k \in \RR^d.
+    \end{equation}
+    Furthermore, for any pair of vectors $\k, \q \in \RR^d$ the estimator for their inner product $\langle \q, \k \rangle$ based on the aforementioned quantizer is defined as:
+    \begin{equation}\label{prod_est}
+    \prodqjl(\q, \k) := \frac{\sqrt{\pi/2}}{m} \cdot \| \k \|_2 \cdot \langle \S\q, \Hc_S(\k) \rangle.
+    \end{equation}
+\end{definition}
+
+Now, we show that the inner product estimator $\prodqjl(\q, \k)$, exactly like the inner product of JL-transformed vectors without quantization to sign bit, is an unbiased estimator.
+The crucial point to note is that if we applied QJL to both vectors $\q$ and $\k$ in \cref{prod_est}, we would obtain an unbiased estimator for the angle between these vectors, as shown in \cite{charikar2002similarity}. 
+However, to estimate the inner product one needs to apply the cosine function on top of the angle estimator, which results in a biased estimation.
+Thus, to achieve an unbiased inner product estimator, it is necessary to asymmetrically apply quantization to the JL transform of only one of the vectors $\q$ and $\k$.
+
+\begin{lemma}[Inner product estimator $\prodqjl$ is unbiased]\label{lem:est_unbiased}
+    For any vectors $\q, \k 
+    \in \RR^d$ the expected value of the estimator $\prodqjl(\q, \k)$ defined in \cref{prod_est} is:
+    \[
+    \E_{\S} [\prodqjl(\q, \k)] = \langle \q, \k \rangle,
+    \]
+    where the expectation is over the randomness of the JL matrix $\S$ in \cref{def:asym_hash}.
+\end{lemma}
+\begin{proof}
+    Let $\s_1, \s_2, \ldots \s_m$ denote the rows of the JL matrix $\S$. 
+    Additionally, let us decompose $\q$ to its projection onto the vector $\k$ and its orthogonal component, i.e., $\q^{\perp k} := \q - \frac{\langle \q, \k \rangle}{\|\k\|_2^2} \cdot \k $. 
+    We can write,
+    \begin{align*}
+    \prodqjl(\q, \k) &= \frac{\sqrt{\pi/2}}{m} \sum_{i\in[m]} \| \k \|_2 \cdot \s_i^\top \q \cdot {\tt sign}(\s_i^\top \k) \\
+    &= \frac{\sqrt{\pi/2}}{m} \sum_{i\in[m]} \frac{\langle \q, \k \rangle}{\|\k\|_2} \cdot \s_i^\top \k \cdot {\tt sign}(\s_i^\top \k) + \| \k \|_2 \cdot \s_i^\top \q^{\perp k}  \cdot {\tt sign}(\s_i^\top \k) \\
+    &= \frac{\sqrt{\pi/2}}{m} \sum_{i\in[m]} \frac{\langle \q, \k \rangle}{\|\k\|_2} \cdot |\s_i^\top \k| + \| \k \|_2 \cdot \s_i^\top \q^{\perp k}  \cdot {\tt sign}(\s_i^\top \k).
+    \end{align*}
+    Since $\s_i$'s have identical distributions, we have:
+    \begin{align*}
+        \E_{\S} [\prodqjl(\q, \k)] = \sqrt{\pi/2} \left( \frac{\langle \q, \k \rangle}{\|\k\|_2} \cdot \E\left[ | \s_1^\top \k | \right] + \| \k \|_2 \cdot \E\left[ \s_1^\top \q^{\perp k} \cdot {\tt sign}(\s_1^\top \k)\right] \right).
+    \end{align*}
+    To calculate the above expectation let us define variables $x := \s_1^\top \k$ and $y := \s_1^\top \q^{\perp k}$. 
+    Note that $x$ and $y$ are both zero-mean Gaussian random variables and because $\langle \q^{\perp k} , \k \rangle = 0$. By the following \cref{linear_transform_gaussian}, $x$ and $y$ are independent. 
+
+    \begin{fact}\label{linear_transform_gaussian}
+        If $\x \in \RR^d$ is a vector of i.i.d. zero-mean normal entries with variance $\sigma^2$ and $A \in \RR^{m \times d}$ is a matrix, then $\A\cdot \x$ is a normal random variable with mean zero and covariance matrix $\sigma^2 \cdot \A \A^\top$.
+    \end{fact}
+        
+    This implies that the second expectation term above is zero because $\E\left[ \s_1^\top \q^{\perp k} \cdot {\tt sign}(\s_1^\top \k)\right] = \E[ y \cdot {\tt sign}(x)] = \E[ y ] \cdot \E [{\tt sign}(x)] = 0$. 
+    Furthermore, $x$ is a Gaussian random variable with mean zero and variance $\| \k \|_2^2$. Therefore, we have
+    \begin{align*}
+        \E_{\S} [\prodqjl(\q, \k)] = \sqrt{\pi/2} \cdot \frac{\langle \q, \k \rangle}{\|\k\|_2} \cdot \E_x \left[ | x | \right] = \langle \q, \k \rangle.
+    \end{align*}
+    where the equality comes from the following \cref{moment_normal}:
+    \begin{fact}[Moments of Normal Random Variable]\label{moment_normal}
+        If $x$ is a normal random variable with zero mean and variance $\sigma^2$, then for any integer $\ell$, the $\ell$-th moment of $x$ is $\E \left[ |x|^\ell \right] = \sigma^\ell \cdot 2^{\ell/2} \Gamma((\ell+1)/2) / \sqrt{\pi}$.
+    \end{fact}
+    This completes the proof of \cref{lem:est_unbiased}.
+\end{proof}
+
+Now we show that the inner product estimator $\prodqjl$ in \cref{def:asym_hash}, just like the estimators based on the standard JL transform, has a bounded distortion with high probability.
+
+\begin{lemma}[Distortion of inner product estimator $\prodqjl$]\label{lem_distortion_inner_prod_est}
+    For any vectors $\q, \k 
+    \in \RR^d$ if the estimator $\prodqjl(\q, \k)$ is defined as in \cref{prod_est} for QJL with dimension $m \ge \frac{4}{3} \cdot \frac{1 + \varepsilon}{\varepsilon^2}\log \frac{2}{\delta}$, then:
+    \[
+    \Pr_{\S} \left[ \left| \prodqjl(\q, \k) - \langle \q, \k \rangle \right| > \varepsilon \|\q\|_2\|\k\|_2 \right] \le \delta,
+    \]
+    where the probability is over the randomness of the JL matrix $\S$ in \cref{def:asym_hash}.
+\end{lemma}
+\begin{proof}
+    First note that, letting $\s_1, \s_2, \ldots \s_m$ denote the rows of the JL transform matrix $S$, we have:
+    \[
+    \prodqjl(\q, \k) = \frac{1}{m} \sum_{i\in[m]} \sqrt{\pi/2} \cdot \| \k \|_2 \cdot \s_i^\top \q \cdot {\tt sign}(\s_i^\top \k).
+    \]
+    Since $\s_i$'s are i.i.d. the above is indeed the average of $m$ i.i.d. estimators defined as $z_i := \sqrt{\pi/2} \cdot \| \k \|_2 \cdot \s_i^\top \q \cdot {\tt sign}(\s_i^\top \k)$ for $i \in [m]$.
+    Let us now calculate the $\ell$-th moment of $z_i$ using \cref{moment_normal}:
+    \begin{equation}\label{eq_moments_estimator}
+    \E \left[ |z_i|^\ell \right] = \left(\sqrt{\pi/2} \cdot \| \k \|_2\right)^\ell \cdot \E \left[ |\s_i^\top \q|^\ell \right] = \left(\sqrt{\pi} \cdot \| \k \|_2 \| \q \|_2 \right)^\ell \cdot \frac{\Gamma((\ell+1)/2)}{\sqrt{\pi}},
+    \end{equation}
+    where the second equality above follows because $\s_i^\top \q$ is a Gaussian random variable with mean zero and variance $\|\q\|_2^2$ along with \cref{moment_normal}.
+    Now we can prove the result by invoking the unbiasedness of the estimator, \cref{lem:est_unbiased}, along with an appropriate version of Bernstein inequality and using the moment bounds in \cref{eq_moments_estimator}. 
+    More specifically, our moment calculation in \cref{eq_moments_estimator} implies:
+    \[
+    \E \left[ |z_i|^\ell \right] = \E \left[ |z_i|^2 \right] \cdot \left(\sqrt{\pi} \| \k \|_2 \| \q \|_2 \right)^{\ell-2} \cdot \frac{\Gamma((\ell+1)/2)}{\Gamma(3/2)} \le \E \left[ |z_i|^2 \right] \cdot \left( \frac{2}{3} \cdot \| \k \|_2 \| \q \|_2 \right)^{\ell-2} \cdot \frac{\ell!}{2}
+    \]
+    Therefore, by invoking a proper version of the Bernstein inequality, for instance Corollary 2.11 from \cite{boucheron2003concentration}, we have the following:
+    \[
+    \Pr_{\S} \left[ \left| \prodqjl(\q, \k) - \langle \q, \k \rangle \right| > t \right] \le 2\exp\left( \frac{3}{4} \cdot \frac{m t^2}{ \| \k \|_2^2 \| \q \|_2^2  + \| \k \|_2 \| \q \|_2 \cdot t } \right).
+    \]
+    If we set $t = \varepsilon \|\q\|_2\|\k\|_2$ the above simplifies to:
+    \[
+    \Pr_{\S} \left[ \left| \prodqjl(\q, \k) - \langle \q, \k \rangle \right| > \varepsilon \|\q\|_2\|\k\|_2 \right] \le 2\exp\left( \frac{3}{4} \cdot \frac{m \varepsilon^2}{1 + \varepsilon} \right).
+    \]
+    Therefore if $m \ge \frac{4}{3} \cdot 
+ \frac{1 + \varepsilon}{\varepsilon^2}\log \frac{2}{\delta}$ the error bound follows.
+ This completes the proof of \cref{lem_distortion_inner_prod_est}.
+\end{proof}
+
+Note that the distortion bound in \cref{lem_distortion_inner_prod_est} has remarkably small constants, even smaller than those of the original unquintized JL transform. 
+This indicates that quantizing one of the vectors to just a single sign bit does not result in any loss of accuracy.
+We use these properties of QJL and our inner product estimator to prove the final approximation bound on our KV cache quantizer.
+
+
+\subsection{Key Cache Quantization via QJL}
+The key cache is used in the computation of attention scores as shown in \cref{eq_attn_scores}.
+To calculate these scores, we need to compute the inner products of the current query embedding with all key embeddings in the cache.
+We design a quantization scheme that allows for a low-distortion estimate of the inner products between an arbitrary query and all keys in the cache.
+In this section, we develop a practical algorithm with provable guarantees based on QJL and the inner product estimator defined in \cref{def:asym_hash}.
+
+\begin{algorithm}[t]
+\caption{\textsc{QJL} Key Cache Quantizer}
+    \begin{algorithmic}[1]
+    \Require Stream of key tokens $\k_1, \k_2, \ldots \in \mathbb{R}^d$, integer $m$
+    \State Draw a random sketch $\S \in \RR^{m \times d}$ with i.i.d. entries $\S_{i,j} \sim \mathcal{N}(0, 1)$ as per \Cref{def:asym_hash}
+    \Repeat
+    \State Compute $\Tilde{\k}_i \gets {\tt sign}\left( \S \k_i \right)$ and $\nu_i \gets \norm{\k_i}_2$
+    \State {\bf store} the quantized vector $\Tilde{k}_i$ and the key norm $\nu_i$ in the cache
+    % \State $i \gets i+1$
+    \Until{token stream ends}
+    \vspace{1mm} \hrule \vspace{1mm}
+    \hspace*{-1.4cm}{\bf Procedure} \textsc{EstimateScores}($\q_n$)  
+    \State Compute inner product estimators $\widetilde{{\bf qK}}(j) \gets \frac{\sqrt{\pi/2}}{m} \cdot \nu_i \cdot \langle \S \q_n, \Tilde{\k}_j \rangle$ for every $j \in [n]$
+    \State $\widetilde{\tt Score} \gets {\tt softmax}\left( \widetilde{{\bf qK}} \right)$
+    
+    \hspace*{-1.4cm}{\bf return} $\widetilde{\tt Score}$
+    \end{algorithmic}
+\label{alg:qjl}
+\end{algorithm}
+
+The quantization scheme presented in \cref{alg:qjl} applies QJL, defined in \cref{def:asym_hash}, to each key embedding, mapping them to binary vectors and storing the results in the key cache. 
+We show in the following theorem that the attention scores calculated by \cref{alg:qjl} have very small $(1\pm \varepsilon)$ relative distortion with high probability:
+\begin{theorem}[Distortion bound on QJL key cache quantizer]\label{thm-distortion}
+For any sequence of key tokens $\k_1, \ldots \k_n \in \R^d$ and any integer $m$, \cref{alg:qjl} stores binary vectors $\Tilde{\k}_1, \ldots \Tilde{\k}_n \in \{-1, +1\}^m$ along with scalar values $\nu_1, \ldots \nu_n$ in the cache. If the key embeddings have bounded norm $\max_{i \in [n]} \norm{\k_i}_2 \le r$ and $m \ge 2 r^2\varepsilon^{-2} \log n$, then for any query embedding $\q_n \in \R^d$ with bounded norm $\norm{\q_n}_2 \le r$ the output of the procedure \textsc{EstimateScores}($\q_n$) satisfies the following with probability $1-\frac{1}{{\tt poly}(n)}$ sinultaneously for all $i \in [n]$:
+\[
+\left| \widetilde{\tt Score}(i) - {\tt Score}(i) \right| \le 3\varepsilon \cdot {\tt Score}(i),
+\]
+where ${\tt Score}$ is the vector of attention scores defined in \cref{eq_attn_scores}.
+\end{theorem}
+\begin{proof}
+    The proof is by invoking \cref{lem_distortion_inner_prod_est} and a union bound.
+    For every $j \in [n]$ the estimator $\widetilde{{\bf qK}}(j)$ computed in line~6 of \cref{alg:qjl} is in fact equal to the inner product estimator $\widetilde{{\bf qK}}(j) = \prodqjl(\q_n, \k_j)$ as defined in \cref{prod_est}.
+    Thus by \cref{lem_distortion_inner_prod_est} we have the following with probability at least $1 - \frac{1}{n^{3/(2+2\varepsilon)}}$:
+    \[
+    \left| \widetilde{{\bf qK}}(j) - \langle \q_n, \k_j \rangle \right| \le \frac{\varepsilon}{r^2} \cdot \|\q_n\|_2\|\k_j\|_2 \le \varepsilon,
+    \]
+    where the second inequality follows from the preconditions of the theorem regarding the boundedness of the norms of the query and key embeddings. 
+    By union bound, the above inequality holds simultaneously for all $j \in [n]$ with high probability in $n$. 
+    Thus after applying the softmax function in line~7 of \cref{alg:qjl} we get that with high probability in $n$:
+    \[
+    \widetilde{\tt Score}(i) \in e^{\pm 2 \varepsilon} \cdot {\tt Score}(i) \in (1 \pm 3 \varepsilon) \cdot {\tt Score}(i).
+    \]
+    This completes the proof of \cref{thm-distortion}.
+\end{proof}
+
+This theorem shows that if the query and key embeddings have constant norms, as is common in practical scenarios, we can quantize each key embedding such that only $m \approx \varepsilon^{-2} \log n$ bits are needed to store each key token.
+This is independent of the embedding dimension of the tokens and scales only logarithmically with the sequence length.
+
+\subsection{Value Cache Quantization}
+We quantize the value cache using a standard quantization method, i.e., normalizing each token's entries and then rounding each entry to a few-bit integer representation. 
+This approach aligns with prior work, which has shown that standard token-wise quantization is highly effective for the value cache and results in a minimal accuracy drop~\cite{liu2024kivi, hooper2024kvquant}.
+
+
+\section{Experiments}
+
+In this section, we validate the empirical performance of our algorithm. All experiments are conducted under a single A100 GPU with 80GB memory. 
+We implement two main CUDA kernels for our core primitives: one for quantizing embedding vectors using various floating point data types such as bfloat16, FP16, and FP32, and the other for computing the inner product of an arbitrary embedding vector with all quantized vectors in the cache.
+The algorithm's wrapper is implemented in PyTorch, handling all the housekeeping tasks.
+We plan to complete implementation in the CUDA for future work, which will further accelerate our algorithm.
+
+
+\subsection{Practical Consideration}
+
+\paragraph{Outliers.} 
+As reported in recent works e.g., KIVI~\cite{liu2024kivi}, KVQuant~\cite{hooper2024kvquant}, key embeddings typically contain outliers exhibiting a distinct pattern. 
+Specifically, certain coordinates of key embeddings display relatively large magnitudes. 
+To further investigate these observations, we analyze the distribution of the magnitudes of key embedding coordinates across different layers. 
+% Motivating those observations, we first search for outliers and extract them. 
+% We shall quantize the outliers using an independent instance of our QJL quantizer but with a lower compression rate, utilizing more bits to accurately represent each outlier coordinate. Then, we apply an instance of QJL with a higher compression rate onto the remaining entries and cache the sketched embeddings.
+% we observe that 
+% Our detailed examination of 
+% the outlier patterns and quantization errors in the KV cache of commonly used large language models (LLMs) reveals that outliers in the key cache, especially in the deeper layers, have a significant impact on estimation accuracy. 
+Firstly, we observe that there are no significant outliers in the initial attention layers. 
+However, in the deeper layers, certain fixed coordinates of key embeddings consistently exhibit large magnitudes, and this pattern persists within these channels across all tokens.
+The distribution of outliers across different layers for the Llama-2 model is plotted in \Cref{fig:outliers_over_layers}. 
+It is evident that in the initial layers, outliers are rare, but as we approach the final layers, their frequency and impact increase significantly.
+Secondly, the outliers show a persistent pattern in specific fixed coordinates of the key embeddings. 
+This observation aligns with previous findings that certain fixed embedding coordinates exhibit larger outliers \cite{dettmers2022gpt3, lin2023awq, liu2024kivi, hooper2024kvquant}.
+
+
+\begin{figure}[t]
+    \centering
+    \vspace{-0.12in}
+    \begin{subfigure}[b]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\textwidth]{key_matrix_layer_0_head_0_sortbynorm_new.pdf}
+        \caption{Layer 0, Head 0}
+        \label{subfig:layer0}
+    \end{subfigure}
+    \hfill 
+    \begin{subfigure}[b]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\textwidth]{key_matrix_layer_15_head_0_sortbynorm_new.pdf}
+        \caption{Layer 15, Head 0}
+        \label{subfig:layer15}
+    \end{subfigure}
+    \hfill    
+    \begin{subfigure}[b]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\textwidth]{key_matrix_layer_31_head_0_sortbynorm_new.pdf}
+        \caption{Layer 31, Head 0}
+        \label{subfig:layer 31}
+    \end{subfigure}
+    \caption{The magnitude of key cache entries for different layers of the Llama-2 model, based on an example prompt, reveals notable patterns. The coordinates of embeddings (channels) are sorted by their average magnitude over tokens. In the initial layers, no significant outlier patterns are observed. However, in the deeper layers, a few channels (approximately four) exhibit visibly larger magnitudes, indicating the presence of significant outliers. This observation highlights the importance of addressing these outliers to improve quantization accuracy and reduce distortion in the key cache.}
+    \label{fig:outliers_over_layers}
+\end{figure}
+
+
+
+As demonstrated in \cref{thm-distortion}, the distortion on the attention scores is directly proportional to the norms of the embeddings.
+Therefore, capturing these outlier coordinates is essential, as their large magnitudes contribute significantly to the norms of key embeddings. By identifying and isolating these outlier channels, we can reduce the norm of the key embeddings and, consequently, significantly decrease the final distortion.
+Next, we quantize the outliers using an independent instance of our QJL quantizer but with a lower compression rate, utilizing more bits to accurately represent each outlier coordinate.
+
+\paragraph{Orthogonalized JL transform.}
+We observed that orthogonalizing the rows of the JL matrix $S$ in \cref{def:asym_hash} almost always improves the performance of our QJL quantizer.
+This finding aligns with previous work on various applications of the JL transform, such as random Fourier features \cite{yu2016orthogonal} and locality sensitive hashing \cite{ji2012super}.
+Consequently, in our implementation and all experiments, we first generate a random JL matrix $S$ with i.i.d. Gaussian entries and then orthogonalize its rows using QR decomposition. 
+We then use this orthogonalized matrix in our QJL quantizer, as described in \cref{alg:qjl}.
+
+
+% \subsection{Ablation Study} \label{sec_exp_simple}
+
+\subsection{End-to-end text generation} \label{sec_exp_end2end}
+
+Next we benchmark our method on LongBench~\cite{bai2023longbench}, a benchmark of long-range context on various tasks. 
+We choose the base model as {longchat-7b-v1.5-32k}~\cite{longchat2023} (fine-tuned Llama-2 with 7B parameter with 16{,}384 context length) and apply following quantization methods to this model; KIVI~\cite{liu2024kivi}, KVQuant~\cite{yue2024wkvquant} and our proposed quantization via QJL. Each floating-point number (FPN) in the base model is represented by 16 bits, and we choose proper hyper-parameters of KIVI and QJL so that their bits per FPN become 3. For KVQuant, we follow the default setting which holds its bits per FPN as 4.3.
+% More details on hyperparameter choice will be provided in the supplementary material.
+To validate the quality of those quantized models, we benchmark them on $6$ question-answer datasets from LongBench~\cite{bai2023longbench}, and we set the maximum sequence length to 31{,}500. We follow the same approach of prompting and evaluating to evaluate the prediction of the model from the original repository. \cref{tab-longbench} summarizes the results. Our proposed QJL achieves the highest F1 score within the quantization methods for \texttt{NarrativeQA, Qasper} and \texttt{2WikiMultiQA}.
+
+
+
+\def\arraystretch{1.2}
+\begin{table}[t]
+    % \vspace{-15pt}
+   \centering
+   \scalebox{0.9}{
+   \begin{tabular}{@{}lccccccc@{}}
+   \toprule
+   \multirow{2}{*}{Methods} & \multirow{2}{*}{Bits} & \multicolumn{6}{c}{Datasets from LongBench~\cite{bai2023longbench}} \\ 
+   \cmidrule(l){3-8}
+             &  & \texttt{NarrativeQA} & \texttt{Qasper} & \texttt{MultiQA-en} & \texttt{MultifQA-zh} & \texttt{HotpotQA} & \texttt{2WikiMultiQA} \\ \midrule
+    FP16 (baseline)    & 16 & 20.79    & {29.42}    & 42.83    & 34.33    & 33.05    & 24.14 \\
+    KIVI~\cite{liu2024kivi} & 3 & 20.96    &  29.01    & 40.93    & {\bf 34.75} & 32.79    & 23.01 \\
+    KVQuant~\cite{hooper2024kvquant}  & 4.3 & 20.14    & 28.77    & {\bf 44.22} & 34.44    & 34.06 & 23.05 \\
+    % GEAR     & \\
+    %QJL (ours) & 3.4 & {\bf 21.83}    & {\bf 29.44}    & 41.52    & 34.42    & 33.94    & {\bf 23.49} \\ 
+    % QJL (ours) & 3 &  20.67  &  28.48  &  40.94  &  29.71  & {\bf 35.62}  & {\bf 23.60} \\ 
+    QJL (ours) & 3 &  {\bf 21.83}  &  {\bf 29.44}  &  41.52  &  34.42  & {\bf 35.62}  & {\bf 23.60} \\ 
+    % QJL (ours) & 3 &  {\bf 21.83}  &  {\bf 29.44}  &  41.32  &  34.42  & {\bf 33.47}  & {\bf 23.60} \\ 
+   \bottomrule
+   \end{tabular}
+   }
+   \vspace{0.03in}
+   \caption{Evaluation (F1 scores) of various quantization methods on long-context question-answering datasets from LongBench~\cite{bai2023longbench}. We set bits per floating-point number (FPN) to 3. Bold indicates the highest scores within quantization methods.} \label{tab-longbench}
+\end{table}
+
+\def\arraystretch{1.2}
+\setlength{\tabcolsep}{10pt}
+\begin{table}[t]
+   \centering
+   \scalebox{0.9}{
+   \begin{tabular}{@{}llcccccc@{}}
+   \toprule
+   \multirow{2}{*}{Models} & \multirow{2}{*}{Methods} & \multirow{2}{*}{Bits} & \multicolumn{5}{c}{Datasets from LM-eval~\cite{evalharness}} \\ 
+   \cmidrule(l){4-8}
+             & &  & \texttt{Lambada-OpenAI} & \texttt{HellaSwag} & \texttt{PIQA} & \texttt{MathQA} & \texttt{MMLU} \\ \midrule
+   \multirow{3}{*}{Llama-2-7B} & FP16 (baseline)  & 16 & 73.90 & 57.18 & 78.07 & 28.11 & 41.85\\
+    & KIVI~\cite{liu2024kivi} & 3 & 73.88 & 57.13 & 78.07 & 28.11 & 41.81 \\
+    & QJL (ours) & 3 & 73.88 & 57.14 & 78.07 & 28.17 & 41.78\\
+   \bottomrule
+   \multirow{2}{*}{Llama-3-8B} & BF16 (baseline)      & 16& 75.59 & 60.17 & 79.65 & 40.64 & 62.09\\
+   & QJL (ours)          & 3 & 75.61 & 60.13 & 79.87 & 40.60 & 62.12\\
+   \bottomrule
+
+   \end{tabular}
+   }
+   \vspace{0.03in}
+   \caption{Evaluation (accuracy) of various quantization methods on regular length datasets from LM-eval~\cite{evalharness}. These comparisons are not typically based on long-context length; however, as evident, even in these cases, our QJL with 3 bits per FPN performs comparably to the baseline with 16 bits per FPN.}
+   \label{table:accuracy_comparison}
+\end{table}
+
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig_quant_encoding_time_llama2.pdf}
+        \caption{Prompt encoding (Llama2)}
+        \label{fig:encode_prompt_quantize}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig_quant_decoding_time_llama2.pdf}
+        \caption{Token generation (Llama2)}
+        \label{fig:generate_128_tokens_llama2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{fig_quant_total_time_llama3.pdf}
+        \caption{Encode and generate (Llama3)}
+        \label{fig:generate_64_tokens_llama3}
+    \end{subfigure}
+    \caption{Wall-clock time (ms) to encode a prompt and quantize the KV cache (left), generate 128 tokens for llama2 model (middle), and generate 64 tokens for llama3 model (right) using different quantization methods in a single attention layer model. The input sequence length varies from 1k to 64k. Both KIVI and QJL (ours) with 3 bits per FPN show faster decoding time than the baseline. However, KVQuant is significantly slower during both quantizing and decoding phases. QJL is the only method that can quantize Llama3, as our kernels support grouped query attention and BF16 data type. We observe the same speed for Llama3 as the exact method for generation. Note that our memory usage is at least 5-fold less than the exact method and can support all data types.} \label{fig-time}
+\end{figure}
+
+Although KVQuant performs better than other methods for \texttt{MultiQA-en} dataset, it requires a huge amount of preprocessing which leads to slow runtime. 
+To validate this, we additionally report runtime of prompt encoding, KV cache quantization, and decoding (token generation) in a single attention layer. 
+\cref{fig-time} shows the wall-clock time to encode a prompt and quantize the KV cache, generate 128 tokens for llama2 model, and generate 64 tokens for llama3 model using different quantization methods in a single attention layer of these models. 
+Note that QJL is the only method that can quantize Llama3, as our kernels support grouped query attention and BF16 data type. we observe the same speed for Llama3 as the exact method for generation.
+The input sequence lengths vary between 1k to 128k. As shown in \cref{fig-time}, KVQuant runs slower than other methods during both prompt encoding and decoding phases. 
+On the other hand, both KIVI and our QJL with 3 bits per FPN show marginal runtime overhead compared to the exact baseline during prompting but reduce KV cache memory usage by at least a factor of 5. 
+
+
+We additionally test our method on datasets \texttt{Lambada-OpenAI}, \texttt{HellaSwag}, \texttt{PIQA}, \texttt{MathQA}, and \texttt{MMLU}, which have shorter sequence lengths. We benchmark our method using {LM-eval}~\cite{evalharness} framework to ensure a thorough evaluation across various metrics. We evaluate quantization methods with accuracy across Llama-2-7B \cite{touvron2023llama} and Llama-3-8B~\cite{llama3} models. Note that KIVI only supports a half-precision floating point, whereas our method can be used for any precision format type. This makes it unable to run KIVI on the Llama-3 model.
+
+As a results, QJL can significantly reduce memory usage by utilizing only 3 bits per FPN, compared to the 16 bits per FPN in the baseline, achieving around an 81\% reduction in memory. We observe that this efficiency does not compromise performance significantly. Across all datasets, our method's accuracy is generally comparable to the baseline, with slight variations. In \cref{table:accuracy_comparison}, our QJL on the Llama-3-8B performs on average about slightly better than the baseline across all datasets. 
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.4\textwidth]{pics/fig_quant_prompt_time.pdf}
+%     \hspace{0.2in}
+%     \includegraphics[width=0.4\textwidth]{pics/fig_quant_decoding_time.pdf}
+%     \caption{Wall-clock time (ms) to encode prompts of various lengths and quantize their KV cache (left) and decode, i.e., generate tokens, (right) using different quantization methods in a single attention layer. The input sequence length varies from 1k to 128k. Both KIVI and QJL (ours) with 3 bits per FPN show faster decoding time than the baseline. However, KVQuant runs with a huge overhead during both quantizing and decoding processes.} \label{fig-time}
+% \end{figure}
+
+
+% \def\arraystretch{1.3}
+% \begin{table}[t]
+%    \centering
+%    \scalebox{0.95}{
+%    \begin{tabular}{@{}lccccccc@{}}
+%    \toprule
+%    \multirow{2}{*}{Methods} & \multirow{2}{*}{Bits} & \multicolumn{6}{c}{Accuracy} \\ 
+%    \cmidrule(l){3-8}
+%              &  & \texttt{mathqa} & \texttt{arc-challenge} & \texttt{gsm8k} & \texttt{coqa} & \texttt{truthfulqa} & \texttt{pubmedqa} \\ \midrule
+%     BFP16 (Llama3)    & 16  & 40.64 & 50.25 & 49.89 & 80.97 & 32.67 &74.80 \\
+%     QJL (ours)        & 3 & 40.60 & 50.42 & 39.04 & 78.83 & 32.66 & 74.40\\
+%    \bottomrule
+%    \end{tabular}
+%    }
+%    \vspace{0.15in}
+%    \caption{}
+%    \label{table:llama3}
+% \end{table}
+
+
+\bibliographystyle{plain}
+\bibliography{paper}
+\end{document}

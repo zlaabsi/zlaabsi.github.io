@@ -1,9 +1,12 @@
 {
-  "generatedAt": "2026-04-09T17:15:20.403Z",
-  "pages": 3,
-  "chunks": 27,
-  "model": "Xenova/all-MiniLM-L6-v2",
+  "generatedAt": "2026-04-10T03:45:46.290Z",
+  "pages": 5,
+  "sections": 84,
+  "chunks": 157,
+  "model": "onnx-community/embeddinggemma-300m-ONNX",
+  "dtype": "q4",
+  "modelFileName": "model_no_gather",
   "transformersVersion": "4.0.1",
-  "dim": 384,
+  "dim": 768,
   "bits": 4
 }

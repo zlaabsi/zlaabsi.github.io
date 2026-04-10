@@ -1,16 +1,16 @@
 ---
-title: "TurboQuant for Embeddings: A Practical Reference Implementation for RAG"
-date: 2026-03-31
-draft: true
+title: "Compressing RAG Embeddings with TurboQuant"
+date: 2026-04-03
+draft: false
 author: "Zakaria Laabsi"
 tags: ["rag", "retrieval", "embeddings", "quantization", "vector-search", "llm-systems"]
 categories: ["machine-learning"]
-keywords: ["TurboQuant", "embedding quantization", "RAG pipeline compression", "vector search optimization", "Lloyd-Max quantization", "QJL residual correction", "BeIR benchmark", "dense retrieval compression", "product quantization comparison"]
-description: "A technical deep-dive into turboquant-embed: the TurboQuant algorithm, its implementation details, the benchmark results we can actually defend, and the deployment trade-offs for real RAG pipelines."
-summary: "TurboQuant can compress embedding collections aggressively while preserving retrieval quality. This post explains the algorithm, the implementation choices in turboquant-embed, and the benchmark results that hold up on BeIR."
+keywords: ["TurboQuant", "Google Research", "RAG compression", "embedding quantization", "vector search", "BeIR", "PQ vs SQ vs OPQ", "hybrid retrieval"]
+description: "TurboQuant applied to dense retrieval: how the algorithm works, what turboquant-embed implements, and what the BeIR benchmarks actually establish against scalar and product quantization."
+summary: "TurboQuant compresses embeddings aggressively without corpus-specific training. This post covers the algorithm, the turboquant-embed implementation, and the retrieval benchmarks that hold up on BeIR."
 cover:
-  image: "/images/turboquant/12_status_quo_quantization.png"
-  alt: "TurboQuant vs standard quantizers on BeIR benchmarks"
+  image: "/images/turboquant/12v2_status_quo_quantization.svg"
+  alt: "TurboQuant retention versus standard quantizers"
   hidden: true
 ShowToc: true
 TocOpen: true
@@ -19,104 +19,31 @@ ShowReadingTime: true
 ShowCodeCopyButtons: true
 ---
 
-> *This post documents `turboquant-embed`, a local reference implementation of TurboQuant for embedding compression and retrieval. The goal is not to market a miracle quantizer. It is to explain exactly what the method does, how the implementation works, what the benchmarks actually measure, and where the trade-offs show up in real retrieval pipelines.*
+> *This post is a figure-driven reading of `turboquant-embed`, a local reference implementation of TurboQuant for embedding compression and retrieval. The question is not whether TurboQuant looks elegant on paper. The question is whether it buys anything tangible for RAG once we compare it against FP32, scalar quantization, product quantization, and hybrid retrieval pipelines. For the full mathematical theory (proofs, distortion bounds, and the QJL/PolarQuant lineage), see the [companion article on data-oblivious vector quantization](/posts/kv-cache-quantization-theory/).*
 
-## Introduction
+## Why TurboQuant Exists
 
-Modern RAG systems are often bottlenecked by embedding storage before they are bottlenecked by arithmetic.
+A corpus of $N$ vectors in dimension $d$, stored in `float32`, costs $4Nd$ bytes. For `100K` documents embedded with a `1536`-dimensional model, that is roughly `614 MB` before any vector-store overhead, metadata, replication, or ANN index structures. This is manageable on a server. It is much less manageable on a laptop, across per-tenant indexes, or when the corpus changes faster than a codebook can be retrained.
 
-If a corpus contains $N$ vectors in dimension $d$ and each coordinate is stored in `float32`, the raw storage cost is
+Google Research introduced TurboQuant [^1] as part of a broader compression story covering both vector search and LLM KV-cache efficiency. The [official blog post](https://research.google/blog/turboquant-redefining-ai-efficiency-with-extreme-compression/) frames the ambition clearly: high-dimensional vectors are memory-hungry, traditional quantizers carry nontrivial codebook overhead, and TurboQuant is presented as a theoretically grounded, data-oblivious alternative for extreme compression.
 
-$$
-4Nd \text{ bytes}.
-$$
+The [paper](https://arxiv.org/abs/2504.19874) makes the claim precise. TurboQuant is an **online**, **data-oblivious** quantization scheme that aims at near-optimal distortion rates for both mean-squared error and inner-product distortion. The recipe has three steps:
 
-For `100K x 1536` embeddings, that is about `614 MB` before vector-store overhead, metadata, replication, or ANN index structures. On the same workload, `turboquant-embed` reaches the following packed sizes:
+1. **Random rotation.** Apply a random orthogonal matrix $\mathbf{\Pi}$ to the vector. This induces a [Beta distribution on each coordinate](/posts/kv-cache-quantization-theory/#random-rotation-and-beta-distribution), a known, universal shape that does not depend on the input data.
+2. **Lloyd-Max quantization.** Quantize each rotated coordinate independently using [scalar codebooks matched to the Beta density](/posts/kv-cache-quantization-theory/#lloyd-max). Because the density is the same for every coordinate and every input, a single precomputed codebook suffices.
+3. **QJL residual correction.** The MSE quantizer introduces inner-product bias. A 1-bit [QJL sketch](/posts/kv-cache-quantization-theory/#qjl) [^2] on the residual $\mathbf{r} = \mathbf{x} - \tilde{\mathbf{x}}_\text{mse}$ corrects this: the resulting estimator is provably [unbiased with concentration guarantees](/posts/kv-cache-quantization-theory/#theorem-2).
 
-| Configuration | Packed size | Packed compression ratio |
-|---|---:|---:|
-| FP32 | ~614 MB | 1x |
-| TQ 2-bit MSE | ~39 MB | ~16x |
-| TQ 4-bit MSE | ~77 MB | ~8x |
-| TQ 4-bit QJL | ~62 MB | ~10x |
+The critical word is *data-oblivious*. There is no k-means fitting on the corpus. The rotation is deterministic once the seed is fixed, and the scalar codebooks are universal. A new corpus can be compressed immediately, without a training pass. The [theoretical guarantee](/posts/kv-cache-quantization-theory/#theorem-1) is that MSE distortion is at most $\frac{\sqrt{3}\pi}{2} \cdot 4^{-b}$, within a factor of 2.7 of the [information-theoretic lower bound](/posts/kv-cache-quantization-theory/#theorem-3).
 
-This post makes a deliberately narrow claim:
+That is the context for `turboquant-embed`. The repository does not try to reproduce the full systems story of the Google blog. It focuses on the embedding and retrieval side of TurboQuant, with a local, CPU, NumPy-first implementation that is useful for RAG experiments, benchmark reproduction, and integration prototyping. The question it asks is not *"Is TurboQuant theoretically interesting?"*; the paper answers that. The question is:
 
-1. TurboQuant is a strong **memory-quality trade-off** for dense retrieval.
-2. A careful implementation can preserve quality in **dense-only** and **hybrid sparse+dense** pipelines.
-3. This does **not** automatically imply lower end-to-end latency or native compressed vector-store support.
+> *For RAG, when does TurboQuant beat the usual alternatives, and what exactly do the current figures prove?*
 
-That distinction matters. It is the difference between a serious engineering post and a marketing page.
+---
 
-## Problem Setup
+## What `turboquant-embed` Implements
 
-Let $q \in \mathbb{R}^d$ be a query embedding and let $x \in \mathbb{R}^d$ be a document embedding. In the dense retrieval regime considered here, ranking is based on the inner product
-
-$$
-s(q, x) = q^\top x.
-$$
-
-The objective is to replace $x$ by a compact representation $\tilde{x}$ such that
-
-$$
-q^\top \tilde{x} \approx q^\top x
-$$
-
-for retrieval-relevant queries $q$, while making the storage cost of $\tilde{x}$ much smaller than that of $x$.
-
-## TurboQuant in One Page
-
-TurboQuant is a two-stage construction.
-
-### Stage 1: random rotation plus universal Lloyd-Max quantization
-
-For a unit vector $x \in \mathbb{S}^{d-1}$, the algorithm applies a random orthogonal rotation $\Pi$ and quantizes the rotated coordinates independently. The key trick is that after rotation, each coordinate has a known marginal law that is close to Gaussian at large dimension, so a universal Lloyd-Max codebook is near-optimal.
-
-That is what makes the method **data-oblivious**:
-
-1. the rotation is deterministic once the seed is fixed,
-2. the scalar codebooks are universal,
-3. there is no k-means training step on the corpus.
-
-For the standard normal distribution, the first codebooks are:
-
-$$
-b=1: \{\pm \sqrt{2/\pi}\} \approx \{\pm 0.7979\}
-$$
-
-and
-
-$$
-b=2: \{-1.5104, -0.4528, 0.4528, 1.5104\}.
-$$
-
-Those are precomputed in the implementation and scaled by $1/\sqrt{d}$ for the rotated coordinates.
-
-### Stage 2: QJL residual correction
-
-Pure MSE-optimal quantization is good for reconstruction, but at low bit-rates it introduces bias in the inner product. TurboQuant corrects that bias with a 1-bit Quantized Johnson-Lindenstrauss sketch on the residual.
-
-If $r = x - \hat{x}_{\text{MSE}}$ and $S \in \mathbb{R}^{k \times d}$ is the sketching matrix, the implementation uses
-
-$$
-\operatorname{qjl}(r) = \operatorname{sign}(Sr).
-$$
-
-The asymmetric score estimator used at search time is:
-
-$$
-\widehat{\langle q, x \rangle}
-= \|x\|_2 \langle q, \tilde{x}_{\text{MSE}}\rangle
-+ \|x\|_2 \sqrt{\frac{\pi}{2}} \cdot \frac{\gamma}{k} \cdot (Sq)^\top \operatorname{qjl}(r),
-$$
-
-where $\gamma = \|r\|_2$ and $k$ is the sketch dimension. In the implementation, the first term comes from the packed MSE codes and the second term is the QJL bias correction. This is the core reason the product variant remains attractive at very low bit-rates.
-
-## What `turboquant-embed` Actually Implements
-
-The repo is not just a toy notebook. It gives you a compressor, serialization, direct compressed search, and adapter layers for local pipeline experiments.
-
-The critical flow is:
+At the API level, the implementation is deliberately simple:
 
 ```python
 from turboquant_embed import TurboQuantEmbedCompressor, CompressedEmbeddings
@@ -130,218 +57,265 @@ compressed.save("index.npz")
 loaded = CompressedEmbeddings.load("index.npz")
 ```
 
-Two details matter a lot in practice.
+Under the hood, the repo tracks a few distinctions that matter when discussing RAG systems seriously. First, it separates **serialized bytes** (packed on-disk or transferable size) from **resident bytes** (actual in-memory NumPy buffers). The blog and paper claims should be tied to serialized storage when comparing compression. Second, it exposes three rotation backends: `qr` for the canonical dense Haar-style baseline, `hadamard` for an engineering-oriented $O(d \log d)$ approximation at larger dimensions, and `auto` to select between them. Third, it distinguishes **MSE-only** scoring from **QJL-corrected** scoring, because pure reconstruction quality and unbiased inner-product estimation are not the same problem.
 
-### Serialized bytes vs resident bytes
+The asymmetric inner-product estimator used by the product variant is:
 
-The implementation distinguishes:
+$$\widehat{\langle q, x \rangle} = \lVert x \rVert_{2} \, \langle q, \tilde{x}_{\mathrm{MSE}} \rangle + \lVert x \rVert_{2} \sqrt{\frac{\pi}{2}} \cdot \frac{\gamma}{k} \cdot (Sq)^{\top} \operatorname{sign}(Sr),$$
 
-1. `serialized_nbytes`: packed on-disk or transferable size,
-2. `resident_nbytes`: actual in-memory NumPy buffers currently materialized.
+where $r = x - \hat{x}_{\mathrm{MSE}}$ is the residual, $\gamma = \lVert r \rVert_{2}$, and $k$ is the sketch dimension. The first term comes from the MSE quantizer; the second is the QJL bias correction. The $\sqrt{\pi/2}$ factor compensates for the information lost in the sign quantization: it arises because $\mathbb{E}[|g|] = \sqrt{2/\pi}$ for $g \sim \mathcal{N}(0,1)$, and the estimator must cancel this scaling to remain [unbiased](/posts/kv-cache-quantization-theory/#qjl). The derivation and complete proof are in the [theoretical companion](/posts/kv-cache-quantization-theory/#theorem-2).
 
-That distinction is not cosmetic. The blog and paper claims should be tied to **serialized storage** when comparing compression.
+---
 
-### Rotation backends
+## How to Read the Figure Slate
 
-The compressor exposes three rotation modes:
+The benchmark directory mixes two kinds of figures. Some are **primary comparative evidence for RAG**: plots that actually answer whether TurboQuant is useful against meaningful baselines on labeled retrieval benchmarks. Others are **internal or synthetic diagnostics**: useful for building intuition about the quantizer's behavior, but not the main evidence for deployment claims.
 
-| Backend | Time / memory profile | When it makes sense |
-|---|---|---|
-| `qr` | dense Haar rotation; roughly $O(d^3)$ init and $O(d^2)$ storage | research-faithful baseline, comfortable below `d=2048` |
-| `hadamard` | sign flips, permutations, and FWHT mixing; roughly $O(d \log d)$ application and much lighter state | larger-dimensional pipeline experiments |
-| `auto` | uses `hadamard` only when `dim >= 2048` and the largest power-of-two divisor is at least `128`, otherwise falls back to `qr` | pragmatic default |
 
-For publication-facing claims about the canonical algorithm, the repo keeps `qr` as the reference backend. For engineering experiments at larger dimensions, the structured backend is much cheaper to initialize and avoids carrying a full dense rotation matrix around.
+---
 
-## Why Not Just Use PQ?
+## Storage and Operational Motivation
 
-This is the main conceptual advantage of TurboQuant over the standard `PQ / OPQ` family:
+Before asking whether TurboQuant *retrieves well*, it is worth establishing that the compression itself is real, stable, and operationally interesting. That is what the first three figures do.
 
-1. **no training**,
-2. **no corpus-specific codebooks**,
-3. **no fitting step before compression**,
-4. **deterministic build path** once the seeds are fixed.
+### Packed Memory Scaling
 
-That does not make `PQ` or `OPQ` bad baselines. They are strong baselines, and the blog uses them as such. But it does change the engineering story. TurboQuant can be applied to a new corpus immediately, without learning a quantizer on that corpus first.
+![FP32 vs TurboQuant packed memory scaling](/images/turboquant/01_memory_comparison.svg)
 
-## Benchmark Design
+The first figure plots serialized storage in megabytes for `FP32`, `TQ-2bit`, `TQ-3bit`, and `TQ-4bit` as the corpus grows from `10K` to `100K` vectors at $d = 1536$. The compression ratios are large and remarkably stable:
 
-The benchmark slate used here has four distinct roles.
+| Method | Packed size | Ratio vs FP32 |
+|---|---:|---:|
+| FP32 | 614 MB | 1.0x |
+| TQ-2bit | 38.8 MB | 15.8x |
+| TQ-3bit | 58.0 MB | 10.6x |
+| TQ-4bit | 77.2 MB | 8.0x |
 
-### 1. Status-quo comparison
+This is a storage figure, not a retrieval figure. It establishes that packed bytes scale linearly with corpus size (the ratio does not degrade) but says nothing about whether indexing overhead, latency, or retrieval quality follow the same pattern.
 
-This is the main question:
+### Equal-Memory Retrieval
 
-> At a matched serialized storage budget, how does TurboQuant compare to standard FAISS quantizers on a relevance-labeled retrieval benchmark?
+![Retrieval quality at equal memory budget](/images/turboquant/02_equal_memory_recall.svg)
 
-![TurboQuant vs SQ, PQ, and OPQ on BeIR qrels](/images/turboquant/12_status_quo_quantization.png)
+The natural follow-up question is: if memory is the actual constraint, does compression buy retrieval quality by fitting more vectors into the same budget? On synthetic data, the answer is yes, dramatically so at small budgets:
 
-The answer is clear in the ultra-compact regime. On SciFact with MiniLM, `TQ-2b` reaches `0.640` nDCG@10 at `100.0` bytes/vector, while `PQ16` reaches only `0.526` at `99.9` bytes/vector. On SciFact with mpnet, `TQ-2b` reaches `0.649` at `196.0` bytes/vector, while `PQ16` reaches `0.590` at `199.7` bytes/vector. Even on the harder NFCorpus split, `TQ-2b` stays above `PQ16` while using comparable or smaller storage.
+| Budget | FP32 | TQ-2bit | TQ-4bit |
+|---|---:|---:|---:|
+| 10 MB | 0.03 | 0.34 | 0.27 |
+| 20 MB | 0.07 | 0.50 | 0.53 |
+| 40 MB | 0.13 | 0.50 | 0.84 |
+| 160 MB | 0.54 | 0.50 | 0.84 |
 
-At around `8x` compression, `TQ-4b` stays very close to `SQ4`. For example:
+At `10 MB`, FP32 can barely fit any vectors and recall is nearly zero, while `TQ-2bit` already reaches `0.34`. The effect saturates (`TQ-2bit` plateaus around `50%` recall and `TQ-4bit` around `84%`), so this should be read as a budget intuition plot rather than a public retrieval-effectiveness claim. But the intuition is sound: under tight memory constraints, compression is not just a storage optimization; it is a retrieval enabler.
 
-1. SciFact + MiniLM: `TQ-4b = 0.650`, `SQ4 = 0.649`, `FP32 = 0.645`
-2. SciFact + mpnet: `TQ-4b = 0.657`, `SQ4 = 0.654`, `FP32 = 0.656`
-3. NFCorpus + MiniLM: `TQ-4b = 0.313`, `SQ4 = 0.314`, `FP32 = 0.317`
-4. NFCorpus + mpnet: `TQ-4b = 0.333`, `SQ4 = 0.334`, `FP32 = 0.334`
+### Encoding Speed
 
-That is a much stronger result than "compression looks okay." It says TurboQuant is competitive with the classical baselines that people actually use.
+![Encoding cost of TurboQuant versus Product Quantization](/images/turboquant/02b_encoding_speed.svg)
 
-### 2. Cross-model robustness
+The training-free nature of TurboQuant is not just a conceptual convenience. It translates into concrete encoding speed differences relative to PQ-style pipelines that need to fit codebooks on the corpus:
 
-The second question is whether the result depends on one lucky encoder.
+| Number of vectors | TQ | PQ | Speedup |
+|---|---:|---:|---:|
+| 1K | 0.51 s | 70.8 s | 138x |
+| 10K | 7.89 s | 2109 s | 267x |
+| 50K | 8.58 s | 757.8 s | 88x |
 
-![Cross-model stability of TurboQuant 4-bit on BeIR](/images/turboquant/05_text_embedding_models.png)
+This is the weakest operational figure in the slate: the PQ timings are noisy and likely sensitive to hyperparameters and implementation choices. It supports the training-free story, but I would not use it as the lead public performance claim without a tighter experimental protocol.
 
-At roughly `7.8x-7.9x` packed compression, the 4-bit result is stable across three real encoders:
+---
 
-1. **SciFact**
-   - MiniLM: `FP32 0.645` vs `TQ-4b 0.650`
-   - mpnet: `FP32 0.656` vs `TQ-4b 0.657`
-   - BGE-M3: `FP32 0.641` vs `TQ-4b 0.647`
-2. **NFCorpus**
-   - MiniLM: `FP32 0.317` vs `TQ-4b 0.313`
-   - mpnet: `FP32 0.334` vs `TQ-4b 0.333`
-   - BGE-M3: `FP32 0.255` vs `TQ-4b 0.252`
+## What the Quantizer Itself Is Doing
 
-The pattern is the one you want from a serious compression method: close enough to FP32 that the remaining gap is small compared to dataset difficulty.
+With the storage motivation established, the next step is to understand the quantizer's behavior before trusting it on real retrieval data. The figures in this section are all synthetic: controlled experiments designed to isolate specific properties of the method. They are not publication-grade retrieval results, but they are necessary to build confidence that the quantizer behaves predictably.
 
-### 3. Hybrid retrieval
+### Fidelity vs Compression
 
-The third question is the RAG-facing one:
+![Recall versus compression ratio for TurboQuant MSE and product variants](/images/turboquant/03_recall_vs_compression.svg)
 
-> If dense retrieval is only one signal among others, does compression destroy the hybrid pipeline?
+The most basic diagnostic question is: how does retrieval fidelity degrade as the bitrate drops? The figure below traces Recall@10 on synthetic data as a function of compression ratio for the pure MSE variant and the QJL-corrected product variant.
 
-The benchmark uses a Lucene-style BM25 baseline (`bm25s` with Snowball stemming), a dense MiniLM retriever, and `RRF@100` fusion.
+| Bits | MSE ratio | MSE recall | Product ratio | Product recall |
+|---|---:|---:|---:|---:|
+| 8 | 4.0x | 0.984 | 4.4x | 0.923 |
+| 6 | 5.3x | 0.950 | 6.1x | 0.769 |
+| 4 | 8.0x | 0.851 | 10.0x | 0.373 |
+| 2 | 15.8x | 0.520 | 26.5x | 0.046 |
 
-![Hybrid BM25+dense retrieval under TurboQuant compression](/images/turboquant/07_hybrid_dense_sparse.png)
+The MSE variant degrades gracefully: `0.984` at 8-bit, `0.851` at 4-bit, `0.520` at 2-bit. The product variant buys more aggressive compression but pays for it steeply: at 2-bit, recall collapses to `0.046`. That collapse is the most important negative result visible in the entire benchmark suite. The product/QJL path is not magic at very low bitrates.
 
-The answer is no.
+### Dimension Robustness
 
-1. **SciFact**
-   - BM25: `0.679` nDCG@10
-   - Dense FP32: `0.645`
-   - Dense TQ-4bit: `0.650`
-   - Hybrid BM25+FP32: `0.713`
-   - Hybrid BM25+TQ-4bit: `0.711`
-   - paired delta for the hybrid pipeline: `-0.0012` nDCG@10, CI `[-0.0088, 0.0062]`
-2. **NFCorpus**
-   - BM25: `0.318`
-   - Dense FP32: `0.317`
-   - Dense TQ-4bit: `0.313`
-   - Hybrid BM25+FP32: `0.345`
-   - Hybrid BM25+TQ-4bit: `0.344`
-   - paired delta for the hybrid pipeline: `-0.0006` nDCG@10, CI `[-0.0043, 0.0032]`
+![4-bit accuracy across embedding dimensions](/images/turboquant/04_accuracy_by_dimension.svg)
 
-That is the right RAG conclusion: compressing the dense branch does not destroy the lift you get from combining lexical and dense evidence.
+A practical concern for any quantizer intended for real embedding stacks is dimensional robustness. Models in production span from `128`-dimensional MiniLM to `3072`-dimensional BGE-M3 and beyond. After random rotation, TurboQuant stays remarkably stable:
 
-### 4. Deployment path
+| Dimension | TQ-4bit | SQ4 | PQ |
+|---|---:|---:|---:|
+| 128 | 0.856 | 0.818 | 0.193 |
+| 384 | 0.863 | 0.812 | 0.190 |
+| 1536 | 0.869 | 0.812 | 0.199 |
+| 3072 | 0.860 | 0.799 | 0.207 |
 
-The last benchmark separates two deployment stories:
+The TQ column barely moves. SQ4 drifts slightly downward at higher dimensions. PQ is essentially flat but at a much lower level; this is synthetic data, and the PQ baseline is not especially strong in this setup. The figure supports the intuition that TurboQuant is dimension-stable, but it should not be oversold as a superiority proof by itself.
 
-1. direct compressed search in-process,
-2. reconstruction-based upload into a FP32 vector store.
+### Top-1 Recovery
 
-![Direct compressed search vs vector-store reconstruction path](/images/turboquant/11_beir_relevance_server.png)
+![Recall@1@k for TurboQuant and Product Quantization](/images/turboquant/05_recall_at_1_k.svg)
 
-The direct in-process path stays very close to exact dense quality:
+A different angle on quantization quality: how often is the true top-1 result recovered inside the approximate top-$k$? This matters for applications where the best answer must not be lost entirely, even if the approximate ranking is imperfect.
 
-1. SciFact + MiniLM: `+0.0045` nDCG@10 vs exact FP32
-2. SciFact + mpnet: `+0.0014`
-3. NFCorpus + MiniLM: `-0.0037`
-4. NFCorpus + mpnet: `-0.0007`
+For $d = 1536$ at 2-bit:
 
-The Chroma reconstruction path also stays close to the FP32 Chroma baseline:
+| k | TQ | PQ |
+|---|---:|---:|
+| 1 | 0.465 | 0.505 |
+| 4 | 0.785 | 0.770 |
+| 16 | 0.950 | 0.955 |
+| 64 | 1.000 | 1.000 |
 
-1. SciFact + MiniLM: `+0.0026` nDCG@10
-2. SciFact + mpnet: `-0.0019`
-3. NFCorpus + MiniLM: `-0.0021`
-4. NFCorpus + mpnet: `-0.0018`
+Both methods recover the true top-1 with high probability once the reranking depth reaches 16 or so. The metric is relatively forgiving (it only asks whether the best result appears somewhere in the top-$k$, not whether the full ranking is preserved), but it confirms that TurboQuant does not catastrophically lose the best answer.
 
-But this figure should be read carefully. It does **not** mean that Chroma is indexing compressed vectors natively. The server still sees reconstructed FP32 vectors.
+### Scaling with Corpus Size
 
-## Results We Can Defend
+![Scaling of fidelity and packed storage with corpus size](/images/turboquant/08_scaling_corpus.svg)
 
-The benchmark evidence supports the following claims.
+The last diagnostic question before turning to real retrieval benchmarks: does the compression ratio hold as the corpus grows? The answer is yes: the ratio stays fixed at `7.8x` from `1K` to `100K` vectors:
 
-### TurboQuant is strong at aggressive compression
+| Corpus | FP32 | TQ-4bit | Ratio | Recall@10 |
+|---|---:|---:|---:|---:|
+| 1K | 2 MB | 0.2 MB | 7.8x | 0.71 |
+| 10K | 15 MB | 2.0 MB | 7.8x | 0.38 |
+| 100K | 154 MB | 19.6 MB | 7.8x | 0.27 |
 
-`TQ-2b` is materially stronger than `PQ16` and `OPQ16` at the low-byte end of the curve on BeIR qrels.
+The recall values here are pessimistic synthetic diagnostics; the absolute numbers are not meaningful for real retrieval claims. The reliable takeaway is the linear packed-storage scaling: the compression ratio does not erode with corpus size.
 
-### TurboQuant remains competitive with scalar quantization
+---
 
-The honest statement is not "TurboQuant crushes SQ everywhere." The defensible statement is that `TQ-4b` stays competitive with `SQ4/SQ8` while being data-oblivious and training-free.
+## Comparative Evidence on BeIR
 
-### TurboQuant preserves hybrid retrieval gains
+Everything so far has been either operational motivation or synthetic diagnostics. The figures in this section are different: they measure TurboQuant against meaningful baselines on **labeled retrieval benchmarks** (BeIR), with real embedding models, and in pipeline configurations that resemble actual RAG systems. This is where the claims must be the most careful, and where the results are the most interesting.
 
-Compression of the dense branch does not collapse the BM25+dense hybrid gains on the datasets tested here.
+### Hybrid Retrieval Under Compression
 
-### The implementation is good for experimentation and prototyping
+![Hybrid dense+sparse retrieval under TurboQuant compression](/images/turboquant/07_hybrid_dense_sparse.svg)
 
-The repository is a strong **reference CPU/NumPy implementation** for experimentation, reproducibility, and pipeline prototyping. It is not yet a native compressed ANN engine.
+This is the most directly RAG-relevant figure in the entire repository. In practice, most RAG systems do not rely on dense retrieval alone; they combine a sparse leg (BM25 or similar) with a dense leg, fusing the results with reciprocal rank fusion or a learned combiner. The deployment question is concrete: if we compress the dense leg, do we lose the hybrid lift?
 
-## What This Does Not Prove
+The figure shows paired query-wise deltas for dense-only and hybrid (BM25 + dense) retrieval, comparing `TQ-4bit` against `FP32` on BeIR `scifact` and `nfcorpus`:
 
-There are three claims the post should avoid.
+| Comparison | SciFact ΔNDCG@10 | NFCorpus ΔNDCG@10 |
+|---|---:|---:|
+| Dense TQ - FP32 | `+0.005` [`-0.001`, `+0.010`] | `-0.003` [`-0.007`, `-0.001`] |
+| Hybrid TQ - FP32 | `-0.001` [`-0.009`, `+0.006`] | `-0.001` [`-0.004`, `+0.003`] |
 
-### It does not prove universal latency wins
+The hybrid deltas are negligible; confidence intervals comfortably include zero on both datasets. The sparse leg absorbs whatever small perturbations the quantizer introduces in the dense ranking. It is worth noting that the sparse leg here is a local `bm25s` reference with Snowball stemming, not a production search server. The right claim is therefore not that TurboQuant *improves* hybrid retrieval, but that **it does not materially damage it in this setup**.
 
-In the direct search benchmark, the compressed in-process path can still be slower than exact dense BLAS. On the tested setups, the direct TurboQuant path ranges from roughly `1.28x` to `1.58x` the query latency of exact FP32.
+### Status Quo Against Standard Quantizers
 
-### It does not prove native compressed vector-store support
+![TurboQuant vs standard quantizers on BeIR](/images/turboquant/12_status_quo_quantization.svg)
 
-If a vector store accepts reconstructed FP32 vectors, then the stored server-side representation is still FP32.
+This is the central comparative figure, the one that answers the question a RAG engineer would actually ask: *why should I care about TurboQuant instead of just using the standard FAISS quantizers?*
 
-### It does not prove production readiness by itself
+The figure plots NDCG@10 against actual bytes per vector for `FP32`, `TurboQuant`, `SQ`, `PQ16`, and `OPQ16`, on two BeIR datasets (SciFact and NFCorpus) with two embedding models (MiniLM and mpnet). For SciFact with MiniLM:
 
-Publication-grade benchmarks and a clean reference implementation are not the same thing as a fully optimized production retrieval stack.
+| Method | Bytes / vector | NDCG@10 |
+|---|---:|---:|
+| FP32 | 1536 | 0.645 |
+| TQ-4b | 196 | 0.650 |
+| SQ4 | 193 | 0.649 |
+| OPQ16 | 214 | 0.602 |
+| PQ16 | 100 | 0.526 |
 
-## Why This Matters for RAG
+Two results stand out. First, in the ultra-compact regime, `TQ-2b` is materially stronger than `PQ16`; the gap is not small. Second, around the `~8x` compression point, `TQ-4b` is essentially tied with `SQ4`. The advantage over scalar quantization is not dramatic at 4-bit; the honest result is narrower and still useful: TurboQuant clearly beats `PQ/OPQ` at low byte counts, and remains competitive with `SQ` at moderate compression.
 
-For many RAG systems, the first practical question is not "what is the absolute best ANN index?" but rather:
+### Retention Relative to FP32
 
-> *Can I keep dense retrieval quality while making the embedding footprint small enough to be practical?*
+![Retention relative to FP32 for TurboQuant and standard quantizers](/images/turboquant/12v2_status_quo_quantization.svg)
 
-That is exactly where TurboQuant is interesting. It gives you a dense retrieval representation that is much smaller than FP32, empirically strong against standard quantization baselines, and still usable in pipelines that combine dense and sparse signals.
+The same story told differently: NDCG@10 normalized as retention relative to FP32, which makes the practical message easier to read at a glance.
+
+| Method | Mean retention | Compression regime |
+|---|---:|---:|
+| TQ-2b | ~100% | ~15x |
+| TQ-4b | ~102% | ~8x |
+| SQ4 | ~100% | ~8x |
+| PQ16 | ~85% | ~15x |
+| OPQ16 | ~98% | ~7x |
+
+TurboQuant stays in the near-lossless band across both bitrates, while PQ sits visibly below it. Retention above `100%` is not a real quality gain; it is evaluation noise and finite-sample variance. The right reading is "essentially equal to FP32," not "better than FP32."
+
+---
+
+## Synthesis
+
+Taken together, the figures tell a coherent story with clear boundaries.
+
+The storage and scaling figures establish that TurboQuant delivers `8x`–`16x` packed compression with strictly linear scaling; the ratio does not erode with corpus size. The encoding speed figure supports the claim that the compression path is materially lighter than PQ-like fitting, even if the exact timings need a tighter protocol. The synthetic diagnostic figures confirm that the quantizer degrades gracefully with bitrate, remains stable across dimensions, and does not catastrophically lose the best results, with the important exception that the product/QJL path collapses at 2-bit.
+
+The RAG-facing figures are the real evidence. Hybrid retrieval is preserved: compressing the dense leg with `TQ-4bit` does not damage the BM25+dense lift on the BeIR datasets tested. Against standard FAISS quantizers, TurboQuant materially outperforms `PQ` and `OPQ` in the ultra-compact regime and stays competitive with scalar quantization at 4-bit. The advantage over `SQ` is not huge, but TurboQuant achieves it without any corpus-specific training.
+
+The honest limits are equally clear. Several figures are synthetic diagnostics, not publication-grade retrieval benchmarks. The product/QJL variant is not magic at very low bitrates. The advantage over scalar quantization is narrow at 4-bit. And the repository measures a reference CPU/NumPy implementation, not a production ANN system. These figures say something real about compression quality and retrieval preservation, but they do not prove end-to-end serving superiority.
+
+---
+
+## What This Means for RAG
+
+For RAG, the strongest argument for TurboQuant is not that it is mathematically elegant. The strongest argument is this: it reduces embedding storage by roughly one order of magnitude, stays competitive with the quantization baselines people actually use, preserves hybrid retrieval quality, and does all of this without fitting a corpus-specific quantizer.
+
+That is a meaningful niche. It is especially relevant for local RAG, per-tenant indexes, fast-moving corpora, and experiments where you want a compression layer without turning the pipeline into a codebook-training project.
+
+For a deeper understanding of *why* these compression-versus-quality tradeoffs look the way they do (why the product variant collapses at 2-bit, why scalar quantization is competitive at 4-bit, and what the information-theoretic limits actually are), see the [theoretical article on data-oblivious vector quantization](/posts/kv-cache-quantization-theory/).
+
+The thing it does **not** justify is a broad systems claim:
+
+> *TurboQuant is already a better production vector store than the usual ANN stack.*
+
+That is a different claim, and this repository is not trying to make it.
+
+---
 
 ## Reproducibility
 
-Everything used in this post is local and scriptable:
+Everything discussed here is tied to local artifacts and scripts:
 
 1. implementation: [`turboquant-embed`](https://github.com/zlaabsi/turboquant-embed)
-2. status-quo benchmark: [`benchmarks/status_quo_quantization_bench.py`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/status_quo_quantization_bench.py)
-3. hybrid benchmark: [`benchmarks/rag_benchmarks.py`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/rag_benchmarks.py)
-4. deployment benchmark: [`benchmarks/beir_relevance_bench.py`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/beir_relevance_bench.py)
-5. publication notes: [`docs/ARXIV_EXPERIMENTS.md`](https://github.com/zlaabsi/turboquant-embed/blob/main/docs/ARXIV_EXPERIMENTS.md)
-6. figure metadata:
-   - [`12_status_quo_quantization.json`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/results/12_status_quo_quantization.json)
-   - [`05_text_embedding_models.json`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/results/05_text_embedding_models.json)
-   - [`07_hybrid_dense_sparse.json`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/results/07_hybrid_dense_sparse.json)
-   - [`11_beir_relevance_server.json`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/results/11_beir_relevance_server.json)
-7. underlying paper: [TurboQuant](https://arxiv.org/abs/2504.19874)
+2. figure analysis guide: [`benchmarks/FIGURES_ANALYSIS.md`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/FIGURES_ANALYSIS.md)
+3. status-quo benchmark: [`benchmarks/status_quo_quantization_bench.py`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/status_quo_quantization_bench.py)
+4. retrieval benchmark slate: [`benchmarks/rag_benchmarks.py`](https://github.com/zlaabsi/turboquant-embed/blob/main/benchmarks/rag_benchmarks.py)
+5. official paper: [TurboQuant: Online Vector Quantization with Near-optimal Distortion Rate](https://arxiv.org/abs/2504.19874)
+6. official Google Research post: [TurboQuant: Redefining AI efficiency with extreme compression](https://research.google/blog/turboquant-redefining-ai-efficiency-with-extreme-compression/)
 
 ## References
 
-1. A. Zandieh et al. *TurboQuant: Online Vector Quantization with Near-optimal Distortion Rate*. arXiv:2504.19874, ICLR 2026.
-2. A. Zandieh, A. Daliri, I. Han. *QJL: Quantized Johnson-Lindenstrauss*. arXiv:2406.03482, AAAI 2025.
-3. J. Johnson, M. Douze, H. Jegou. *Billion-scale similarity search with GPUs*. IEEE Transactions on Big Data, 2019. FAISS reference implementation by Meta Research.
-4. N. Thakur et al. *BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models*. NeurIPS Datasets and Benchmarks, 2021.
-5. H. Jegou, M. Douze, C. Schmid. *Product Quantization for Nearest Neighbor Search*. IEEE TPAMI, 2011.
-6. T. Ge, K. He, Q. Ke, J. Sun. *Optimized Product Quantization for Approximate Nearest Neighbor Search*. CVPR, 2013.
+[^1]: Amir Zandieh, Majid Daliri, Majid Hadian, Vahab Mirrokni. *TurboQuant: Online Vector Quantization with Near-optimal Distortion Rate*. arXiv:2504.19874, 2025.
+
+[^2]: Amir Zandieh, Majid Daliri, Ibrahim Han. *QJL: 1-Bit Quantized JL Transform for KV Cache Quantization with Zero Overhead*. arXiv:2406.03482, 2024.
+
+[^8]: Jinjie Zhang, Amir Zandieh. *PolarQuant: Quantization of Random Vectors via Polar Coordinates*. arXiv:2502.02617, 2025.
+
+[^3]: Jeff Johnson, Matthijs Douze, Herve Jegou. *Billion-scale similarity search with GPUs*. IEEE Transactions on Big Data, 2019.
+
+[^4]: Nandan Thakur et al. *BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models*. NeurIPS Datasets and Benchmarks, 2021.
+
+[^5]: Herve Jegou, Matthijs Douze, Cordelia Schmid. *Product Quantization for Nearest Neighbor Search*. IEEE TPAMI, 2011.
+
+[^6]: Tiezheng Ge, Kaiming He, Qifa Ke, Jian Sun. *Optimized Product Quantization for Approximate Nearest Neighbor Search*. CVPR, 2013.
+
+[^7]: Amir Zandieh, Vahab Mirrokni. *TurboQuant: Redefining AI efficiency with extreme compression*. Google Research Blog, March 24, 2026.
 
 ---
 
 <details class="citation-block">
 <summary>Cited as</summary>
 
-> Laabsi, Zakaria. "TurboQuant for Embeddings: A Practical Reference Implementation for RAG." *zlaabsi.github.io*, Mar 2026.
+> Laabsi, Zakaria. "Compressing RAG Embeddings with TurboQuant." *zlaabsi.github.io*, Apr 2026.
 
 ```bibtex
-@misc{laabsi2026turboquantembed,
-  title        = {TurboQuant for Embeddings: A Practical Reference Implementation for RAG},
+@misc{laabsi2026turboquantrag,
+  title        = {Compressing RAG Embeddings with TurboQuant},
   author       = {Laabsi, Zakaria},
   year         = {2026},
-  month        = {Mar},
+  month        = {Apr},
   howpublished = {\url{https://zlaabsi.github.io/posts/turboquant-embed/}},
   note         = {Blog post}
 }

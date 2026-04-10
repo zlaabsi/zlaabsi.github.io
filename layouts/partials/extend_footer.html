@@ -375,12 +375,10 @@
     node.classList.toggle('is-error', !!options.error);
   }
 
-  function decodeBase64Unicode(value) {
-    if (!value) return '';
-    var bytes = Uint8Array.from(atob(value), function (char) {
-      return char.charCodeAt(0);
-    });
-    return new TextDecoder().decode(bytes);
+  function insertAtSelection(editor, text) {
+    var start = editor.selectionStart;
+    var end = editor.selectionEnd;
+    editor.setRangeText(text, start, end, 'end');
   }
 
   async function executePython(code) {
@@ -409,27 +407,82 @@ _stdout.getvalue() + _stderr.getvalue()
     }
   }
 
+  function decodeBase64(value) {
+    if (!value) return '';
+    var bytes = Uint8Array.from(atob(value), function (c) { return c.charCodeAt(0); });
+    return new TextDecoder().decode(bytes);
+  }
+
   runners.forEach(function (runner) {
     var runButton = runner.querySelector('.python-runner__run');
     var clearButton = runner.querySelector('.python-runner__clear');
     var source = runner.querySelector('.python-runner__source');
-    var initialCode = source ? decodeBase64Unicode(source.dataset.code || '') : '';
+    var highlightBlock = runner.querySelector('.highlight');
+    var initialCode = source ? decodeBase64(source.dataset.code || '') : '';
     var idleText = 'Click Run to execute this example in your browser.';
 
     if (!runButton || !clearButton || !initialCode) return;
+
+    /* Replace the highlight block with an editable textarea */
+    var editor = document.createElement('textarea');
+    editor.className = 'python-runner__editor';
+    editor.rows = Math.max(initialCode.split('\n').length + 1, 12);
+    editor.spellcheck = false;
+    editor.autocapitalize = 'off';
+    editor.autocomplete = 'off';
+    editor.setAttribute('aria-label', 'Editable Python code');
+    editor.value = initialCode;
+    if (highlightBlock) {
+      highlightBlock.parentNode.replaceChild(editor, highlightBlock);
+    }
+
+    /* Add a Reset button next to Clear */
+    var resetButton = document.createElement('button');
+    resetButton.type = 'button';
+    resetButton.className = 'python-runner__clear';
+    resetButton.textContent = 'Reset';
+    clearButton.parentNode.insertBefore(resetButton, clearButton);
 
     clearButton.addEventListener('click', function () {
       setStatus(runner, '');
       setOutput(runner, idleText, { empty: true });
     });
 
-    runButton.addEventListener('click', async function () {
+    resetButton.addEventListener('click', function () {
+      editor.value = initialCode;
+      editor.focus();
+      setStatus(runner, 'Code reset');
+    });
+
+    editor.addEventListener('input', function () {
+      setStatus(runner, '');
+    });
+
+    editor.addEventListener('keydown', function (event) {
+      if (event.key === 'Tab' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        insertAtSelection(editor, '    ');
+      }
+      if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        runButton.click();
+      }
+    });
+
+    async function runCurrentCode() {
+      var code = editor.value;
+      if (!code.trim()) {
+        setOutput(runner, '(editor is empty)', { empty: false, error: true });
+        setStatus(runner, 'Nothing to run');
+        return;
+      }
+
       runButton.disabled = true;
       setStatus(runner, window.__sitePyodide ? 'Running...' : 'Loading Python runtime...');
       setOutput(runner, 'Running...', { empty: true });
 
       try {
-        var output = await executePython(initialCode);
+        var output = await executePython(code);
         var trimmed = (output || '').replace(/\s+$/, '');
         if (trimmed) {
           setOutput(runner, trimmed, { empty: false, error: false });
@@ -444,7 +497,9 @@ _stdout.getvalue() + _stderr.getvalue()
       } finally {
         runButton.disabled = false;
       }
-    });
+    }
+
+    runButton.addEventListener('click', runCurrentCode);
   });
 })();
 </script>

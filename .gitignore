@@ -4,6 +4,16 @@ resources/
 .hugo_build.lock
 _archive/
 
+# Manim render cache
+media/
+
+# Python cache
+__pycache__/
+scripts/__pycache__/
+
+# ASCII video source files (too large for git)
+ASCII_*.mp4
+
 # Node (if needed later)
 node_modules/
 

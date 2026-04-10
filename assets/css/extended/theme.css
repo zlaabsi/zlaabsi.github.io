@@ -69,6 +69,7 @@ body {
   font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   font-size: 18px;
   line-height: 1.75;
+  font-optical-sizing: none;
   color: var(--theme-text);
   background: var(--theme-bg);
 }
@@ -540,6 +541,30 @@ blockquote {
   margin-top: 0;
 }
 
+.python-runner__editor {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 1rem 1.05rem;
+  border: none;
+  border-radius: var(--radius);
+  background: #1e1f25 !important;
+  color: #d5d5d6;
+  box-sizing: border-box;
+  resize: vertical;
+  overflow: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  tab-size: 4;
+  caret-color: #f0f0f0;
+}
+
+.python-runner__editor:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
 .python-runner__output-wrap {
   margin-top: 0.75rem;
 }
@@ -557,11 +582,14 @@ blockquote {
   margin: 0;
   min-height: 3.25rem;
   padding: 0.95rem 1rem;
-  background: var(--code-block-bg);
-  color: rgb(213, 213, 214);
+  background: #1e1f25 !important;
+  color: #d5d5d6;
   border-radius: var(--radius);
   overflow: auto;
   white-space: pre-wrap;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
 .python-runner__output.is-empty {
@@ -583,17 +611,11 @@ blockquote {
   padding: 1.2rem;
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) + 4px);
-  background:
-    radial-gradient(circle at top left, rgba(108, 155, 255, 0.08), transparent 36%),
-    radial-gradient(circle at bottom right, rgba(0, 185, 124, 0.09), transparent 34%),
-    var(--entry);
+  background: var(--entry);
 }
 
 .semantic-search-form {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.9rem;
-  align-items: end;
+  display: block;
 }
 
 .semantic-search-field {
@@ -601,13 +623,7 @@ blockquote {
 }
 
 .semantic-search-field__label {
-  display: block;
-  margin-bottom: 0.45rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--secondary);
+  display: none;
 }
 
 .semantic-search-field input {
@@ -630,18 +646,18 @@ blockquote {
 .semantic-search-submit {
   min-width: 8.5rem;
   height: 3.15rem;
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: calc(var(--radius) + 2px);
-  background: linear-gradient(135deg, #111827, #2a5c9a);
-  color: #f8fbff;
+  background: var(--primary);
+  color: var(--theme);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 140ms ease, opacity 140ms ease;
+  transition: opacity 140ms ease;
 }
 
 .semantic-search-submit:hover {
-  transform: translateY(-1px);
+  opacity: 0.85;
 }
 
 .semantic-search-toolbar {
@@ -716,6 +732,15 @@ blockquote {
   overflow: hidden;
 }
 
+.semantic-search-result__context {
+  margin-bottom: 0.28rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
 .semantic-search-result__title {
   display: inline-block;
   max-width: calc(100% - 0.5rem);
@@ -738,13 +763,13 @@ blockquote {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #1b2b44;
-  background: #dbeafe;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--border) 60%, transparent);
 }
 
 .semantic-search-result__badge--kind {
-  color: #174c3a;
-  background: #d1fae5;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--border) 40%, transparent);
 }
 
 @media (max-width: 680px) {

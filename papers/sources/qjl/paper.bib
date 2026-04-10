@@ -1,0 +1,378 @@
+@inproceedings{Bessa2023WeightedMinhash,
+author = {Bessa, Aline and Daliri, Majid and Freire, Juliana and Musco, Cameron and Musco, Christopher and Santos, A\'{e}cio and Zhang, Haoxiang},
+title = {Weighted Minwise Hashing Beats Linear Sketching for Inner Product Estimation},
+year = {2023},
+isbn = {9798400701276},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3584372.3588679},
+doi = {10.1145/3584372.3588679},
+abstract = {We present a new approach for independently computing compact sketches that can be used to approximate the inner product between pairs of high-dimensional vectors. Based on the Weighted MinHash algorithm, our approach admits strong accuracy guarantees that improve on the guarantees of popular linear sketching approaches for inner product estimation, such as CountSketch and Johnson-Lindenstrauss projection. Specifically, while our method exactly matches linear sketching for dense vectors, it yields significantly lower error for sparse vectors with limited overlap between non-zero entries. Such vectors arise in many applications involving sparse data, as well as in increasingly popular dataset search applications, where inner products are used to estimate data covariance, conditional means, and other quantities involving columns in unjoined tables. We complement our theoretical results by showing that our approach empirically outperforms existing linear sketches and unweighted hashing-based sketches for sparse vectors.},
+booktitle = {Proceedings of the 42nd ACM SIGMOD-SIGACT-SIGAI Symposium on Principles of Database Systems},
+pages = {169–181},
+numpages = {13},
+keywords = {join-size estimation, vector sketching, inner product estimation},
+location = {<conf-loc>, <city>Seattle</city>, <state>WA</state>, <country>USA</country>, </conf-loc>},
+series = {PODS '23}
+}
+
+@article{dalirisampling:2024,
+      title={Sampling Methods for Inner Product Sketching}, 
+      author={Majid Daliri and Juliana Freire and Christopher Musco and Aécio Santos and Haoxiang Zhang},
+      year={2024},
+      journal = {Proc. VLDB Endow.}
+}
+
+@incollection{boucheron2003concentration,
+  title={Concentration inequalities},
+  author={Boucheron, St{\'e}phane and Lugosi, G{\'a}bor and Bousquet, Olivier},
+  booktitle={Summer school on machine learning},
+  pages={208--240},
+  year={2003},
+  publisher={Springer}
+}
+
+@article{liu2024kivi,
+  title={KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache},
+  author={Liu, Zirui and Yuan, Jiayi and Jin, Hongye and Zhong, Shaochen and Xu, Zhaozhuo and Braverman, Vladimir and Chen, Beidi and Hu, Xia},
+  journal={arXiv preprint arXiv:2402.02750},
+  year={2024}
+}
+
+@article{hooper2024kvquant,
+  title={{\href{https://arxiv.org/pdf/2401.18079}{KVQuant: Towards 10 Million Context Length LLM Inference with KV Cache Quantization}}},
+  author={Hooper, Coleman and Kim, Sehoon and Mohammadzadeh, Hiva and Mahoney, Michael W and Shao, Yakun Sophia and Keutzer, Kurt and Gholami, Amir},
+  journal={arXiv preprint arXiv:2401.18079},
+  year={2024}
+}
+
+
+@article{shazeer2019fast,
+  title={Fast transformer decoding: One write-head is all you need},
+  author={Shazeer, Noam},
+  journal={arXiv preprint arXiv:1911.02150},
+  year={2019}
+}
+
+
+@inproceedings{ainslie2023gqa,
+  title={GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints},
+  author={Ainslie, Joshua and Lee-Thorp, James and de Jong, Michiel and Zemlyanskiy, Yury and Lebron, Federico and Sanghai, Sumit},
+  booktitle={Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing},
+  pages={4895--4901},
+  year={2023}
+}
+
+
+@article{zhang2024h2o,
+  title={H2o: Heavy-hitter oracle for efficient generative inference of large language models},
+  author={Zhang, Zhenyu and Sheng, Ying and Zhou, Tianyi and Chen, Tianlong and Zheng, Lianmin and Cai, Ruisi and Song, Zhao and Tian, Yuandong and R{\'e}, Christopher and Barrett, Clark and others},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  year={2024}
+}
+
+
+@article{liu2024scissorhands,
+  title={Scissorhands: Exploiting the persistence of importance hypothesis for llm kv cache compression at test time},
+  author={Liu, Zichang and Desai, Aditya and Liao, Fangshuo and Wang, Weitao and Xie, Victor and Xu, Zhaozhuo and Kyrillidis, Anastasios and Shrivastava, Anshumali},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  year={2024}
+}
+
+
+@article{xiao2023efficient,
+  title={Efficient streaming language models with attention sinks},
+  author={Xiao, Guangxuan and Tian, Yuandong and Chen, Beidi and Han, Song and Lewis, Mike},
+  journal={arXiv preprint arXiv:2309.17453},
+  year={2023}
+}
+
+
+@article{zandieh2024subgen,
+  title={SubGen: Token Generation in Sublinear Time and Memory},
+  author={Zandieh, Amir and Han, Insu and Mirrokni, Vahab and Karbasi, Amin},
+  journal={arXiv preprint arXiv:2402.06082},
+  year={2024}
+}
+
+
+@inproceedings{kwon2023efficient,
+  title={Efficient memory management for large language model serving with pagedattention},
+  author={Kwon, Woosuk and Li, Zhuohan and Zhuang, Siyuan and Sheng, Ying and Zheng, Lianmin and Yu, Cody Hao and Gonzalez, Joseph and Zhang, Hao and Stoica, Ion},
+  booktitle={Proceedings of the 29th Symposium on Operating Systems Principles},
+  pages={611--626},
+  year={2023}
+}
+
+
+@inproceedings{sheng2023flexgen,
+  title={Flexgen: High-throughput generative inference of large language models with a single gpu},
+  author={Sheng, Ying and Zheng, Lianmin and Yuan, Binhang and Li, Zhuohan and Ryabinin, Max and Chen, Beidi and Liang, Percy and R{\'e}, Christopher and Stoica, Ion and Zhang, Ce},
+  booktitle={International Conference on Machine Learning},
+  pages={31094--31116},
+  year={2023},
+  organization={PMLR}
+}
+
+
+@article{dettmers2024qlora,
+  title={Qlora: Efficient finetuning of quantized llms},
+  author={Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and Zettlemoyer, Luke},
+  journal={Advances in Neural Information Processing Systems},
+  volume={36},
+  year={2024}
+}
+
+
+@article{frantar2022gptq,
+  title={Gptq: Accurate post-training quantization for generative pre-trained transformers},
+  author={Frantar, Elias and Ashkboos, Saleh and Hoefler, Torsten and Alistarh, Dan},
+  journal={arXiv preprint arXiv:2210.17323},
+  year={2022}
+}
+
+@article{dettmers2023spqr,
+  title={Spqr: A sparse-quantized representation for near-lossless llm weight compression},
+  author={Dettmers, Tim and Svirschevski, Ruslan and Egiazarian, Vage and Kuznedelev, Denis and Frantar, Elias and Ashkboos, Saleh and Borzunov, Alexander and Hoefler, Torsten and Alistarh, Dan},
+  journal={arXiv preprint arXiv:2306.03078},
+  year={2023}
+}
+
+
+
+
+@article{yue2024wkvquant,
+  title={Wkvquant: Quantizing weight and key/value cache for large language models gains more},
+  author={Yue, Yuxuan and Yuan, Zhihang and Duanmu, Haojie and Zhou, Sifan and Wu, Jianlong and Nie, Liqiang},
+  journal={arXiv preprint arXiv:2402.12065},
+  year={2024}
+}
+
+
+@article{yang2024no,
+  title={No Token Left Behind: Reliable KV Cache Compression via Importance-Aware Mixed Precision Quantization},
+  author={Yang, June Yong and Kim, Byeongwook and Bae, Jeongin and Kwon, Beomseok and Park, Gunho and Yang, Eunho and Kwon, Se Jung and Lee, Dongsoo},
+  journal={arXiv preprint arXiv:2402.18096},
+  year={2024}
+}
+
+
+@article{dong2024qaq,
+  title={QAQ: Quality Adaptive Quantization for LLM KV Cache},
+  author={Dong, Shichen and Cheng, Wen and Qin, Jiayu and Wang, Wei},
+  journal={arXiv preprint arXiv:2403.04643},
+  year={2024}
+}
+
+
+@article{kang2024gear,
+  title={Gear: An efficient kv cache compression recipefor near-lossless generative inference of llm},
+  author={Kang, Hao and Zhang, Qingru and Kundu, Souvik and Jeong, Geonhwa and Liu, Zaoxing and Krishna, Tushar and Zhao, Tuo},
+  journal={arXiv preprint arXiv:2403.05527},
+  year={2024}
+}
+
+
+@article{zhang2024kv,
+  title={KV Cache is 1 Bit Per Channel: Efficient Large Language Model Inference with Coupled Quantization},
+  author={Zhang, Tianyi and Yi, Jonah and Xu, Zhaozhuo and Shrivastava, Anshumali},
+  journal={arXiv preprint arXiv:2405.03917},
+  year={2024}
+}
+
+@article{bai2023longbench,
+  title={LongBench: A Bilingual, Multitask Benchmark for Long Context Understanding},
+  author={Bai, Yushi and Lv, Xin and Zhang, Jiajie and Lyu, Hongchang and Tang, Jiankai and Huang, Zhidian and Du, Zhengxiao and Liu, Xiao and Zeng, Aohan and Hou, Lei and Dong, Yuxiao and Tang, Jie and Li, Juanzi},
+  journal={arXiv preprint arXiv:2308.14508},
+  year={2023}
+}
+
+
+@article{pope2023efficiently,
+  title={Efficiently scaling transformer inference},
+  author={Pope, Reiner and Douglas, Sholto and Chowdhery, Aakanksha and Devlin, Jacob and Bradbury, James and Heek, Jonathan and Xiao, Kefan and Agrawal, Shivani and Dean, Jeff},
+  journal={Proceedings of Machine Learning and Systems},
+  volume={5},
+  year={2023}
+}
+
+
+@article{dasgupta2003elementary,
+  title={An elementary proof of a theorem of Johnson and Lindenstrauss},
+  author={Dasgupta, Sanjoy and Gupta, Anupam},
+  journal={Random Structures \& Algorithms},
+  volume={22},
+  number={1},
+  pages={60--65},
+  year={2003},
+  publisher={Wiley Online Library}
+}
+
+
+@inproceedings{charikar2002similarity,
+  title={Similarity estimation techniques from rounding algorithms},
+  author={Charikar, Moses S},
+  booktitle={Proceedings of the thiry-fourth annual ACM symposium on Theory of computing},
+  pages={380--388},
+  year={2002}
+}
+
+@inproceedings{ruiz2023dreambooth,
+  title={Dreambooth: Fine tuning text-to-image diffusion models for subject-driven generation},
+  author={Ruiz, Nataniel and Li, Yuanzhen and Jampani, Varun and Pritch, Yael and Rubinstein, Michael and Aberman, Kfir},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={22500--22510},
+  year={2023}
+}
+
+@misc{sora,
+  title = {Sora: Creating video from text},
+  author = {OpenAI},
+  note  =  {\url{https://openai.com/index/sora/}},
+  year = 2024,
+}
+
+@misc{firefly,
+  author = {Adobe FireFly},
+  note  =  {\url{https://firefly.adobe.com/}},
+  year = 2023,
+}
+
+@misc{midjourney,
+  title = {},
+  author = {Midjourney},
+  note  =  {\url{https://www.midjourney.com/home}},
+  year = 2022,
+}
+
+@misc{copilot,
+  author = {Microsoft Copilot},
+  note  =  {\url{https://github.com/features/copilot}},
+  year = 2023,
+}
+
+@misc{Claude,
+  title = {claude},
+  author = {Antropic},
+  note  =  {\url{https://www.anthropic.com/news/claude-3-family}},
+  year = 2024,
+}
+
+
+@article{achiam2023gpt,
+  title={Gpt-4 technical report},
+  author={Achiam, Josh and Adler, Steven and Agarwal, Sandhini and Ahmad, Lama and Akkaya, Ilge and Aleman, Florencia Leoni and Almeida, Diogo and Altenschmidt, Janko and Altman, Sam and Anadkat, Shyamal and others},
+  journal={arXiv preprint arXiv:2303.08774},
+  year={2023}
+}
+
+@article{reid2024gemini,
+  title={Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context},
+  author={Reid, Machel and Savinov, Nikolay and Teplyashin, Denis and Lepikhin, Dmitry and Lillicrap, Timothy and Alayrac, Jean-baptiste and Soricut, Radu and Lazaridou, Angeliki and Firat, Orhan and Schrittwieser, Julian and others},
+  journal={arXiv preprint arXiv:2403.05530},
+  year={2024}
+}
+
+@misc{gpt4o,
+  title={Introducing GPT-4o},
+  author={OpenAI},
+  note={\url{https://openai.com/index/hello-gpt-4o/}},
+  year={2024},
+}
+
+@article{ramesh2022hierarchical,
+  title={Hierarchical text-conditional image generation with clip latents},
+  author={Ramesh, Aditya and Dhariwal, Prafulla and Nichol, Alex and Chu, Casey and Chen, Mark},
+  journal={arXiv preprint arXiv:2204.06125},
+  year={2022}
+}
+
+@article{vaswani2017attention,
+  title={Attention is all you need},
+  author={Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, Lukasz and Polosukhin, Illia},
+  journal=neurips,
+  year={2017}
+}
+
+@article{kaplan2020scaling,
+  title={Scaling laws for neural language models},
+  author={Kaplan, Jared and McCandlish, Sam and Henighan, Tom and Brown, Tom B and Chess, Benjamin and Child, Rewon and Gray, Scott and Radford, Alec and Wu, Jeffrey and Amodei, Dario},
+  journal={arXiv preprint arXiv:2001.08361},
+  year={2020}
+}
+
+@article{johnson1986extensions,
+  title={{\href{https://link.springer.com/content/pdf/10.1007/BF02764938.pdf}{Extensions of Lipschitz maps into Banach spaces}}},
+  author={Johnson, William B and Lindenstrauss, Joram and Schechtman, Gideon},
+  journal={Israel Journal of Mathematics},
+  publisher={Springer}
+}
+
+@article{touvron2023llama,
+  title={Llama 2: Open foundation and fine-tuned chat models},
+  author={Touvron, Hugo and Martin, Louis and Stone, Kevin and Albert, Peter and Almahairi, Amjad and Babaei, Yasmine and Bashlykov, Nikolay and Batra, Soumya and Bhargava, Prajjwal and Bhosale, Shruti and others},
+  journal={arXiv preprint arXiv:2307.09288},
+  year={2023}
+}
+@misc{longchat2023,
+    title = {How Long Can Open-Source LLMs Truly Promise on Context Length?},
+    url = {https://lmsys.org/blog/2023-06-29-longchat},
+    author={Li, Dacheng and Shao, Rulin and Xie, Anze and Sheng, Ying and Zheng, Lianmin and Gonzalez, Joseph and Stoica, Ion and Ma, Xuezhe and Zhang, Hao},
+    year = {2023},
+    note = {{\url{https://huggingface.co/lmsys/longchat-7b-v1.5-32k}}},
+}
+
+
+
+@article{dettmers2022gpt3,
+  title={Gpt3. int8 (): 8-bit matrix multiplication for transformers at scale},
+  author={Dettmers, Tim and Lewis, Mike and Belkada, Younes and Zettlemoyer, Luke},
+  journal={Advances in Neural Information Processing Systems},
+  volume={35},
+  pages={30318--30332},
+  year={2022}
+}
+
+
+@article{lin2023awq,
+  title={Awq: Activation-aware weight quantization for llm compression and acceleration},
+  author={Lin, Ji and Tang, Jiaming and Tang, Haotian and Yang, Shang and Dang, Xingyu and Han, Song},
+  journal={arXiv preprint arXiv:2306.00978},
+  year={2023}
+}
+
+
+@article{yu2016orthogonal,
+  title={Orthogonal random features},
+  author={Yu, Felix Xinnan X and Suresh, Ananda Theertha and Choromanski, Krzysztof M and Holtmann-Rice, Daniel N and Kumar, Sanjiv},
+  journal={Advances in neural information processing systems},
+  volume={29},
+  year={2016}
+}
+
+
+@article{ji2012super,
+  title={Super-bit locality-sensitive hashing},
+  author={Ji, Jianqiu and Li, Jianmin and Yan, Shuicheng and Zhang, Bo and Tian, Qi},
+  journal={Advances in neural information processing systems},
+  volume={25},
+  year={2012}
+}
+
+@misc{llama3,
+  title = {},
+  author = {Llama3},
+  note  =  {\url{https://github.com/meta-llama/llama3}},
+  year = 2024,
+}
+
+@misc{evalharness,
+  author       = {Gao, Leo and Tow, Jonathan and Abbasi, Baber and Biderman, Stella and Black, Sid and DiPofi, Anthony and Foster, Charles and Golding, Laurence and Hsu, Jeffrey and Le Noac'h, Alain and Li, Haonan and McDonell, Kyle and Muennighoff, Niklas and Ociepa, Chris and Phang, Jason and Reynolds, Laria and Schoelkopf, Hailey and Skowron, Aviya and Sutawika, Lintang and Tang, Eric and Thite, Anish and Wang, Ben and Wang, Kevin and Zou, Andy},
+  title        = {A framework for few-shot language model evaluation},
+  year         = 2023,
+  publisher    = {Zenodo},
+  url          = {https://zenodo.org/records/10256836},
+  note = {\url{https://github.com/EleutherAI/lm-evaluation-harness}}
+}

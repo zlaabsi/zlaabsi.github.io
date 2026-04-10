@@ -1,0 +1,13 @@
+<figure class="post-video">
+  <video autoplay loop muted playsinline style="max-width:100%;border-radius:4px">
+    {{ $src := .Get "src" }}
+    {{ if strings.HasSuffix $src ".webm" }}
+    <source src="{{ $src }}" type="video/webm">
+    {{ $mp4 := replace $src ".webm" ".mp4" }}
+    <source src="{{ $mp4 }}" type="video/mp4">
+    {{ else }}
+    <source src="{{ $src }}" type="video/mp4">
+    {{ end }}
+  </video>
+  {{ with .Get "caption" }}<figcaption>{{ . }}</figcaption>{{ end }}
+</figure>

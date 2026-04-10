@@ -6,11 +6,14 @@
     "semanticIndexUrl" "/semantic-search/search.index.bin"
     "semanticMetaUrl" "/semantic-search/search.meta.json"
     "semanticVersionUrl" "/semantic-search/search.version.json"
-    "embeddingModel" "Xenova/all-MiniLM-L6-v2"
+    "embeddingModel" "onnx-community/embeddinggemma-300m-ONNX"
+    "embeddingModelDtype" "q4"
+    "embeddingModelFileName" "model_no_gather"
+    "embeddingQueryPrefix" "task: search result | query: "
     "transformersVersion" "4.0.1"
     "turboquantVersion" "0.1.1"
     "resultLimit" 8
-    "semanticLimit" 12
+    "semanticLimit" 18
     "keywordLimit" 8
   )
 ) | resources.Minify | fingerprint }}
@@ -42,7 +45,6 @@
         aria-label="Semantic search"
       >
     </label>
-    <button type="submit" class="semantic-search-submit">Search</button>
   </form>
 
   <div class="semantic-search-toolbar">
@@ -58,7 +60,7 @@
   </div>
 
   <p class="semantic-search-note">
-    Published pages only. Short queries stay exact-match first; longer queries merge exact and semantic ranking.
+    Published pages only. Results can jump to specific sections inside long articles.
   </p>
 
   <p id="semanticSearchEmpty" class="semantic-search-empty" hidden></p>

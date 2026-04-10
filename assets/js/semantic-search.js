@@ -473,6 +473,7 @@ if (root) {
 
       setStats(stats);
       setStatus('Semantic index ready. Results can jump to precise sections.', 'ready');
+      scheduleEmbedderWarmup();
 
       return state;
     })().catch((error) => {
@@ -484,12 +485,29 @@ if (root) {
     return state.assetPromise;
   }
 
-  async function loadEmbedder() {
+  function scheduleEmbedderWarmup() {
+    if (!state.semanticEnabled || state.embedder || state.embedderPromise) return;
+
+    const warm = () => {
+      loadEmbedder({ announce: false }).catch(() => {});
+    };
+
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(warm, { timeout: 1800 });
+    } else {
+      window.setTimeout(warm, 1200);
+    }
+  }
+
+  async function loadEmbedder(options = {}) {
+    const { announce = true } = options;
     if (state.embedder) return state.embedder;
     if (state.embedderPromise) return state.embedderPromise;
 
     state.embedderPromise = (async () => {
-      setStatus('Loading EmbeddingGemma q4 in your browser...', 'loading');
+      if (announce) {
+        setStatus('Loading EmbeddingGemma q4 in your browser...', 'loading');
+      }
 
       const moduleUrl = `https://cdn.jsdelivr.net/npm/@huggingface/transformers@${params.transformersVersion}`;
       const { AutoTokenizer, AutoModel, env } = await import(moduleUrl);
@@ -504,11 +522,15 @@ if (root) {
       ]);
 
       state.embedder = { tokenizer, model };
-      setStatus('Embedding model ready.', 'ready');
+      if (announce) {
+        setStatus('Embedding model ready.', 'ready');
+      }
       return state.embedder;
     })().catch((error) => {
       state.semanticEnabled = false;
-      setStatus('Semantic model failed to load. Keyword fallback only.', 'error');
+      if (announce) {
+        setStatus('Semantic model failed to load. Keyword fallback only.', 'error');
+      }
       throw error;
     });
 
@@ -659,18 +681,26 @@ if (root) {
   }
 
   function classifyQuery(query, lexical) {
+    const top = lexical[0] || null;
     const tokenCount = tokensForQuery(query).length;
-    const topLexicalScore = lexical[0]?.score || 0;
+    const topLexicalScore = top?.score || 0;
+    const secondLexicalScore = lexical[1]?.score || 0;
+    const topScoreGap = secondLexicalScore ? topLexicalScore / secondLexicalScore : Number.POSITIVE_INFINITY;
+    const topHasFullCoverage = Boolean(top) && tokenCount > 0 && top.maxCoverage >= tokenCount;
     const exactDominant =
-      Boolean(lexical.length) && (
-        (tokenCount <= 1 && topLexicalScore >= 80) ||
-        (tokenCount === 2 && topLexicalScore >= 130) ||
-        (tokenCount >= 3 && topLexicalScore >= 220)
+      Boolean(top) &&
+      top.hasNormalizedMatch &&
+      (
+        (tokenCount <= 1 && topLexicalScore >= 180 && topScoreGap >= 1.35) ||
+        (tokenCount === 2 && topHasFullCoverage && topLexicalScore >= 240 && topScoreGap >= 1.4) ||
+        (tokenCount >= 3 && topHasFullCoverage && topLexicalScore >= 320 && topScoreGap >= 1.5)
       );
 
     return {
       tokenCount,
       topLexicalScore,
+      topScoreGap,
+      topHasFullCoverage,
       exactDominant,
     };
   }
@@ -682,7 +712,16 @@ if (root) {
     if (queryMode.exactDominant) return [];
 
     const allowedPageIds = new Set(lexical.map((entry) => entry.page.id));
-    return semantic.filter((entry) => allowedPageIds.has(entry.page.id));
+    const topSemanticScore = semantic[0]?.score || 0;
+
+    return semantic.filter((entry, index) => {
+      const scoreRatio = topSemanticScore ? entry.score / topSemanticScore : 1;
+      return (
+        allowedPageIds.has(entry.page.id) ||
+        index < 3 ||
+        scoreRatio >= 0.72
+      );
+    });
   }
 
   async function executeSearch(query) {
@@ -724,7 +763,8 @@ if (root) {
     }
 
     if (queryMode.exactDominant) {
-      setStatus('Exact matches are strong for this query. Semantic expansion skipped.', 'ready');
+      scheduleEmbedderWarmup();
+      setStatus('Strong exact matches found. Semantic expansion skipped for this query.', 'ready');
       return;
     }
 
@@ -754,7 +794,7 @@ if (root) {
       } else {
         renderEmpty(`No result for "${trimmed}".`);
       }
-      setStatus('Semantic search failed for this query. Showing exact matches only.', 'error');
+      setStatus('Semantic model unavailable for this query. Showing exact matches only.', 'error');
       console.error(error);
     }
   }

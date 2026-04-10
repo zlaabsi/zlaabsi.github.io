@@ -1,4 +1,10 @@
 {{ if .IsHome }}
+{{- $homeImage := site.Params.assets.favicon | default "favicon.ico" -}}
+{{- with site.Params.images -}}
+  {{- if gt (len .) 0 -}}
+    {{- $homeImage = index . 0 -}}
+  {{- end -}}
+{{- end -}}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -7,7 +13,7 @@
   "url": {{ site.Home.Permalink }},
   "description": {{ site.Params.description | plainify | truncate 180 | safeHTML }},
   {{- if (eq site.Params.schema.publisherType "Person") }}
-  "image": {{ site.Params.assets.favicon | default "favicon.ico" | absURL }},
+  "image": {{ $homeImage | absURL }},
   {{- else }}
   "logo": {{ site.Params.assets.favicon | default "favicon.ico" | absURL }},
   {{- end }}

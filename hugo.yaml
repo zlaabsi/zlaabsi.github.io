@@ -54,7 +54,7 @@ params:
     - AI research
     - embeddings quantization
   images:
-    - "/images/og-v1.png"
+    - "/images/og-V121.png"
   schema:
     publisherType: "Person"
   defaultTheme: light

@@ -1,98 +1,193 @@
 # Site Growth Stack
 
-This repo now has a lightweight growth stack scaffold for:
+This repo now has a homegrown growth stack built around:
 
-- email notifications for new articles and meaningful revisions
-- visitor and page analytics
-- article click tracking
-- heatmaps and session recordings
+- a `Cloudflare Worker`
+- a `D1` database
+- the blog's dedicated `/updates.xml` feed
+- an optional `Resend` integration for outbound emails
 
-## Chosen stack
+The goal is to avoid a dead subscribe page and to keep the tracking model under our control.
 
-- `Buttondown` for email subscriptions
-- `Plausible` for traffic metrics and custom click events
-- `Microsoft Clarity` for heatmaps and session recordings
+## What it covers
 
-The implementation is config-driven. The updates feed and newsletter surfaces can go live before every external service is connected; the email form and Clarity still need their service-side IDs.
+- email subscriptions
+- email notifications for new posts and meaningful revisions
+- pageviews
+- article clicks
+- generic click coordinates for a coarse click heatmap
+- a private admin dashboard
 
 ## Files
 
-- `hugo.yaml`
-- `layouts/index.updates.xml`
-- `layouts/partials/extend_head.html`
-- `layouts/partials/extend_footer.html`
+- `workers/growth-api/wrangler.jsonc`
+- `workers/growth-api/migrations/0001_init.sql`
+- `workers/growth-api/src/index.ts`
+- `workers/growth-api/src/dashboard.ts`
+- `workers/growth-api/.dev.vars.example`
 - `layouts/partials/newsletter_cta.html`
-- `layouts/shortcodes/newsletter.html`
-- `layouts/_default/single.html`
+- `layouts/partials/extend_footer.html`
 - `content/subscribe.md`
-- `assets/css/extended/theme.css`
+- `layouts/index.updates.xml`
+- `hugo.yaml`
 
-## Emailing
+## Architecture
 
-Use the dedicated feed at `/updates.xml` for newsletter automation.
+The static blog stays on GitHub Pages.
 
-Why a separate feed:
+The dynamic pieces move to the Worker:
 
-- the default site RSS is not a good trigger for mailing logic
-- update emails should be intentional, not tied to every typo fix
+- `POST /api/subscribe`
+- `POST /api/track`
+- `GET /api/admin/*`
+- `GET /dashboard`
+- `GET /unsubscribe`
+- `scheduled()` for newsletter dispatch
 
-The updates feed uses this rule:
+The Worker stores everything in D1:
 
-- a post is `new` by default
-- a post becomes `updated` only when you add `notify_lastmod` in its front matter
+- subscribers
+- tracked events
+- newsletter dispatches
+- delivery logs
 
-Example:
+## Email flow
 
-```yaml
-notify_lastmod: 2026-04-11
-```
+The notification source of truth is still `/updates.xml`.
 
-If you publish that change, `/updates.xml` emits a fresh item for the revised essay, so your email provider can notify subscribers again.
+That feed already distinguishes:
 
-## Config to fill in
+- new posts
+- revised posts via `notify_lastmod`
 
-In `hugo.yaml`:
+The Worker cron fetches the feed, creates pending dispatches for unseen items, and sends them to active subscribers.
 
-```yaml
-params:
-  integrations:
-    newsletter:
-      enabled: true
-      buttondown:
-        username: "YOUR_BUTTONDOWN_USERNAME"
-    analytics:
-      plausible:
-        enabled: true
-      clarity:
-        enabled: true
-        projectId: "YOUR_CLARITY_PROJECT_ID"
-```
+Outbound mail is not handled by Cloudflare itself here. The Worker is prepared to call `Resend` once these secrets exist:
 
-Current repo state:
+- `RESEND_API_KEY`
+- `RESEND_FROM`
 
-- newsletter UI is enabled site-side
-- `/subscribe/` is linked in the top nav
-- `/updates.xml` is live and intended for notification automation
-- Plausible script is enabled for production builds
-- Buttondown username is still missing
-- Clarity project ID is still missing
+Without these, subscriptions still work and are stored, but no email is sent yet.
 
-## Suggested setup flow
+## Tracking model
 
-1. Create a Buttondown newsletter and point its RSS automation at `/updates.xml`.
-2. Create a Plausible site for `zlaabsi.github.io`.
-3. Create a Clarity project for the same domain.
-4. Fill the IDs in `hugo.yaml`.
-5. Deploy.
+The site sends four event types:
 
-## What gets tracked
+- `page_view`
+- `article_click`
+- `newsletter_signup`
+- `ui_click`
 
-- daily visitors and pageviews via Plausible
-- clicks into `/posts/*` links via Plausible custom events
-- newsletter form submissions via Plausible custom events
-- heatmaps and recordings via Clarity
+`ui_click` stores normalized click coordinates, which is enough for a coarse click-grid heatmap in the admin dashboard.
 
-## Remaining manual work
+This is intentionally much lighter than a full replay product. It does not try to replace session-recording tools.
 
-- decide on the final Buttondown username
-- add a public privacy page once the services are live
+## Local development
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Copy the local secrets template:
+
+   ```bash
+   cp workers/growth-api/.dev.vars.example workers/growth-api/.dev.vars
+   ```
+
+3. Apply the local D1 migration:
+
+   ```bash
+   npm run growth:db:apply:local
+   ```
+
+4. Start the Worker:
+
+   ```bash
+   npm run growth:worker:dev
+   ```
+
+5. Start Hugo:
+
+   ```bash
+   hugo server --bind 127.0.0.1 --port 1313 --disableFastRender
+   ```
+
+In local dev, the site points automatically at `http://127.0.0.1:8787`.
+
+Useful local URLs:
+
+- site: `http://localhost:1313/`
+- subscribe page: `http://localhost:1313/subscribe/`
+- worker dashboard: `http://127.0.0.1:8787/dashboard`
+- cron test: `http://127.0.0.1:8787/cdn-cgi/handler/scheduled`
+
+## First Cloudflare deployment
+
+1. Authenticate:
+
+   ```bash
+   npx wrangler login
+   ```
+
+2. Create the D1 database:
+
+   ```bash
+   npx wrangler d1 create zlaabsi-growth
+   ```
+
+3. Copy the returned `database_id` into `workers/growth-api/wrangler.jsonc`.
+
+4. Apply the remote migration:
+
+   ```bash
+   npm run growth:db:apply:remote
+   ```
+
+5. Set secrets:
+
+   ```bash
+   npx wrangler secret put ADMIN_TOKEN --config workers/growth-api/wrangler.jsonc
+   npx wrangler secret put RESEND_API_KEY --config workers/growth-api/wrangler.jsonc
+   npx wrangler secret put RESEND_FROM --config workers/growth-api/wrangler.jsonc
+   ```
+
+6. Set public Worker vars in `workers/growth-api/wrangler.jsonc`:
+
+   - `PUBLIC_API_BASE_URL`
+   - `SITE_BASE_URL`
+   - `NEWSLETTER_FEED_URL`
+
+7. Deploy:
+
+   ```bash
+   npm run growth:worker:deploy
+   ```
+
+8. Copy the deployed Worker URL into `hugo.yaml`:
+
+   - `params.integrations.cloudflareWorker.apiBase`
+   - `params.integrations.cloudflareWorker.dashboardUrl`
+
+9. Push the blog again so the public site posts to the Worker instead of showing the fallback.
+
+## Admin dashboard
+
+The Worker serves a private dashboard at `/dashboard`.
+
+It is token-gated through `ADMIN_TOKEN` and exposes:
+
+- summary metrics
+- daily visitors and pageviews
+- top pages
+- top article clicks
+- recent event timeline
+- subscriber list
+- click-grid heatmap
+
+## Known limits
+
+- This is not a full replay product. There is no session video, DOM diffing, or rage-click classifier.
+- Email delivery still depends on an external outbound provider.
+- Until the public Worker URL is filled into `hugo.yaml`, the public `/subscribe/` page will keep showing the fallback message.

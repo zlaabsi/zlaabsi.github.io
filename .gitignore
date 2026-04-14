@@ -16,6 +16,10 @@ ASCII_*.mp4
 
 # Node (if needed later)
 node_modules/
+.wrangler/
+.dev.vars
+workers/**/.wrangler/
+workers/**/.dev.vars
 
 ### Linux ###
 *~

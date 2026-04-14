@@ -108,25 +108,26 @@ params:
     disableFingerprinting: false
 
   integrations:
+    cloudflareWorker:
+      apiBase: "https://zlaabsi-growth-api.zakaria-laa.workers.dev"
+      devApiBase: "http://127.0.0.1:8787"
+      dashboardUrl: "https://zlaabsi-growth-api.zakaria-laa.workers.dev/dashboard"
+      devDashboardUrl: "http://127.0.0.1:8787/dashboard"
     newsletter:
       enabled: true
-      provider: "buttondown"
+      provider: "cloudflare-worker"
       title: "Get notified by email"
-      description: "New essays and meaningful revisions. Low frequency, no spam."
+      description: "Signups are live. Delivery starts once the outbound mail sender is connected."
+      deliveryReady: false
+      deliveryNote: "Your subscription is stored now. Email notifications will start once the sending backend is connected."
       feedPath: "/updates.xml"
-      buttondown:
-        username: ""
-        tag: "website"
     analytics:
-      plausible:
-        enabled: true
-        domain: "zlaabsi.github.io"
-        scriptBase: "https://plausible.io"
-        trackArticleClicks: true
-        trackNewsletterSignups: true
-      clarity:
-        enabled: false
-        projectId: ""
+      enabled: true
+      provider: "cloudflare-worker"
+      trackPageviews: true
+      trackArticleClicks: true
+      trackNewsletterSignups: true
+      trackClickHeatmap: true
 
 markup:
   goldmark:

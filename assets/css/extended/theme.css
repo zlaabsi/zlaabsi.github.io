@@ -343,7 +343,8 @@ blockquote {
 }
 
 .newsletter-cta__meta,
-.newsletter-cta__fallback {
+.newsletter-cta__fallback,
+.newsletter-cta__status {
   margin: 0.85rem 0 0;
   font-size: 0.92rem;
   color: var(--theme-text-secondary);
@@ -352,6 +353,22 @@ blockquote {
 .newsletter-cta__meta a,
 .newsletter-cta__fallback a {
   color: var(--theme-accent);
+}
+
+.newsletter-cta__status[data-state="success"] {
+  color: #2f7d39;
+}
+
+.newsletter-cta__status[data-state="error"] {
+  color: #b04444;
+}
+
+:root[data-theme="dark"] .newsletter-cta__status[data-state="success"] {
+  color: #90d07d;
+}
+
+:root[data-theme="dark"] .newsletter-cta__status[data-state="error"] {
+  color: #ff8aa1;
 }
 
 @media (max-width: 640px) {

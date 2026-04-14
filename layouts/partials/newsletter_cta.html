@@ -2,21 +2,32 @@
 {{- $placement := .Placement | default "site" -}}
 {{- $showFallback := .ShowFallback | default false -}}
 {{- $integrations := site.Params.integrations | default (dict) -}}
+{{- $worker := index $integrations "cloudflareWorker" | default (dict) -}}
 {{- $cfg := index $integrations "newsletter" | default (dict) -}}
 {{- $provider := index $cfg "provider" | default "" -}}
+{{- $deliveryReady := index $cfg "deliveryReady" | default false -}}
+{{- $deliveryNote := index $cfg "deliveryNote" | default "" -}}
 {{- $buttondown := index $cfg "buttondown" | default (dict) -}}
 {{- $siteEnabled := index $cfg "enabled" -}}
-{{- $liveForm := and $siteEnabled (eq $provider "buttondown") (index $buttondown "username") -}}
-{{- if or $liveForm $siteEnabled $showFallback }}
+{{- $workerBase := "" -}}
+{{- if eq hugo.Environment "production" -}}
+  {{- $workerBase = index $worker "apiBase" | default "" -}}
+{{- else -}}
+  {{- $workerBase = index $worker "devApiBase" | default (index $worker "apiBase" | default "") -}}
+{{- end -}}
+{{- $buttondownLive := and $siteEnabled (eq $provider "buttondown") (index $buttondown "username") -}}
+{{- $workerLive := and $siteEnabled (eq $provider "cloudflare-worker") $workerBase -}}
+{{- if or $buttondownLive $workerLive $siteEnabled $showFallback }}
 <section class="newsletter-cta newsletter-cta--{{ $placement }}">
   <p class="newsletter-cta__eyebrow">Email updates</p>
   <h2 class="newsletter-cta__title">{{ index $cfg "title" | default "Get notified when I publish or revise an essay" }}</h2>
   <p class="newsletter-cta__description">{{ index $cfg "description" | default "New essays and meaningful revisions. Low frequency, no spam." }}</p>
 
-  {{- if $liveForm }}
+  {{- if $buttondownLive }}
   <form
     class="newsletter-cta__form"
     data-placement="{{ $placement }}"
+    data-provider="buttondown"
     action="https://buttondown.com/api/emails/embed-subscribe/{{ index $buttondown "username" }}"
     method="post">
     <label class="newsletter-cta__label" for="newsletter-email-{{ $placement }}">Email address</label>
@@ -48,11 +59,43 @@
       <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">Prefer RSS?</a>
     </p>
   </form>
+  {{- else if $workerLive }}
+  <form
+    class="newsletter-cta__form"
+    data-provider="cloudflare-worker"
+    data-api-base="{{ $workerBase }}"
+    data-delivery-ready="{{ if $deliveryReady }}true{{ else }}false{{ end }}"
+    data-placement="{{ $placement }}"
+    {{- with $page }} data-source-page="{{ .RelPermalink }}"{{- end }}
+    method="post"
+    novalidate>
+    <label class="newsletter-cta__label" for="newsletter-email-{{ $placement }}">Email address</label>
+    <div class="newsletter-cta__controls">
+      <input
+        id="newsletter-email-{{ $placement }}"
+        class="newsletter-cta__input"
+        type="email"
+        name="email"
+        placeholder="you@domain.com"
+        inputmode="email"
+        autocomplete="email"
+        required>
+      <button class="newsletter-cta__button" type="submit">Subscribe</button>
+    </div>
+    <p class="newsletter-cta__meta">
+      New articles and substantial revisions only.
+      <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">Prefer RSS?</a>
+    </p>
+    {{- if and (not $deliveryReady) $deliveryNote }}
+    <p class="newsletter-cta__fallback">{{ $deliveryNote }}</p>
+    {{- end }}
+    <p class="newsletter-cta__status" aria-live="polite"></p>
+  </form>
   {{- else }}
   <div class="newsletter-cta__fallback">
     The updates feed is already live at
     <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">/updates.xml</a>.
-    The email form will appear here as soon as Buttondown is connected.
+    The email form will appear here as soon as the Cloudflare backend is deployed.
   </div>
   {{- end }}
 </section>

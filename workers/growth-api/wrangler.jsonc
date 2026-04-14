@@ -1,0 +1,31 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "zlaabsi-growth-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-14",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "SITE_BASE_URL": "https://zlaabsi.github.io",
+    "NEWSLETTER_FEED_URL": "https://zlaabsi.github.io/updates.xml",
+    "CORS_ORIGINS": "https://zlaabsi.github.io,http://localhost:1313,http://127.0.0.1:1313",
+    "PUBLIC_API_BASE_URL": "https://zlaabsi-growth-api.zakaria-laa.workers.dev",
+    "NEWSLETTER_ENABLED": "true",
+    "RESEND_REPLY_TO": "zakaria.laabsi@gmail.com"
+  },
+  "triggers": {
+    "crons": [
+      "*/30 * * * *"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "GROWTH_DB",
+      "database_name": "zlaabsi-growth",
+      "database_id": "55cf03b5-aec5-4faf-a86a-99739c73790d",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

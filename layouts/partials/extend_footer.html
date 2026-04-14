@@ -3,26 +3,118 @@
   <source src="/videos/ascii-bg.mp4" type="video/mp4">
 </video>
 {{- $integrations := site.Params.integrations | default (dict) -}}
+{{- $worker := index $integrations "cloudflareWorker" | default (dict) -}}
 {{- $newsletter := index $integrations "newsletter" | default (dict) -}}
 {{- $analytics := index $integrations "analytics" | default (dict) -}}
-{{- $plausible := index $analytics "plausible" | default (dict) -}}
+{{- $workerBase := "" -}}
+{{- if eq hugo.Environment "production" -}}
+  {{- $workerBase = index $worker "apiBase" | default "" -}}
+{{- else -}}
+  {{- $workerBase = index $worker "devApiBase" | default (index $worker "apiBase" | default "") -}}
+{{- end -}}
 <script>
 (function () {
   var growth = {
-    plausibleEnabled: {{ if and (eq hugo.Environment "production") (index $plausible "enabled") (index $plausible "domain") }}true{{ else }}false{{ end }},
-    trackArticleClicks: {{ if index $plausible "trackArticleClicks" }}true{{ else }}false{{ end }},
-    trackNewsletterSignups: {{ if index $plausible "trackNewsletterSignups" }}true{{ else }}false{{ end }},
-    newsletterEnabled: {{ if and (index $newsletter "enabled") (index (index $newsletter "buttondown" | default (dict)) "username") }}true{{ else }}false{{ end }}
+    apiBase: '{{ replace $workerBase "'" "\\'" }}',
+    analyticsEnabled: {{ if and (index $analytics "enabled") (eq (index $analytics "provider") "cloudflare-worker") $workerBase }}true{{ else }}false{{ end }},
+    newsletterEnabled: {{ if and (index $newsletter "enabled") (eq (index $newsletter "provider") "cloudflare-worker") $workerBase }}true{{ else }}false{{ end }},
+    trackPageviews: {{ if index $analytics "trackPageviews" }}true{{ else }}false{{ end }},
+    trackArticleClicks: {{ if index $analytics "trackArticleClicks" }}true{{ else }}false{{ end }},
+    trackNewsletterSignups: {{ if index $analytics "trackNewsletterSignups" }}true{{ else }}false{{ end }},
+    trackClickHeatmap: {{ if index $analytics "trackClickHeatmap" }}true{{ else }}false{{ end }}
   };
 
-  function canInterceptNavigation(event, link) {
-    return !event.defaultPrevented
-      && event.button === 0
-      && !event.metaKey
-      && !event.ctrlKey
-      && !event.shiftKey
-      && !event.altKey
-      && (!link.target || link.target === '_self');
+  if (!growth.apiBase) {
+    return;
+  }
+
+  function storageGet(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function storageSet(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (err) {}
+  }
+
+  function sessionGet(key) {
+    try {
+      return window.sessionStorage.getItem(key);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function sessionSet(key, value) {
+    try {
+      window.sessionStorage.setItem(key, value);
+    } catch (err) {}
+  }
+
+  function getVisitorId() {
+    var key = 'site-growth-visitor-id';
+    var value = storageGet(key);
+    if (!value && window.crypto && typeof window.crypto.randomUUID === 'function') {
+      value = window.crypto.randomUUID();
+      storageSet(key, value);
+    }
+    return value || 'anonymous';
+  }
+
+  function getSessionId() {
+    var key = 'site-growth-session-id';
+    var value = sessionGet(key);
+    if (!value && window.crypto && typeof window.crypto.randomUUID === 'function') {
+      value = window.crypto.randomUUID();
+      sessionSet(key, value);
+    }
+    return value || 'session';
+  }
+
+  function baseEventPayload() {
+    return {
+      pathname: window.location.pathname,
+      pageTitle: document.title,
+      referrer: document.referrer || null,
+      visitorId: getVisitorId(),
+      sessionId: getSessionId()
+    };
+  }
+
+  function postJson(url, payload, options) {
+    options = options || {};
+    var body = JSON.stringify(payload);
+    var allowBeacon = options.allowBeacon !== false;
+
+    if (allowBeacon && navigator.sendBeacon) {
+      try {
+        var blob = new Blob([body], { type: 'application/json' });
+        if (navigator.sendBeacon(url, blob)) {
+          return Promise.resolve(true);
+        }
+      } catch (err) {}
+    }
+
+    return fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      credentials: 'omit',
+      keepalive: options.keepalive !== false,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: body
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error('Request failed with ' + response.status);
+      }
+      return true;
+    });
   }
 
   function isTrackableArticleLink(link) {
@@ -43,47 +135,103 @@
     return 'site';
   }
 
-  if (growth.plausibleEnabled && growth.trackArticleClicks) {
+  function trackEvent(eventType, extra, options) {
+    if (!growth.analyticsEnabled) {
+      return Promise.resolve(false);
+    }
+    return postJson(growth.apiBase + '/api/track', Object.assign(baseEventPayload(), {
+      eventType: eventType
+    }, extra || {}), options).catch(function (error) {
+      console.debug('site-growth track failed', error);
+      return false;
+    });
+  }
+
+  if (growth.analyticsEnabled && growth.trackPageviews) {
+    trackEvent('page_view', {}, { allowBeacon: false, keepalive: true });
+  }
+
+  if (growth.analyticsEnabled && growth.trackArticleClicks) {
     document.addEventListener('click', function (event) {
       var link = event.target.closest('a[href]');
-      if (!link || !isTrackableArticleLink(link) || typeof window.plausible !== 'function') return;
+      if (!link || !isTrackableArticleLink(link)) return;
 
       var href = link.href;
       var url = new URL(href, window.location.origin);
-      var props = {
-        from: window.location.pathname,
-        to: url.pathname,
+      trackEvent('article_click', {
+        targetPath: url.pathname,
+        targetText: (link.textContent || '').trim().slice(0, 240),
         context: articleClickContext(link)
-      };
-
-      if (!canInterceptNavigation(event, link)) {
-        window.plausible('Article Click', { props: props });
-        return;
-      }
-
-      event.preventDefault();
-      var navigated = false;
-      function go() {
-        if (navigated) return;
-        navigated = true;
-        window.location.href = href;
-      }
-
-      window.plausible('Article Click', { props: props, callback: go });
-      window.setTimeout(go, 150);
+      }, { allowBeacon: true, keepalive: true });
     }, true);
   }
 
-  if (growth.plausibleEnabled && growth.trackNewsletterSignups) {
-    document.addEventListener('submit', function (event) {
-      var form = event.target.closest('.newsletter-cta__form');
-      if (!form || typeof window.plausible !== 'function') return;
+  if (growth.analyticsEnabled && growth.trackClickHeatmap) {
+    document.addEventListener('click', function (event) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      var target = event.target;
+      if (!target || !target.closest('.main')) return;
+      var doc = document.documentElement;
+      var width = Math.max(doc.scrollWidth, window.innerWidth || 1);
+      var height = Math.max(doc.scrollHeight, window.innerHeight || 1);
+      trackEvent('ui_click', {
+        context: target.closest('.post-content') ? 'article-body' : 'site',
+        targetText: ((target.textContent || target.getAttribute('aria-label') || target.tagName || '') + '').trim().slice(0, 240),
+        xRatio: width > 0 ? event.pageX / width : 0,
+        yRatio: height > 0 ? event.pageY / height : 0
+      }, { allowBeacon: true, keepalive: true });
+    }, true);
+  }
 
-      window.plausible('Newsletter Signup', {
-        props: {
-          placement: form.dataset.placement || 'unknown',
-          from: window.location.pathname
+  if (growth.newsletterEnabled) {
+    document.addEventListener('submit', function (event) {
+      var form = event.target.closest('.newsletter-cta__form[data-provider="cloudflare-worker"]');
+      if (!form) return;
+
+      event.preventDefault();
+
+      var input = form.querySelector('input[name="email"]');
+      var button = form.querySelector('button[type="submit"]');
+      var status = form.querySelector('.newsletter-cta__status');
+      if (!input || !button || !status) return;
+
+      var email = (input.value || '').trim();
+      if (!email) {
+        status.textContent = 'Enter an email address.';
+        status.dataset.state = 'error';
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = 'Subscribing...';
+      status.dataset.state = '';
+
+      postJson(growth.apiBase + '/api/subscribe', {
+        email: email,
+        placement: form.dataset.placement || 'unknown',
+        sourcePage: form.dataset.sourcePage || window.location.pathname,
+        pageTitle: document.title,
+        visitorId: getVisitorId(),
+        sessionId: getSessionId()
+      }, { allowBeacon: false, keepalive: false }).then(function () {
+        var deliveryReady = form.dataset.deliveryReady === 'true';
+        input.value = '';
+        if (!deliveryReady) {
+          status.textContent = 'Subscribed. Your address is saved; email delivery will start once the sender is connected.';
+        } else {
+          status.textContent = growth.trackNewsletterSignups
+            ? 'Subscribed. You will receive new posts and substantial revisions.'
+            : 'Subscribed.';
         }
+        status.dataset.state = 'success';
+      }).catch(function (error) {
+        console.debug('site-growth subscribe failed', error);
+        status.textContent = error && error.message
+          ? error.message
+          : 'Subscription failed. Try again in a moment.';
+        status.dataset.state = 'error';
+      }).finally(function () {
+        button.disabled = false;
       });
     }, true);
   }

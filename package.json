@@ -3,10 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:semantic-search": "node scripts/build_semantic_search.mjs"
+    "build:semantic-search": "node scripts/build_semantic_search.mjs",
+    "growth:worker:dev": "wrangler dev --config workers/growth-api/wrangler.jsonc --local --test-scheduled",
+    "growth:worker:deploy": "wrangler deploy --config workers/growth-api/wrangler.jsonc",
+    "growth:db:apply:local": "wrangler d1 migrations apply zlaabsi-growth --local --config workers/growth-api/wrangler.jsonc",
+    "growth:db:apply:remote": "wrangler d1 migrations apply zlaabsi-growth --remote --config workers/growth-api/wrangler.jsonc"
   },
   "dependencies": {
     "@huggingface/transformers": "4.0.1",
     "@zlaabsi/turboquant-wasm": "0.1.1"
+  },
+  "devDependencies": {
+    "wrangler": "4.82.2"
   }
 }

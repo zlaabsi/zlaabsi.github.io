@@ -30,6 +30,11 @@ outputFormats:
     baseName: "llms-full"
     isPlainText: true
     notAlternative: true
+  updates:
+    mediaType: "application/rss+xml"
+    baseName: "updates"
+    isPlainText: false
+    rel: "alternate"
 
 outputs:
   home:
@@ -38,6 +43,7 @@ outputs:
     - JSON
     - llms
     - llms-full
+    - updates
 
 params:
   env: production
@@ -101,6 +107,27 @@ params:
     favicon: "/favicon.ico"
     disableFingerprinting: false
 
+  integrations:
+    newsletter:
+      enabled: true
+      provider: "buttondown"
+      title: "Get notified by email"
+      description: "New essays and meaningful revisions. Low frequency, no spam."
+      feedPath: "/updates.xml"
+      buttondown:
+        username: ""
+        tag: "website"
+    analytics:
+      plausible:
+        enabled: true
+        domain: "zlaabsi.github.io"
+        scriptBase: "https://plausible.io"
+        trackArticleClicks: true
+        trackNewsletterSignups: true
+      clarity:
+        enabled: false
+        projectId: ""
+
 markup:
   goldmark:
     renderer:
@@ -149,3 +176,7 @@ menu:
       name: Search
       url: /search/
       weight: 60
+    - identifier: subscribe
+      name: Subscribe
+      url: /subscribe/
+      weight: 70

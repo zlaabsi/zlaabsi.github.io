@@ -1,0 +1,53 @@
+{{- $cfg := site.Params.integrations.newsletter | default (dict) -}}
+{{- $feedPath := index $cfg "feedPath" | default "/updates.xml" -}}
+{{- $items := slice -}}
+{{- range where site.RegularPages "Section" "posts" -}}
+  {{- $page := . -}}
+  {{- $notifyAt := $page.PublishDate -}}
+  {{- $eventType := "new" -}}
+  {{- with $page.Params.notify_lastmod -}}
+    {{- $notifyAt = . | time.AsTime -}}
+    {{- if gt $notifyAt.Unix $page.PublishDate.Unix -}}
+      {{- $eventType = "updated" -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $items = $items | append (dict "page" $page "notifyAt" $notifyAt "eventType" $eventType) -}}
+{{- end -}}
+{{- $items = sort $items "notifyAt" "desc" -}}
+{{- $limit := site.Config.Services.RSS.Limit -}}
+{{- if ge $limit 1 -}}
+  {{- $items = first $limit $items -}}
+{{- end -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ site.Title }} — Updates</title>
+    <link>{{ site.BaseURL }}</link>
+    <description>New essays and meaningful revisions on {{ site.Title }}</description>
+    {{- with site.Params.images }}
+    <image>
+      <title>{{ site.Title }}</title>
+      <url>{{ index . 0 | absURL }}</url>
+      <link>{{ site.BaseURL }}</link>
+    </image>
+    {{- end }}
+    <generator>Hugo</generator>
+    <language>{{ site.Language.LanguageCode }}</language>
+    {{- if gt (len $items) 0 }}
+    <lastBuildDate>{{ (index $items 0).notifyAt.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
+    {{- end }}
+    <atom:link href="{{ $feedPath | absURL }}" rel="self" type="application/rss+xml" />
+    {{- range $items }}
+    {{- $page := index . "page" -}}
+    {{- $notifyAt := index . "notifyAt" -}}
+    {{- $eventType := index . "eventType" -}}
+    <item>
+      <title>{{ if eq $eventType "updated" }}Updated{{ else }}New{{ end }}: {{ $page.Title }}</title>
+      <link>{{ $page.Permalink }}</link>
+      <guid isPermaLink="false">{{ printf "%s?rev=%d" $page.Permalink $notifyAt.Unix }}</guid>
+      <pubDate>{{ $notifyAt.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      <description>{{- if eq $eventType "updated" -}}Updated on {{ $notifyAt.Format "January 2, 2006" }}. {{- else -}}Published on {{ $page.PublishDate.Format "January 2, 2006" }}. {{- end -}}{{ with $page.Description | html }}{{ . }}{{ else }}{{ $page.Summary | html }}{{ end }}</description>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

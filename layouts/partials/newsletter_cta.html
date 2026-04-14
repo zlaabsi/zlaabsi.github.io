@@ -1,0 +1,59 @@
+{{- $page := .Page -}}
+{{- $placement := .Placement | default "site" -}}
+{{- $showFallback := .ShowFallback | default false -}}
+{{- $integrations := site.Params.integrations | default (dict) -}}
+{{- $cfg := index $integrations "newsletter" | default (dict) -}}
+{{- $provider := index $cfg "provider" | default "" -}}
+{{- $buttondown := index $cfg "buttondown" | default (dict) -}}
+{{- $siteEnabled := index $cfg "enabled" -}}
+{{- $liveForm := and $siteEnabled (eq $provider "buttondown") (index $buttondown "username") -}}
+{{- if or $liveForm $siteEnabled $showFallback }}
+<section class="newsletter-cta newsletter-cta--{{ $placement }}">
+  <p class="newsletter-cta__eyebrow">Email updates</p>
+  <h2 class="newsletter-cta__title">{{ index $cfg "title" | default "Get notified when I publish or revise an essay" }}</h2>
+  <p class="newsletter-cta__description">{{ index $cfg "description" | default "New essays and meaningful revisions. Low frequency, no spam." }}</p>
+
+  {{- if $liveForm }}
+  <form
+    class="newsletter-cta__form"
+    data-placement="{{ $placement }}"
+    action="https://buttondown.com/api/emails/embed-subscribe/{{ index $buttondown "username" }}"
+    method="post">
+    <label class="newsletter-cta__label" for="newsletter-email-{{ $placement }}">Email address</label>
+    <div class="newsletter-cta__controls">
+      <input
+        id="newsletter-email-{{ $placement }}"
+        class="newsletter-cta__input"
+        type="email"
+        name="email"
+        placeholder="you@domain.com"
+        inputmode="email"
+        autocomplete="email"
+        required>
+      <button class="newsletter-cta__button" type="submit">Subscribe</button>
+    </div>
+    <input type="hidden" name="embed" value="1">
+    {{- with index $buttondown "tag" }}
+    <input type="hidden" name="tag" value="{{ . }}">
+    {{- end }}
+    <input type="hidden" name="metadata__placement" value="{{ $placement }}">
+    {{- with $page }}
+    <input type="hidden" name="metadata__source_page" value="{{ .RelPermalink }}">
+    {{- end }}
+    <input type="hidden" name="utm_source" value="zlaabsi.github.io">
+    <input type="hidden" name="utm_medium" value="site">
+    <input type="hidden" name="utm_campaign" value="{{ $placement }}">
+    <p class="newsletter-cta__meta">
+      New articles and substantial revisions only.
+      <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">Prefer RSS?</a>
+    </p>
+  </form>
+  {{- else }}
+  <div class="newsletter-cta__fallback">
+    The updates feed is already live at
+    <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">/updates.xml</a>.
+    The email form will appear here as soon as Buttondown is connected.
+  </div>
+  {{- end }}
+</section>
+{{- end }}

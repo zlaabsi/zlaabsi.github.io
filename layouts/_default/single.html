@@ -42,6 +42,10 @@
   </div>
   {{- end }}
 
+  {{- if eq .Section "posts" }}
+  {{- partial "newsletter_cta.html" (dict "Page" . "Placement" "post-footer") -}}
+  {{- end }}
+
   <footer class="post-footer">
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">

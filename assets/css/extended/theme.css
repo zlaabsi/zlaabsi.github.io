@@ -266,6 +266,104 @@ blockquote {
   opacity: 0.30;
 }
 
+/* ===== Newsletter CTA ===== */
+.newsletter-cta {
+  margin: 2.5rem 0 0;
+  padding: 1.35rem 1.4rem 1.2rem;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(184, 134, 11, 0.08), rgba(184, 134, 11, 0.03)), var(--theme-bg-secondary);
+}
+
+.newsletter-cta__eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--theme-accent);
+}
+
+.newsletter-cta__title {
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.2;
+}
+
+.newsletter-cta__description {
+  margin: 0.55rem 0 1rem;
+  color: var(--theme-text-secondary);
+}
+
+.newsletter-cta__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.newsletter-cta__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.newsletter-cta__input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius);
+  background: var(--theme-bg);
+  color: var(--theme-text);
+  font: inherit;
+}
+
+.newsletter-cta__input:focus {
+  outline: 2px solid color-mix(in srgb, var(--theme-accent) 35%, transparent);
+  outline-offset: 2px;
+  border-color: var(--theme-accent);
+}
+
+.newsletter-cta__button {
+  padding: 0.76rem 1.1rem;
+  border: 1px solid var(--theme-accent);
+  border-radius: var(--radius);
+  background: var(--theme-accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.newsletter-cta__button:hover {
+  background: var(--theme-accent-hover);
+  border-color: var(--theme-accent-hover);
+}
+
+.newsletter-cta__meta,
+.newsletter-cta__fallback {
+  margin: 0.85rem 0 0;
+  font-size: 0.92rem;
+  color: var(--theme-text-secondary);
+}
+
+.newsletter-cta__meta a,
+.newsletter-cta__fallback a {
+  color: var(--theme-accent);
+}
+
+@media (max-width: 640px) {
+  .newsletter-cta__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .newsletter-cta__button {
+    width: 100%;
+  }
+}
+
 /* Dark mode: no invert, native black bg + white chars */
 [data-theme="dark"] .ascii-bg-video {
   filter: none;

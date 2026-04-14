@@ -1,0 +1,6 @@
+{{- $fallback := eq (.Get "fallback") "true" -}}
+{{ partial "newsletter_cta.html" (dict
+  "Page" .Page
+  "Placement" (.Get "placement" | default "shortcode")
+  "ShowFallback" $fallback
+) }}

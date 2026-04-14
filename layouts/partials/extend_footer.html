@@ -2,6 +2,93 @@
 <video class="ascii-bg-video" muted playsinline preload="none">
   <source src="/videos/ascii-bg.mp4" type="video/mp4">
 </video>
+{{- $integrations := site.Params.integrations | default (dict) -}}
+{{- $newsletter := index $integrations "newsletter" | default (dict) -}}
+{{- $analytics := index $integrations "analytics" | default (dict) -}}
+{{- $plausible := index $analytics "plausible" | default (dict) -}}
+<script>
+(function () {
+  var growth = {
+    plausibleEnabled: {{ if and (eq hugo.Environment "production") (index $plausible "enabled") (index $plausible "domain") }}true{{ else }}false{{ end }},
+    trackArticleClicks: {{ if index $plausible "trackArticleClicks" }}true{{ else }}false{{ end }},
+    trackNewsletterSignups: {{ if index $plausible "trackNewsletterSignups" }}true{{ else }}false{{ end }},
+    newsletterEnabled: {{ if and (index $newsletter "enabled") (index (index $newsletter "buttondown" | default (dict)) "username") }}true{{ else }}false{{ end }}
+  };
+
+  function canInterceptNavigation(event, link) {
+    return !event.defaultPrevented
+      && event.button === 0
+      && !event.metaKey
+      && !event.ctrlKey
+      && !event.shiftKey
+      && !event.altKey
+      && (!link.target || link.target === '_self');
+  }
+
+  function isTrackableArticleLink(link) {
+    try {
+      var url = new URL(link.href, window.location.origin);
+      return url.origin === window.location.origin && /^\/posts\/[^/]+\/?$/.test(url.pathname);
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function articleClickContext(link) {
+    if (link.closest('.post-entry')) return 'listing';
+    if (link.closest('.post-nav')) return 'post-nav';
+    if (link.closest('.newsletter-cta')) return 'newsletter';
+    if (link.closest('.toc')) return 'toc';
+    if (link.closest('.post-content')) return 'article-body';
+    return 'site';
+  }
+
+  if (growth.plausibleEnabled && growth.trackArticleClicks) {
+    document.addEventListener('click', function (event) {
+      var link = event.target.closest('a[href]');
+      if (!link || !isTrackableArticleLink(link) || typeof window.plausible !== 'function') return;
+
+      var href = link.href;
+      var url = new URL(href, window.location.origin);
+      var props = {
+        from: window.location.pathname,
+        to: url.pathname,
+        context: articleClickContext(link)
+      };
+
+      if (!canInterceptNavigation(event, link)) {
+        window.plausible('Article Click', { props: props });
+        return;
+      }
+
+      event.preventDefault();
+      var navigated = false;
+      function go() {
+        if (navigated) return;
+        navigated = true;
+        window.location.href = href;
+      }
+
+      window.plausible('Article Click', { props: props, callback: go });
+      window.setTimeout(go, 150);
+    }, true);
+  }
+
+  if (growth.plausibleEnabled && growth.trackNewsletterSignups) {
+    document.addEventListener('submit', function (event) {
+      var form = event.target.closest('.newsletter-cta__form');
+      if (!form || typeof window.plausible !== 'function') return;
+
+      window.plausible('Newsletter Signup', {
+        props: {
+          placement: form.dataset.placement || 'unknown',
+          from: window.location.pathname
+        }
+      });
+    }, true);
+  }
+})();
+</script>
 <script>
 (function () {
   var video = document.querySelector('.ascii-bg-video');

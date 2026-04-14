@@ -117,9 +117,9 @@ params:
       enabled: true
       provider: "cloudflare-worker"
       title: "Get notified by email"
-      description: "Signups are live. Delivery starts once the outbound mail sender is connected."
+      description: "Signups are live. Email delivery will start as soon as domain verification finishes."
       deliveryReady: false
-      deliveryNote: "Your subscription is stored now. Email notifications will start once the sending backend is connected."
+      deliveryNote: "Your subscription is stored now. Notifications will start automatically once DNS verification clears."
       feedPath: "/updates.xml"
     analytics:
       enabled: true

@@ -126,13 +126,45 @@
     }
   }
 
-  function articleClickContext(link) {
-    if (link.closest('.post-entry')) return 'listing';
-    if (link.closest('.post-nav')) return 'post-nav';
-    if (link.closest('.newsletter-cta')) return 'newsletter';
-    if (link.closest('.toc')) return 'toc';
-    if (link.closest('.post-content')) return 'article-body';
+  function eventElement(target) {
+    if (!target) return null;
+    if (target instanceof Element) return target;
+    if (target instanceof Node) return target.parentElement;
+    return null;
+  }
+
+  function clickContext(element) {
+    if (!element) return 'site';
+    if (element.closest('.post-entry')) return 'listing';
+    if (element.closest('.post-nav')) return 'post-nav';
+    if (element.closest('.newsletter-cta')) return 'newsletter';
+    if (element.closest('.toc')) return 'toc';
+    if (element.closest('.post-content')) return 'article-body';
+    if (element.closest('.header, .nav, #menu')) return 'nav';
+    if (element.closest('.footer')) return 'footer';
     return 'site';
+  }
+
+  function clickLabel(element) {
+    if (!element) return '';
+    return (
+      element.getAttribute('aria-label') ||
+      element.getAttribute('title') ||
+      element.getAttribute('alt') ||
+      element.textContent ||
+      element.tagName ||
+      ''
+    ).trim().slice(0, 240);
+  }
+
+  function clickRatios(event) {
+    var doc = document.documentElement;
+    var width = Math.max(doc.scrollWidth, window.innerWidth || 1);
+    var height = Math.max(doc.scrollHeight, window.innerHeight || 1);
+    return {
+      xRatio: width > 0 ? event.pageX / width : 0,
+      yRatio: height > 0 ? event.pageY / height : 0
+    };
   }
 
   function trackEvent(eventType, extra, options) {
@@ -153,33 +185,38 @@
 
   if (growth.analyticsEnabled && growth.trackArticleClicks) {
     document.addEventListener('click', function (event) {
-      var link = event.target.closest('a[href]');
+      var target = eventElement(event.target);
+      if (!target) return;
+      var link = target.closest('a[href]');
       if (!link || !isTrackableArticleLink(link)) return;
 
       var href = link.href;
       var url = new URL(href, window.location.origin);
+      var ratios = clickRatios(event);
       trackEvent('article_click', {
         targetPath: url.pathname,
-        targetText: (link.textContent || '').trim().slice(0, 240),
-        context: articleClickContext(link)
-      }, { allowBeacon: true, keepalive: true });
+        targetText: clickLabel(link),
+        context: clickContext(link),
+        xRatio: ratios.xRatio,
+        yRatio: ratios.yRatio
+      }, { allowBeacon: false, keepalive: true });
     }, true);
   }
 
   if (growth.analyticsEnabled && growth.trackClickHeatmap) {
     document.addEventListener('click', function (event) {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      var target = event.target;
-      if (!target || !target.closest('.main')) return;
-      var doc = document.documentElement;
-      var width = Math.max(doc.scrollWidth, window.innerWidth || 1);
-      var height = Math.max(doc.scrollHeight, window.innerHeight || 1);
+      var target = eventElement(event.target);
+      if (!target || !document.body.contains(target)) return;
+      var link = target.closest('a[href]');
+      if (link && isTrackableArticleLink(link)) return;
+      var ratios = clickRatios(event);
       trackEvent('ui_click', {
-        context: target.closest('.post-content') ? 'article-body' : 'site',
-        targetText: ((target.textContent || target.getAttribute('aria-label') || target.tagName || '') + '').trim().slice(0, 240),
-        xRatio: width > 0 ? event.pageX / width : 0,
-        yRatio: height > 0 ? event.pageY / height : 0
-      }, { allowBeacon: true, keepalive: true });
+        context: clickContext(target),
+        targetText: clickLabel(target),
+        xRatio: ratios.xRatio,
+        yRatio: ratios.yRatio
+      }, { allowBeacon: false, keepalive: true });
     }, true);
   }
 

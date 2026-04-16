@@ -590,7 +590,7 @@ async function getHeatmap(
   const result = await env.GROWTH_DB.prepare(
     `SELECT x_ratio, y_ratio
      FROM events
-     WHERE event_type = 'ui_click'
+     WHERE event_type IN ('ui_click', 'article_click')
        AND pathname = ?1
        AND x_ratio IS NOT NULL
        AND y_ratio IS NOT NULL

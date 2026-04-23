@@ -66,6 +66,19 @@ interface DispatchRow {
   status: DispatchStatus;
 }
 
+interface EmailDeliveryRow {
+  kind: "new" | "updated" | "welcome";
+  subscriber_email: string;
+  subject: string | null;
+  source_page: string | null;
+  provider_message_id: string | null;
+  status: DeliveryStatus;
+  error: string | null;
+  entry_title: string | null;
+  entry_url: string | null;
+  created_at: string;
+}
+
 const JSON_HEADERS = {
   "content-type": "application/json; charset=UTF-8",
 };
@@ -83,6 +96,7 @@ const ADMIN_PATHS = new Set([
   "/api/admin/top-clicks",
   "/api/admin/recent-events",
   "/api/admin/subscribers",
+  "/api/admin/email-deliveries",
   "/api/admin/heatmap",
   "/api/admin/dispatch-now",
 ]);
@@ -174,6 +188,22 @@ export default {
             {
               ok: true,
               rows: await getSubscribers(env, cleanLimit(url.searchParams.get("limit"), 50, 1, 200)),
+            },
+            200,
+            request,
+            env,
+          );
+        }
+
+        if (url.pathname === "/api/admin/email-deliveries" && request.method === "GET") {
+          return json(
+            {
+              ok: true,
+              rows: await getEmailDeliveries(
+                env,
+                cleanDays(url.searchParams.get("days")),
+                cleanLimit(url.searchParams.get("limit"), 40, 1, 200),
+              ),
             },
             200,
             request,
@@ -568,6 +598,77 @@ async function getSubscribers(env: Env, limit: number): Promise<Record<string, u
   }));
 }
 
+async function getEmailDeliveries(env: Env, days: number, limit: number): Promise<Record<string, unknown>[]> {
+  const window = daysWindow(days);
+  const result = await env.GROWTH_DB.prepare(
+    `SELECT
+      kind,
+      subscriber_email,
+      subject,
+      source_page,
+      provider_message_id,
+      status,
+      error,
+      entry_title,
+      entry_url,
+      created_at
+     FROM (
+       SELECT
+         d.feed_kind AS kind,
+         l.subscriber_email,
+         '[Zakaria Laabsi] ' ||
+           CASE
+             WHEN d.feed_kind = 'updated' THEN 'Updated article: '
+             ELSE 'New article: '
+           END || d.clean_title AS subject,
+         NULL AS source_page,
+         l.provider_message_id,
+         l.status,
+         l.error,
+         d.clean_title AS entry_title,
+         d.feed_url AS entry_url,
+         l.sent_at AS created_at
+       FROM newsletter_delivery_log l
+       INNER JOIN newsletter_dispatches d
+         ON d.id = l.dispatch_id
+       WHERE l.sent_at >= datetime('now', ?1)
+
+       UNION ALL
+
+       SELECT
+         email_kind AS kind,
+         subscriber_email,
+         subject,
+         source_page,
+         provider_message_id,
+         status,
+         error,
+         NULL AS entry_title,
+         NULL AS entry_url,
+         created_at
+       FROM transactional_email_log
+       WHERE created_at >= datetime('now', ?1)
+     )
+     ORDER BY created_at DESC
+     LIMIT ?2`,
+  )
+    .bind(window, limit)
+    .all<EmailDeliveryRow>();
+
+  return (result.results ?? []).map((row) => ({
+    kind: row.kind,
+    subscriberEmail: row.subscriber_email,
+    subject: row.subject,
+    sourcePage: row.source_page,
+    providerMessageId: row.provider_message_id,
+    status: row.status,
+    error: row.error,
+    entryTitle: row.entry_title,
+    entryUrl: row.entry_url,
+    createdAt: row.created_at,
+  }));
+}
+
 async function getHeatmap(
   env: Env,
   path: string | null,
@@ -771,41 +872,17 @@ async function sendDispatchEmail(
   const html = renderEmailHtml(dispatch, articleUrl, unsubscribeUrl, summary);
   const text = renderEmailText(dispatch, articleUrl, unsubscribeUrl, summary);
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": `${dispatch.feed_guid}:${subscriber.email}`,
-    },
-    body: JSON.stringify({
-      from: env.RESEND_FROM,
-      to: [subscriber.email],
-      reply_to: env.RESEND_REPLY_TO || undefined,
-      subject,
-      html,
-      text,
-      tags: [
-        { name: "kind", value: dispatch.feed_kind },
-        { name: "entry_guid", value: dispatch.feed_guid.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 200) },
-      ],
-    }),
+  return sendResendEmail(env, {
+    to: subscriber.email,
+    subject,
+    html,
+    text,
+    idempotencyKey: `${dispatch.feed_guid}:${subscriber.email}`,
+    tags: [
+      { name: "kind", value: dispatch.feed_kind },
+      { name: "entry_guid", value: dispatch.feed_guid.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 200) },
+    ],
   });
-
-  const payload = (await response.json().catch(() => null)) as { id?: string; message?: string } | null;
-  if (!response.ok) {
-    return {
-      status: "failed",
-      messageId: null,
-      error: payload?.message || `Resend request failed with ${response.status}`,
-    };
-  }
-
-  return {
-    status: "sent",
-    messageId: payload?.id || null,
-    error: null,
-  };
 }
 
 async function sendWelcomeEmail(
@@ -814,44 +891,117 @@ async function sendWelcomeEmail(
   unsubscribeToken: string,
   sourcePage: string | null,
 ): Promise<void> {
-  if (!env.RESEND_API_KEY || !env.RESEND_FROM) {
-    return;
-  }
-
   const siteBaseUrl = stripTrailingSlash(env.SITE_BASE_URL || "https://zlaabsi.github.io");
   const apiBaseUrl = stripTrailingSlash(env.PUBLIC_API_BASE_URL || siteBaseUrl);
   const unsubscribeUrl = `${apiBaseUrl}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
   const updatesUrl = `${siteBaseUrl}/updates.xml`;
   const sourceUrl = sourcePage ? `${siteBaseUrl}${sourcePage}` : siteBaseUrl;
+  const subject = "[Zakaria Laabsi] Subscription confirmed";
+  const html =
+    `<p>You are now subscribed to blog updates from Zakaria Laabsi.</p>` +
+    `<p>You will only receive emails for new essays and substantial revisions.</p>` +
+    `<p><a href="${escapeHtml(sourceUrl)}">Return to the page you subscribed from</a><br>` +
+    `<a href="${escapeHtml(updatesUrl)}">Prefer RSS instead?</a><br>` +
+    `<a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a></p>`;
+  const text =
+    `You are now subscribed to blog updates from Zakaria Laabsi.\n\n` +
+    `Return: ${sourceUrl}\n` +
+    `RSS: ${updatesUrl}\n` +
+    `Unsubscribe: ${unsubscribeUrl}`;
 
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": `welcome:${email}`,
-    },
-    body: JSON.stringify({
-      from: env.RESEND_FROM,
-      to: [email],
-      reply_to: env.RESEND_REPLY_TO || undefined,
-      subject: "[Zakaria Laabsi] Subscription confirmed",
-      html:
-        `<p>You are now subscribed to blog updates from Zakaria Laabsi.</p>` +
-        `<p>You will only receive emails for new essays and substantial revisions.</p>` +
-        `<p><a href="${escapeHtml(sourceUrl)}">Return to the page you subscribed from</a><br>` +
-        `<a href="${escapeHtml(updatesUrl)}">Prefer RSS instead?</a><br>` +
-        `<a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a></p>`,
-      text:
-        `You are now subscribed to blog updates from Zakaria Laabsi.\n\n` +
-        `Return: ${sourceUrl}\n` +
-        `RSS: ${updatesUrl}\n` +
-        `Unsubscribe: ${unsubscribeUrl}`,
-      tags: [{ name: "kind", value: "welcome" }],
-    }),
-  }).catch((error) => {
-    console.error("welcome email failed", error);
+  const delivery = await sendResendEmail(env, {
+    to: email,
+    subject,
+    html,
+    text,
+    idempotencyKey: `welcome:${email}`,
+    tags: [{ name: "kind", value: "welcome" }],
   });
+
+  await env.GROWTH_DB.prepare(
+    `INSERT INTO transactional_email_log (
+      email_kind,
+      subscriber_email,
+      subject,
+      source_page,
+      provider_message_id,
+      status,
+      error,
+      created_at
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, CURRENT_TIMESTAMP)`,
+  )
+    .bind(
+      "welcome",
+      email,
+      subject,
+      sourcePage,
+      delivery.messageId,
+      delivery.status,
+      delivery.error,
+    )
+    .run();
+}
+
+async function sendResendEmail(
+  env: Env,
+  message: {
+    to: string;
+    subject: string;
+    html: string;
+    text: string;
+    idempotencyKey: string;
+    tags?: Array<{ name: string; value: string }>;
+  },
+): Promise<{ status: DeliveryStatus; messageId: string | null; error: string | null }> {
+  if (!env.RESEND_API_KEY || !env.RESEND_FROM) {
+    return {
+      status: "failed",
+      messageId: null,
+      error: "Resend is not configured yet. Set RESEND_API_KEY and RESEND_FROM.",
+    };
+  }
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": message.idempotencyKey,
+      },
+      body: JSON.stringify({
+        from: env.RESEND_FROM,
+        to: [message.to],
+        reply_to: env.RESEND_REPLY_TO || undefined,
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+        tags: message.tags,
+      }),
+    });
+
+    const payload = (await response.json().catch(() => null)) as { id?: string; message?: string } | null;
+    if (!response.ok) {
+      return {
+        status: "failed",
+        messageId: null,
+        error: payload?.message || `Resend request failed with ${response.status}`,
+      };
+    }
+
+    return {
+      status: "sent",
+      messageId: payload?.id || null,
+      error: null,
+    };
+  } catch (error) {
+    console.error("resend email failed", error);
+    return {
+      status: "failed",
+      messageId: null,
+      error: error instanceof Error ? error.message : "Unexpected send failure",
+    };
+  }
 }
 
 async function handleUnsubscribe(url: URL, env: Env): Promise<Response> {

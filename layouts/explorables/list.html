@@ -1,0 +1,15 @@
+{{- define "main" }}
+<link rel="stylesheet" href="{{ "olala/olala.css" | relURL }}">
+<section class="ol-explorable-list">
+  <header class="page-header">
+    <h1>{{ .Title }}</h1>
+    {{ with .Content }}<div class="post-description">{{ . }}</div>{{ end }}
+  </header>
+  {{ range .Pages.ByDate.Reverse }}
+  <article>
+    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    <p>{{ .Description }}</p>
+  </article>
+  {{ end }}
+</section>
+{{- end }}

@@ -1,0 +1,702 @@
+/* Olala architecture figures.
+   Scoped under .ol-fig so nothing leaks into the rest of the site.
+   Categorical hues are the validated set (dataviz validator, light on #FAF7F2,
+   dark on #111111): each hue names one component in every figure. */
+
+.ol-fig {
+  --ol-surface: #fffdf9;
+  --ol-panel: #f5f0e7;
+  --ol-ink: #2c2418;
+  --ol-ink2: #5c4f3d;
+  --ol-muted: #8a7d6a;
+  --ol-rule: #d4c9b8;
+  --ol-grid: #e9e1d3;
+  --ol-mamba: #2a78d6;
+  --ol-attn: #eb6834;
+  --ol-moe: #1baf7a;
+  --ol-geo: #eda100;
+  --ol-noise: #e87ba4;
+  --ol-violet: #6250d6;
+  --ol-accent: #b8860b;
+  --ol-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --ol-serif: "Source Serif 4", Georgia, serif;
+
+  margin: 2.2rem 0 2.4rem;
+  font-family: var(--ol-sans);
+  color: var(--ol-ink);
+}
+
+:root[data-theme="dark"] .ol-fig {
+  --ol-surface: #161616;
+  --ol-panel: #1e1e1e;
+  --ol-ink: #f0f0f0;
+  --ol-ink2: #b9b4aa;
+  --ol-muted: #8c877d;
+  --ol-rule: #34322e;
+  --ol-grid: #262524;
+  --ol-mamba: #3987e5;
+  --ol-attn: #d95926;
+  --ol-moe: #199e70;
+  --ol-geo: #c98500;
+  --ol-noise: #d55181;
+  --ol-violet: #9085e9;
+  --ol-accent: #d4a843;
+}
+
+.ol-fig .ol-stage {
+  container-type: inline-size;
+  background: var(--ol-surface);
+  border: 1px solid var(--ol-rule);
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 220px;
+}
+
+.ol-fig .ol-stage.is-loading::before {
+  content: "Loading figure";
+  display: block;
+  padding: 5.5rem 1rem;
+  text-align: center;
+  color: var(--ol-muted);
+  font-size: 14px;
+}
+
+.ol-fig .ol-stage .ol-error {
+  padding: 2rem 1.25rem;
+  color: var(--ol-ink2);
+  font-size: 14px;
+}
+
+.ol-fig .ol-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ol-fig .ol-canvas {
+  position: relative;
+  overflow-x: auto;
+  padding: 14px 14px 8px;
+}
+
+.ol-fig .ol-canvas > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 600px;
+  margin: 0 auto;
+}
+
+.ol-fig .ol-canvas > div > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 660px;
+  margin: 0 auto;
+}
+
+.ol-fig .ol-panel {
+  background: var(--ol-panel);
+  border-top: 1px solid var(--ol-rule);
+  padding: 16px 18px 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px 28px;
+  align-content: start;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@container (min-width: 980px) {
+  .ol-fig .ol-grid {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+  .ol-fig .ol-grid--wide {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+  .ol-fig .ol-panel {
+    border-top: 0;
+    border-left: 1px solid var(--ol-rule);
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ol-fig.ol-fig > figcaption {
+  margin: 0.7rem 0 0;
+  font-weight: 400;
+  font-family: var(--ol-serif);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ol-ink2);
+  text-align: left;
+}
+
+.post-content,
+.ol-atlas {
+  counter-reset: olfig;
+}
+
+.ol-fig figcaption::before {
+  counter-increment: olfig;
+  content: "Figure " counter(olfig) ". ";
+  font-weight: 700;
+  color: var(--ol-ink);
+}
+
+.ol-fig figcaption p {
+  display: inline;
+  margin: 0;
+}
+
+/* ---------- controls ---------- */
+
+.ol-fig .ol-panel > * {
+  min-width: 0;
+}
+
+.ol-fig .ol-note mjx-container {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.ol-fig .ol-group {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.ol-fig .ol-group-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ol-ink);
+}
+
+.ol-fig .ol-slider {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+  align-items: baseline;
+}
+
+.ol-fig .ol-slider label {
+  color: var(--ol-ink2);
+  font-size: 14px;
+}
+
+.ol-fig .ol-slider output {
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  color: var(--ol-ink);
+  font-weight: 600;
+}
+
+.ol-fig .ol-slider input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 2px 0 0;
+  accent-color: var(--ol-accent);
+  cursor: pointer;
+}
+
+.ol-fig .ol-marks {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 20px;
+  margin: 0 8px;
+}
+
+.ol-fig .ol-mark {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  border: 0;
+  background: none;
+  padding: 3px 0 0;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ol-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ol-fig .ol-mark::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 1px;
+  height: 5px;
+  background: var(--ol-muted);
+}
+
+.ol-fig .ol-mark.is-left {
+  transform: translateX(calc(-100% + 3px));
+}
+
+.ol-fig .ol-mark.is-left::before {
+  left: calc(100% - 3px);
+}
+
+.ol-fig .ol-mark.is-right {
+  transform: translateX(-3px);
+}
+
+.ol-fig .ol-mark.is-right::before {
+  left: 3px;
+}
+
+.ol-fig .ol-mark:hover {
+  color: var(--ol-ink);
+}
+
+.ol-fig .ol-field-label {
+  color: var(--ol-ink2);
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.ol-fig .ol-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  border: 1px solid var(--ol-rule);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--ol-rule);
+}
+
+.ol-fig .ol-seg button {
+  flex: 1 1 auto;
+  border: 0;
+  background: var(--ol-surface);
+  padding: 6px 11px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ol-ink2);
+  cursor: pointer;
+}
+
+.ol-fig .ol-seg button:hover {
+  color: var(--ol-ink);
+}
+
+.ol-fig .ol-seg button.is-on {
+  background: var(--ol-ink);
+  color: var(--ol-surface);
+}
+
+.ol-fig .ol-btn {
+  justify-self: start;
+  border: 1px solid var(--ol-rule);
+  border-radius: 6px;
+  background: var(--ol-surface);
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ol-ink);
+  cursor: pointer;
+}
+
+.ol-fig .ol-btn:hover {
+  border-color: var(--ol-ink2);
+}
+
+.ol-fig .ol-check {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 14px;
+  color: var(--ol-ink2);
+}
+
+.ol-fig .ol-check input {
+  accent-color: var(--ol-accent);
+}
+
+.ol-fig .ol-seg button:focus-visible,
+.ol-fig .ol-btn:focus-visible,
+.ol-fig .ol-mark:focus-visible,
+.ol-fig .ol-slider input:focus-visible {
+  outline: 2px solid var(--ol-accent);
+  outline-offset: 2px;
+}
+
+.ol-fig .ol-readout {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 14px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.ol-fig .ol-readout dt {
+  color: var(--ol-ink2);
+  font-weight: 400;
+  width: auto;
+  margin: 0;
+}
+
+.ol-fig .ol-readout dd {
+  margin: 0;
+  width: auto;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ol-ink);
+}
+
+.ol-fig .ol-note {
+  font-family: var(--ol-serif);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ol-ink);
+}
+
+.ol-fig .ol-note p {
+  margin: 0 0 0.6em;
+}
+
+.ol-fig .ol-note p:last-child {
+  margin-bottom: 0;
+}
+
+.ol-fig .ol-note .ol-src {
+  color: var(--ol-ink2);
+  font-size: 14px;
+}
+
+.ol-fig .ol-key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: baseline;
+}
+
+.ol-fig .ol-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+  color: var(--ol-ink2);
+}
+
+.ol-tip {
+  position: fixed;
+  z-index: 50;
+  max-width: 300px;
+  padding: 9px 11px;
+  border-radius: 6px;
+  border: 1px solid #d4c9b8;
+  background: #fffdf9;
+  color: #2c2418;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 4px 16px rgba(44, 36, 24, 0.14);
+  pointer-events: none;
+}
+
+:root[data-theme="dark"] .ol-tip {
+  border-color: #34322e;
+  background: #1e1e1e;
+  color: #f0f0f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.ol-tip b {
+  font-weight: 600;
+}
+
+.ol-tip .ol-tip-sub {
+  color: #8a7d6a;
+}
+
+/* ---------- SVG vocabulary ---------- */
+
+.ol-fig svg text {
+  font-family: var(--ol-sans);
+  fill: var(--ol-ink);
+  font-size: 13px;
+}
+
+.ol-fig svg .ol-t2 {
+  fill: var(--ol-ink2);
+  font-size: 12.5px;
+}
+
+.ol-fig svg .ol-th {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.ol-fig svg .ol-mi {
+  font-family: var(--ol-serif);
+  font-style: italic;
+  font-size: 1.08em;
+}
+
+.ol-fig svg .ol-msub {
+  font-size: 0.74em;
+}
+
+.ol-fig svg .ol-halo {
+  paint-order: stroke;
+  stroke: var(--ol-surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.ol-axis text {
+  fill: var(--ol-ink2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-axis path.domain,
+.ol-axis line {
+  stroke: var(--ol-rule);
+}
+
+.ol-axis--y line {
+  stroke: var(--ol-grid);
+}
+
+.ol-arrow line {
+  stroke: var(--ol-ink2);
+  fill: none;
+}
+
+.ol-arrow path {
+  fill: var(--ol-ink2);
+  stroke: none;
+}
+
+.ol-fig .c-mamba { --c: var(--ol-mamba); }
+.ol-fig .c-attn { --c: var(--ol-attn); }
+.ol-fig .c-moe { --c: var(--ol-moe); }
+.ol-fig .c-geo { --c: var(--ol-geo); }
+.ol-fig .c-noise { --c: var(--ol-noise); }
+.ol-fig .c-violet { --c: var(--ol-violet); }
+.ol-fig .c-ink { --c: var(--ol-ink); }
+.ol-fig .c-muted { --c: var(--ol-muted); }
+
+.ol-arrow[class*="c-"] line { stroke: var(--c); }
+.ol-arrow[class*="c-"] path { fill: var(--c); }
+
+.ol-line {
+  fill: none;
+  stroke: var(--c, var(--ol-ink));
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.ol-fill {
+  fill: var(--c, var(--ol-ink));
+}
+
+.ol-soft {
+  fill: color-mix(in srgb, var(--c, var(--ol-ink)) 16%, var(--ol-surface));
+  stroke: var(--c, var(--ol-ink));
+  stroke-width: 1.2;
+}
+
+.ol-dot {
+  fill: var(--c, var(--ol-ink));
+  stroke: var(--ol-surface);
+  stroke-width: 2;
+}
+
+.ol-ref {
+  stroke: var(--ol-muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  fill: none;
+}
+
+.ol-box {
+  fill: var(--ol-surface);
+  stroke: var(--ol-ink2);
+  stroke-width: 1.2;
+}
+
+.ol-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+/* ---------- 3D stage ---------- */
+
+.ol-three {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 340px;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.ol-three:active {
+  cursor: grabbing;
+}
+
+.ol-three canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ol-three .ol-label3d {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--ol-serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ol-ink);
+  text-shadow: 0 0 4px var(--ol-surface), 0 0 4px var(--ol-surface), 0 0 4px var(--ol-surface);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.ol-three .ol-hint {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  font-size: 12.5px;
+  color: var(--ol-muted);
+  pointer-events: none;
+}
+
+/* ---------- atlas page ---------- */
+
+.ol-atlas {
+  --atlas-max: 1240px;
+  max-width: var(--atlas-max);
+  margin: 0 auto;
+  padding: 0 var(--gap, 24px) 4rem;
+}
+
+.ol-atlas-head {
+  max-width: 760px;
+  padding: 1.5rem 0 1rem;
+}
+
+.ol-atlas-head h1 {
+  font-size: 2.3rem;
+  line-height: 1.15;
+  margin: 0.4rem 0 0.8rem;
+}
+
+.ol-atlas-head p {
+  color: var(--theme-text-secondary, #5c4f3d);
+  font-size: 1.08rem;
+  line-height: 1.6;
+  margin: 0 0 0.6rem;
+}
+
+.ol-atlas-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+
+.ol-atlas-nav {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .ol-atlas-layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+  .ol-atlas-nav {
+    display: block;
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    border-right: 1px solid var(--theme-border, #d4c9b8);
+    padding-right: 1rem;
+  }
+  .ol-atlas-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ol-atlas-nav li {
+    margin: 0 0 0.55rem;
+  }
+  .ol-atlas-nav a {
+    color: var(--theme-text-secondary, #5c4f3d);
+    text-decoration: none;
+  }
+  .ol-atlas-nav a:hover {
+    color: var(--theme-accent, #b8860b);
+  }
+}
+
+.ol-atlas-body > h2 {
+  font-size: 1.55rem;
+  margin: 3rem 0 0.5rem;
+  scroll-margin-top: 5rem;
+}
+
+.ol-atlas-body > h2:first-child {
+  margin-top: 0.5rem;
+}
+
+.ol-atlas-body > p,
+.ol-atlas-body > ul {
+  max-width: 760px;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.ol-atlas-body a {
+  color: var(--theme-accent, #b8860b);
+}
+
+.ol-atlas-body .ol-fig {
+  margin: 1.4rem 0 2rem;
+}
+
+.ol-view-tag {
+  color: var(--theme-text-secondary, #5c4f3d);
+  font-size: 0.95rem;
+}
+
+.ol-explorable-list {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 var(--gap, 24px) 4rem;
+}
+
+.ol-explorable-list article {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--theme-border, #d4c9b8);
+}
+
+.ol-explorable-list h2 {
+  margin: 0 0 0.3rem;
+  font-size: 1.4rem;
+}
+
+.ol-explorable-list h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ol-explorable-list p {
+  margin: 0;
+  color: var(--theme-text-secondary, #5c4f3d);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-fig * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

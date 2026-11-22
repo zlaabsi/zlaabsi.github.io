@@ -20,7 +20,7 @@ ShowCodeCopyButtons: true
 
 The figures are also collected, without the derivations, in the companion explorable: [Olala, taken apart](/explorables/olala/).
 
-Several framings below, in particular the reading of attention and linear mixers as two kinds of associative memory, come from a talk by Alexandre TL,[^talk] who is one of the people behind the model.
+Several framings below, in particular the reading of attention and linear mixers as two kinds of associative memory, come from a talk by Alexandre TL,[^talk] who works on LLM pre-training at OVHai LLM and is part of the team that built the model.
 
 ## 1. The backbone
 

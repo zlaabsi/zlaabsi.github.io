@@ -1,0 +1,237 @@
+/* Transformer Circuits look.
+   Values read from the Distill template shared by the 2026 pages on
+   transformer-circuits.pub: white page, text at 80% black, the system
+   sans-serif stack (no web font), uncoloured links with a grey rule.
+   The reference has no dark mode; the dark values below are our own,
+   built on the slate (#141413) and ivory (#faf9f5) of its figures.
+   Loaded after theme.css (file name sorts last). */
+
+:root {
+  --tc-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  --tc-mono: ui-monospace, "SF Mono", Menlo, Consolas, Monaco, monospace;
+  --tc-head: #000;
+  --tc-link-rule: rgba(0, 0, 0, 0.4);
+  --tc-link-rule-hover: rgba(0, 0, 0, 0.8);
+  --tc-quote-rule: rgba(0, 0, 0, 0.2);
+
+  --theme-bg: #fff;
+  --theme-bg-secondary: #fafafa;
+  --theme-text: rgba(0, 0, 0, 0.8);
+  --theme-text-secondary: rgba(0, 0, 0, 0.6);
+  --theme-accent: #141413;
+  --theme-accent-hover: #000;
+  --theme-accent-secondary: #73726c;
+  --theme-border: rgba(0, 0, 0, 0.1);
+  --theme-code-bg: #fafafa;
+  --theme-code-border: #eee;
+
+  --radius: 4px;
+  --theme: #fff;
+  --entry: #fafafa;
+  --primary: rgba(0, 0, 0, 0.8);
+  --secondary: rgba(0, 0, 0, 0.6);
+  --tertiary: #eee;
+  --content: rgba(0, 0, 0, 0.8);
+  --code-bg: #fafafa;
+  --border: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="dark"],
+.dark {
+  --tc-head: #faf9f5;
+  --tc-link-rule: rgba(255, 255, 255, 0.4);
+  --tc-link-rule-hover: rgba(255, 255, 255, 0.8);
+  --tc-quote-rule: rgba(255, 255, 255, 0.22);
+
+  --theme-bg: #141413;
+  --theme-bg-secondary: #1f1e1d;
+  --theme-text: rgba(255, 255, 255, 0.85);
+  --theme-text-secondary: rgba(255, 255, 255, 0.6);
+  --theme-accent: #faf9f5;
+  --theme-accent-hover: #fff;
+  --theme-accent-secondary: #9c9a92;
+  --theme-border: rgba(255, 255, 255, 0.12);
+  --theme-code-bg: #1f1e1d;
+  --theme-code-border: rgba(255, 255, 255, 0.1);
+
+  --theme: #141413;
+  --entry: #1f1e1d;
+  --primary: rgba(255, 255, 255, 0.85);
+  --secondary: rgba(255, 255, 255, 0.6);
+  --tertiary: rgba(255, 255, 255, 0.12);
+  --content: rgba(255, 255, 255, 0.85);
+  --code-bg: #1f1e1d;
+  --code-block-bg: #1f1e1d;
+  --border: rgba(255, 255, 255, 0.12);
+}
+
+body,
+.nav,
+h1, h2, h3, h4, h5, h6,
+.post-title,
+.first-entry .entry-title {
+  font-family: var(--tc-sans);
+}
+
+body {
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4, h5, h6,
+.post-title,
+.entry-header h2,
+.first-entry .entry-title {
+  color: var(--tc-head);
+}
+
+.post-title {
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.post-content {
+  font-size: 1.06rem;
+  line-height: 1.7;
+}
+
+.post-content h2 {
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 2rem 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.post-content h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 2em 0 1em;
+}
+
+.post-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.post-content a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--tc-link-rule);
+  box-shadow: none;
+}
+
+.post-content a:hover {
+  color: inherit;
+  border-bottom-color: var(--tc-link-rule-hover);
+}
+
+.post-content a.anchor,
+.post-content .footnote-ref,
+.post-content .footnote-backref {
+  border-bottom: 0;
+}
+
+blockquote,
+.post-content blockquote {
+  border-left: 2px solid var(--tc-quote-rule);
+  padding-left: 2em;
+  color: var(--theme-text-secondary);
+}
+
+code,
+pre {
+  font-family: var(--tc-mono);
+}
+
+.post-content code:not(pre code) {
+  border-radius: 2px;
+  padding: 2px 3px 1px;
+}
+
+.post-content figure > figcaption,
+.anim-svg figcaption,
+.post-video figcaption {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  font-style: normal;
+  color: var(--theme-text-secondary);
+}
+
+/* The animated ASCII background stays on the home page and list pages only.
+   PaperMod puts class "list" on the body of every non-article page. */
+body:not(.list) .ascii-bg-video {
+  display: none;
+}
+
+#menu .active {
+  color: var(--tc-head);
+}
+
+.newsletter-cta {
+  background: var(--theme-bg-secondary);
+}
+
+/* The card title is an h2 inside .post-content: keep it out of the section-heading style. */
+.post-content .newsletter-cta__title {
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.newsletter-cta__button {
+  color: var(--theme-bg);
+}
+
+@media (max-width: 768px) {
+  .post-title { font-size: 40px; }
+  .post-content h2 { font-size: 24px; }
+  .post-content h3 { font-size: 18px; }
+}
+
+/* Olala figures: neutral surfaces and the warm greys of the reference figures. */
+/* Doubled class: olala.css is linked later in the page and would win at equal specificity. */
+.ol-fig.ol-fig {
+  --ol-surface: #fff;
+  --ol-panel: #fafafa;
+  --ol-ink: #141413;
+  --ol-ink2: #3d3c39;
+  --ol-muted: #87867f;
+  --ol-rule: #e8e6dc;
+  --ol-grid: #f0eee6;
+  --ol-accent: #141413;
+  --ol-serif: var(--tc-sans);
+}
+
+:root[data-theme="dark"] .ol-fig.ol-fig {
+  --ol-surface: #1a1918;
+  --ol-panel: #1f1e1d;
+  --ol-ink: #faf9f5;
+  --ol-ink2: #c9c7bd;
+  --ol-muted: #87867f;
+  --ol-rule: #3a3936;
+  --ol-grid: #2a2927;
+  --ol-accent: #faf9f5;
+}
+
+.ol-fig.ol-fig > figcaption {
+  font-size: 13px;
+}
+
+.ol-fig.ol-fig .ol-note {
+  font-size: 14px;
+}
+
+.ol-fig svg .ol-mi,
+.ol-three .ol-label3d {
+  font-family: "Source Serif 4", Georgia, serif;
+}

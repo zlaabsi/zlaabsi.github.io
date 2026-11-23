@@ -48,7 +48,7 @@ outputs:
 params:
   env: production
   title: "Zakaria Laabsi"
-  description: "Deep-dives on post-quantum cryptography, reasoning models, reinforcement learning, and applied mathematics."
+  description: "Essays and interactive explainers on mathematics and machine learning systems."
   author: "Zakaria Laabsi"
   keywords:
     - post-quantum cryptography

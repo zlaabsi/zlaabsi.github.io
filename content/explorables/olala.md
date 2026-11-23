@@ -4,6 +4,7 @@ date: 2026-11-22
 draft: false
 description: "Thirteen interactive figures on the architecture of Olala-v1.0-mini-7A1B, a hybrid Mamba-3 and attention mixture-of-experts language model. Each concept is drawn in the dimension that suits it: flat where the idea is a curve or a wiring diagram, layered where it is a stack, solid where it is a sphere."
 math: true
+thumbnail: "/images/olala/architecture.svg"
 companion:
   title: "Inside Olala: a hybrid Mamba-3 and attention model, taken apart"
   url: "/posts/olala-architecture/"

@@ -145,7 +145,9 @@ blockquote,
 }
 
 code,
-pre {
+pre,
+.python-runner__editor,
+.python-runner__output {
   font-family: var(--tc-mono);
 }
 

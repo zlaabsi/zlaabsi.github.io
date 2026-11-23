@@ -2,7 +2,7 @@
 title: "Olala, taken apart"
 date: 2026-11-22
 draft: false
-description: "Twelve interactive figures on the architecture of Olala-v1.0-mini-7A1B, a hybrid Mamba-3 and attention mixture-of-experts language model. Each concept is drawn in the dimension that suits it: flat where the idea is a curve or a wiring diagram, layered where it is a stack, solid where it is a sphere."
+description: "Thirteen interactive figures on the architecture of Olala-v1.0-mini-7A1B, a hybrid Mamba-3 and attention mixture-of-experts language model. Each concept is drawn in the dimension that suits it: flat where the idea is a curve or a wiring diagram, layered where it is a stack, solid where it is a sphere."
 math: true
 companion:
   title: "Inside Olala: a hybrid Mamba-3 and attention model, taken apart"
@@ -61,6 +61,10 @@ Four fixes are stacked inside each of the seven attention layers. Each one answe
 Each token is routed to 6 of 256 small experts that work in a 384-dimensional copy of the stream, plus one shared expert. Drawn as a floor plan with the selected experts rising out of it, so that sparsity is seen and not counted.
 
 {{< olala fig="moe" caption="One Latent-MoE block. Route a few tokens, change the number of experts selected, and watch the weight count against a dense feed-forward block; the second view plots the ablations." >}}
+
+**The shape of an expert.** Why the experts read a latent copy of the stream: the same hidden layer, drawn against what it reads. Flat, because the argument is a ratio of two widths.
+
+{{< olala fig="expert" caption="One routed expert reading the stream itself, and reading a latent copy through a shared projection. Widths are drawn as heights; the axis underneath places the ratio of hidden width to input width." >}}
 
 ## Writing on a sphere
 

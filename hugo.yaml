@@ -51,16 +51,17 @@ params:
   description: "Essays and interactive explainers on mathematics and machine learning systems."
   author: "Zakaria Laabsi"
   keywords:
-    - post-quantum cryptography
-    - reinforcement learning
-    - reasoning models
+    - machine learning
+    - LLM architecture
+    - language models
+    - embeddings quantization
+    - vector search
+    - retrieval
     - combinatorial game theory
     - applied mathematics
-    - machine learning
-    - AI research
-    - embeddings quantization
+    - interactive explainers
   images:
-    - "/images/og-V121.png"
+    - "/images/og/site.png"
   schema:
     publisherType: "Person"
   defaultTheme: light

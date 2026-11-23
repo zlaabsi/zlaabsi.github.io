@@ -268,9 +268,15 @@ body:has(.ol-atlas) {
   object-fit: contain;
 }
 
+/* Dark mode: the thumbnails are light drawings, so they are inverted and their
+   hues turned back. White lands on #141414, next to the page background.
+   scripts/generate_og_cards.py applies the same filter to the link-preview cards. */
 :root[data-theme="dark"] .entry-thumb {
-  background: #f5f4ed;
-  border-color: transparent;
+  background: #141414;
+}
+
+:root[data-theme="dark"] .entry-thumb img {
+  filter: invert(0.92) hue-rotate(180deg);
 }
 
 .post-entry .entry-header h2 {

@@ -2,6 +2,7 @@
 // time it approaches the viewport. One module per figure, loaded on demand.
 
 const FIGURES = {
+  arch: () => import("./fig-arch.js"),
   stack: () => import("./fig-stack.js"),
   placement: () => import("./fig-placement.js"),
   memory: () => import("./fig-memory.js"),

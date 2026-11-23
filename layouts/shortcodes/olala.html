@@ -3,7 +3,7 @@
        The stylesheet and loader tags are repeated with every figure on purpose:
        the browser fetches each URL once and evaluates the module once, and this
        avoids per-page state that Hugo's dev server keeps between rebuilds. */ -}}
-{{- $v := "20261122b" -}}
+{{- $v := "20261123a" -}}
 <link rel="stylesheet" href="{{ "olala/olala.css" | relURL }}?v={{ $v }}">
 <script type="module" src="{{ "olala/js/index.js" | relURL }}?v={{ $v }}"></script>
 <figure class="ol-fig" data-olala="{{ .Get "fig" }}"{{ with .Get "id" }} id="{{ . }}"{{ end }}>

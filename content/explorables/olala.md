@@ -2,12 +2,20 @@
 title: "Olala, taken apart"
 date: 2026-11-22
 draft: false
-description: "Eleven interactive figures on the architecture of Olala-v1.0-mini-7A1B, a hybrid Mamba-3 and attention mixture-of-experts language model. Each concept is drawn in the dimension that suits it: flat where the idea is a curve or a wiring diagram, layered where it is a stack, solid where it is a sphere."
+description: "Twelve interactive figures on the architecture of Olala-v1.0-mini-7A1B, a hybrid Mamba-3 and attention mixture-of-experts language model. Each concept is drawn in the dimension that suits it: flat where the idea is a curve or a wiring diagram, layered where it is a stack, solid where it is a sphere."
 math: true
 companion:
   title: "Inside Olala: a hybrid Mamba-3 and attention model, taken apart"
   url: "/posts/olala-architecture/"
 ---
+
+## The whole model
+
+The report's overview figure, redrawn so that it can be opened. The network runs bottom to top on the left; the frame on the right shows the inside of whichever block is selected. A wiring diagram, so it is flat.
+
+{{< olala fig="arch" caption="Olala as a block diagram, redrawn from Figure 1 of the technical report." >}}
+
+[Derivation in the article](/posts/olala-architecture/#fig-arch)
 
 ## The backbone
 

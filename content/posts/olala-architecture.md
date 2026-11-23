@@ -9,6 +9,7 @@ categories: ["machine-learning"]
 keywords: ["Olala", "Mamba-3", "differential attention", "Tensor Product Attention", "Scalable Softmax", "Latent-MoE", "GeoNorm", "hybrid language model", "KV cache", "massive activations"]
 description: "A component-by-component walkthrough of Olala-v1.0-mini-7A1B, with interactive figures: hybrid backbone, differential tensor-product attention, Mamba-3 MIMO, Latent-MoE, geodesic normalisation, and the mechanism behind three silently degenerate layers."
 summary: "Olala-v1.0-mini-7A1B interleaves 29 Mamba-3 layers with 7 attention layers, routes every token through 6 of 256 latent experts, and keeps its residual stream on a hypersphere. This post rebuilds each component from its equations, with figures you can manipulate."
+thumbnail: "/images/olala/architecture.svg"
 ShowToc: true
 TocOpen: false
 math: true
@@ -21,6 +22,10 @@ ShowCodeCopyButtons: true
 The figures are also collected, without the derivations, in the companion explorable: [Olala, taken apart](/explorables/olala/).
 
 Several framings below, in particular the reading of attention and linear mixers as two kinds of associative memory, come from a talk by Alexandre TL,[^talk] who works on LLM pre-training at OVHai LLM and is part of the team that built the model.
+
+{{< olala fig="arch" id="fig-arch" caption="The whole model, redrawn from Figure 1 of the technical report. The network runs from input to output, with the block that repeats 36 times and the residual stream in gold; the frame shows the inside of the selected block." >}}
+
+The rest of this post takes that diagram apart, one block at a time.
 
 ## 1. The backbone
 
@@ -185,7 +190,7 @@ The change that matters is where the experts read from. In Latent-MoE, a project
 
 The reason is an aspect ratio. Dense MLPs work best when the hidden layer is two to four times wider than the input. A routed expert of hidden size 768 reading a 1,536-wide stream has a ratio of one half; reading a 384-wide latent it has a ratio of two. To keep the active budget constant, the number of active experts, and with it the total, is multiplied by four.
 
-The report says the arithmetic of the final block is exact, and it is. Counting weights: the two projections are $2 \cdot 1536 \cdot 384$; six routed experts are $6 \cdot 2 \cdot 384 \cdot 768$; and if the shared expert, of hidden size 1,536, reads the full stream, it is $2 \cdot 1536 \cdot 1536$. The total is 9,437,184, which is $2 \cdot 1536 \cdot 3072$: precisely a dense two-matrix feed-forward block of hidden size 3,072. The report gives the equality and the shared expert's hidden size; that it reads the full-width stream is what makes the sum come out, and is my inference. One block holds about 157M feed-forward weights and reads about 6% of them per token.
+The report says the arithmetic of the final block is exact, and it is. Counting weights: the two projections are $2 \cdot 1536 \cdot 384$; six routed experts are $6 \cdot 2 \cdot 384 \cdot 768$; and if the shared expert, of hidden size 1,536, reads the full stream, it is $2 \cdot 1536 \cdot 1536$. The total is 9,437,184, which is $2 \cdot 1536 \cdot 3072$: precisely a dense two-matrix feed-forward block of hidden size 3,072. The report gives the equality and the shared expert's hidden size; that it reads the full-width stream is what makes the sum come out, and is my inference; the report's own block diagram draws the shared expert among the latent experts. One block holds about 157M feed-forward weights and reads about 6% of them per token.
 
 In the ablations, the latent formulation is worth about 0.04 nats over a standard MoE at every granularity, more than ten times the noise floor. Finer experts keep helping, so the final choice of granularity four is an inference-efficiency compromise. So is the sparse routing: in the sweep, halving the number of active experts costs 0.006, and going down to an eighth costs 0.030.
 

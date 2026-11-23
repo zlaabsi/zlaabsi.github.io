@@ -526,6 +526,32 @@
   cursor: pointer;
 }
 
+/* Clickable blocks in wiring diagrams. */
+.ol-fig .ol-hint-line {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ol-ink2);
+}
+
+.ol-fig svg .ol-node.is-pick {
+  cursor: pointer;
+  outline: none;
+}
+
+.ol-fig svg .ol-node.is-pick:hover rect,
+.ol-fig svg .ol-node.is-pick:hover circle {
+  stroke: var(--ol-ink);
+  stroke-width: 2;
+}
+
+.ol-fig svg .ol-node.is-pick:focus-visible rect,
+.ol-fig svg .ol-node.is-pick:focus-visible circle {
+  /* !important: the selected block sets its stroke inline, and focus must still show. */
+  stroke: var(--ol-mamba) !important;
+  stroke-width: 3 !important;
+}
+
 /* ---------- 3D stage ---------- */
 
 .ol-three {
@@ -669,9 +695,7 @@
 }
 
 .ol-explorable-list {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 0 var(--gap, 24px) 4rem;
+  padding-bottom: 4rem;
 }
 
 .ol-explorable-list article {

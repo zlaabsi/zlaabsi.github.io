@@ -17,13 +17,13 @@ ShowReadingTime: true
 ShowCodeCopyButtons: true
 ---
 
-> Olala-v1.0-mini-7A1B is an open hybrid language model from the OVHai LLM research team: 7B parameters in total, about 1B read per token, trained on 12.8T tokens of public data.[^report] Its technical report is unusually explicit about why each component is there, what was measured, and what went wrong. This post follows the architecture sections of that report and rebuilds each component from its equations. Every figure is interactive, and every number is either quoted from the report or computed live in your browser from the formula next to it. Where I infer something the report does not state, I say so.
+> [Olala-v1.0-mini-7A1B](https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B) is an open hybrid language model from the OVHai LLM research team: 7B parameters in total, about 1B read per token, trained on 12.8T tokens of public data.[^report] Its [technical report](https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B/blob/main/Olala-v1.0-mini.pdf) is unusually explicit about why each component is there, what was measured, and what went wrong. This post follows the architecture sections of that report and rebuilds each component from its equations. Every figure is interactive, and every number is either quoted from the report or computed live in your browser from the formula next to it. Where I infer something the report does not state, I say so.
 
 The figures are also collected, without the derivations, in the companion explorable: [Olala, taken apart](/explorables/olala/).
 
 Several framings below, in particular the reading of attention and linear mixers as two kinds of associative memory, come from a talk by Alexandre TL,[^talk] who works on LLM pre-training at OVHai LLM and is part of the team that built the model.
 
-{{< olala fig="arch" id="fig-arch" caption="The whole model, redrawn from Figure 1 of the technical report. The network runs from input to output, with the block that repeats 36 times and the residual stream in gold; the frame shows the inside of the selected block." >}}
+{{< olala fig="arch" id="fig-arch" caption="The whole model, redrawn from [Figure 1 of the technical report](https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B/blob/main/assets/olala-architecture.png). The network runs from input to output, with the block that repeats 36 times and the residual stream in gold; the frame shows the inside of the selected block." >}}
 
 The rest of this post takes that diagram apart, one block at a time.
 
@@ -288,7 +288,7 @@ That is the part of the report I find most useful. The architecture is a combina
 
 All measurements, tables and equations are from the Olala technical report. The interactive figures recompute the formulas; where a figure uses toy or random values it says so in its own notes.
 
-[^report]: OVHai LLM Research Team, *Olala v1.0 mini Technical Report*. Models at [huggingface.co/OVHaiLLM](https://huggingface.co/OVHaiLLM), code at [github.com/OVHai-LLM](https://github.com/orgs/OVHai-LLM). Section, table and appendix numbers in this post refer to that report.
+[^report]: OVHai LLM Research Team, [*Olala v1.0 mini Technical Report*](https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B/blob/main/Olala-v1.0-mini.pdf). Model card and weights at [huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B](https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B), code at [github.com/OVHai-LLM](https://github.com/orgs/OVHai-LLM). Section, table and appendix numbers in this post refer to that report.
 [^talk]: Alexandre TL, *Le Transformer en passe d'être dépassé ?*, talk published 27 June 2026, [youtube.com/watch?v=SqyHPlEM40Q](https://www.youtube.com/watch?v=SqyHPlEM40Q). The associative-memory reading of attention and Mamba, and the noise-cancelling analogy for differential attention, are from this talk.
 [^ssmax]: Nakanishi, Scalable-Softmax, 2025, as cited in the report.
 [^skyladder]: Zhu et al., *SkyLadder: Better and faster pretraining via context window scheduling*, 2025.

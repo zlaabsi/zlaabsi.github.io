@@ -7,6 +7,9 @@
     {{ with .Params.companion }}
     <p class="ol-view-tag">Companion article: <a href="{{ .url | relURL }}">{{ .title }}</a></p>
     {{ end }}
+    {{ with .Params.links }}
+    <p class="ol-view-tag">{{ range $i, $l := . }}{{ if $i }} · {{ end }}<a href="{{ $l.url }}">{{ $l.title }}</a>{{ end }}</p>
+    {{ end }}
   </header>
   <div class="ol-atlas-layout">
     <nav class="ol-atlas-nav" aria-label="Sections">

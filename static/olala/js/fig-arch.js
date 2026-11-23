@@ -136,7 +136,7 @@ export default function mount(root) {
 
   /* ---------- left column: the model ---------- */
   const CX = 150;
-  const Y = { text: 598, embed: 530, l2: 482, mixer: 400, geo1: 338, moe: 262, geo2: 200, head: 104 };
+  const Y = { text: 598, embed: 530, l2: 482, mixer: 386, geo1: 324, moe: 248, geo2: 186, head: 104 };
   const anchors = { mixer: [230, Y.mixer], moe: [230, Y.moe], geo: [230, Y.geo1], embed: [235, Y.embed], l2: [205, Y.l2], head: [235, Y.head] };
 
   function pickMain(key, viaKeyboard) {
@@ -151,9 +151,10 @@ export default function mount(root) {
     gMain.selectAll("*").remove();
     const attn = isAttn(layer);
     gMain.append("rect").attr("x", 30).attr("y", 72).attr("width", 240).attr("height", 486).attr("rx", 18).attr("fill", "var(--ol-panel)").attr("stroke", "var(--ol-rule)");
-    gMain.append("rect").attr("x", 46).attr("y", 164).attr("width", 208).attr("height", 272).attr("rx", 14).attr("fill", "var(--ol-surface)").attr("stroke", "var(--ol-ink2)").attr("stroke-width", 1.2);
+    gMain.append("rect").attr("x", 46).attr("y", 150).attr("width", 208).attr("height", 286).attr("rx", 14).attr("fill", "var(--ol-surface)").attr("stroke", "var(--ol-ink2)").attr("stroke-width", 1.2);
     small(gMain, 56, 452, "36 ×").attr("font-weight", 600);
-    small(gMain, 92, 452, `showing layer ${layer}`);
+    // Right of the trunk, so that the stream does not run through the words.
+    small(gMain, 254, 452, `showing layer ${layer}`, "end");
 
     // The residual stream, bottom to top.
     wire(gMain, [[CX, Y.text - 12], [CX, Y.embed + 15]]);
@@ -164,9 +165,10 @@ export default function mount(root) {
     wire(gMain, [[CX, Y.moe - 17], [CX, Y.geo2 + 15]]);
     wire(gMain, [[CX, Y.geo2 - 14], [CX, Y.head + 15]], { cls: "c-geo" });
     wire(gMain, [[CX, Y.head - 14], [CX, 44]]);
-    // The residual also enters each geodesic write from the side.
-    wire(gMain, [[CX, 440], [244, 440], [244, Y.geo1], [231, Y.geo1]], { cls: "c-geo" });
-    wire(gMain, [[CX, 300], [244, 300], [244, Y.geo2], [231, Y.geo2]], { cls: "c-geo" });
+    // The residual also enters each geodesic write from the side. Both branches
+    // leave the trunk inside the repeated block, as in the report's figure.
+    wire(gMain, [[CX, Y.mixer + 38], [244, Y.mixer + 38], [244, Y.geo1], [231, Y.geo1]], { cls: "c-geo" });
+    wire(gMain, [[CX, Y.moe + 38], [244, Y.moe + 38], [244, Y.geo2], [231, Y.geo2]], { cls: "c-geo" });
 
     small(gMain, CX, Y.text + 4, "input text, as tokens", "middle");
     box(gMain, "embed", CX, Y.embed, 170, "token embedding", { onPick: pickMain, active: sel === "embed" });

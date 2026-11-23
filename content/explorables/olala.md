@@ -7,15 +7,18 @@ math: true
 companion:
   title: "Inside Olala: a hybrid Mamba-3 and attention model, taken apart"
   url: "/posts/olala-architecture/"
+links:
+  - title: "Model on Hugging Face"
+    url: "https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B"
+  - title: "Technical report (PDF)"
+    url: "https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B/blob/main/Olala-v1.0-mini.pdf"
 ---
 
 ## The whole model
 
 The report's overview figure, redrawn so that it can be opened. The network runs bottom to top on the left; the frame on the right shows the inside of whichever block is selected. A wiring diagram, so it is flat.
 
-{{< olala fig="arch" caption="Olala as a block diagram, redrawn from Figure 1 of the technical report." >}}
-
-[Derivation in the article](/posts/olala-architecture/#fig-arch)
+{{< olala fig="arch" caption="Olala as a block diagram, redrawn from [Figure 1 of the technical report](https://huggingface.co/OVHaiLLM/Olala-v1.0-mini-7A1B/blob/main/assets/olala-architecture.png)." >}}
 
 ## The backbone
 
@@ -27,15 +30,11 @@ Where should the attention layers sit? At benchmark scale the report tries nine 
 
 {{< olala fig="placement" caption="Nine placements of four attention layers among twenty linear-mixer layers, with validation loss or recall. From the report's Table 4." >}}
 
-[Derivation in the article](/posts/olala-architecture/#fig-stack)
-
 ## Two kinds of memory
 
 Attention keeps every key and value it has seen. A linear mixer folds them all into one matrix of fixed size. Write the same pairs to both and read them back: the difference between the two curves is the reason the model is a hybrid.
 
 {{< olala fig="memory" caption="A growing table and a fixed matrix receiving the same pairs, and how faithfully each returns a stored value." >}}
-
-[Derivation in the article](/posts/olala-architecture/#fig-memory)
 
 ## The attention layer
 
@@ -57,15 +56,11 @@ Four fixes are stacked inside each of the seven attention layers. Each one answe
 
 {{< olala fig="tpa" caption="Cached factors, the rank-one sheets they generate, and the dense tensor those sheets average to." >}}
 
-[Derivation in the article](/posts/olala-architecture/#fig-ssmax)
-
 ## The feed-forward block
 
 Each token is routed to 6 of 256 small experts that work in a 384-dimensional copy of the stream, plus one shared expert. Drawn as a floor plan with the selected experts rising out of it, so that sparsity is seen and not counted.
 
 {{< olala fig="moe" caption="One Latent-MoE block. Route a few tokens, change the number of experts selected, and watch the weight count against a dense feed-forward block; the second view plots the ablations." >}}
-
-[Derivation in the article](/posts/olala-architecture/#fig-moe)
 
 ## Writing on a sphere
 
@@ -77,12 +72,8 @@ Then the geometry, which is not flat. A sphere, a tangent plane and a geodesic n
 
 {{< olala fig="geonorm" caption="One write onto the residual sphere, by hard projection and by geodesic update. Drag to rotate. The cross-section view is the exact planar picture; the third view chains several writes." >}}
 
-[Derivation in the article](/posts/olala-architecture/#fig-norms)
-
 ## A silent failure
 
 Three Mamba-3 layers degenerated during training without any sign in the loss. The report reconstructs the mechanism from four ingredients, each a function with a kink in it.
 
 {{< olala fig="ratchet" caption="The four ingredients of the runaway: a clamp that creates a corner, a sum that must grow, a saturated step that makes growth free, and the rounding that erases the other heads." >}}
-
-[Derivation in the article](/posts/olala-architecture/#fig-ratchet)

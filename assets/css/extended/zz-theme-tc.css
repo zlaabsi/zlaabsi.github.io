@@ -459,3 +459,61 @@ body:has(.ol-atlas) {
 .ol-three .ol-label3d {
   font-family: "Source Serif 4", Georgia, serif;
 }
+
+/* Theme toggle that follows the reader once the header one has scrolled away.
+   Sits opposite PaperMod's .top-link, on the same line. */
+.theme-toggle-float {
+  position: fixed;
+  bottom: 63px;
+  left: 30px;
+  z-index: 99;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--entry);
+  color: var(--primary);
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.3s, opacity 0.3s linear;
+}
+
+.theme-toggle-float.is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.theme-toggle-float:hover {
+  color: var(--tc-head);
+}
+
+.theme-toggle-float:focus-visible {
+  outline: 2px solid var(--tc-head);
+  outline-offset: 2px;
+}
+
+.theme-toggle-float svg {
+  width: 16px;
+  height: 16px;
+}
+
+[data-theme="dark"] .theme-toggle-float .is-moon,
+[data-theme="light"] .theme-toggle-float .is-sun {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .theme-toggle-float {
+    left: 16px;
+  }
+}
+
+@media print {
+  .theme-toggle-float {
+    display: none;
+  }
+}

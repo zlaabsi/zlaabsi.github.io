@@ -3,11 +3,33 @@
        The stylesheet and loader tags are repeated with every figure on purpose:
        the browser fetches each URL once and evaluates the module once, and this
        avoids per-page state that Hugo's dev server keeps between rebuilds. */ -}}
-{{- $v := "20261123b" -}}
+{{- $v := "20261123d" -}}
+{{- $fig := .Get "fig" -}}
+
+{{- /* On a page that names a companion article, each figure points at the section
+       of that article which holds the same figure. The section is read from the
+       article's source, so the label follows the article when it is reorganised. */ -}}
+{{- $moreHref := "" -}}
+{{- $moreText := "" -}}
+{{- with .Page.Params.companion -}}
+  {{- with site.GetPage (strings.TrimSuffix "/" .url) -}}
+    {{- $article := . -}}
+    {{- $marker := printf "id=\"fig-%s\"" $fig -}}
+    {{- if in .RawContent $marker -}}
+      {{- $moreHref = printf "%s#fig-%s" .RelPermalink $fig -}}
+      {{- $moreText = "this figure in context" -}}
+      {{- with findRE `(?m)^#{2,3} .+$` (index (split .RawContent $marker) 0) -}}
+        {{- $heading := index . (sub (len .) 1) | replaceRE `^#+\s+` "" -}}
+        {{- $moreHref = printf "%s#%s" $article.RelPermalink (anchorize $heading) -}}
+        {{- $moreText = $heading | replaceRE `^(\d+)\.\s` "$1 " | replaceRE `^(\d)` "§$1" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 <link rel="stylesheet" href="{{ "olala/olala.css" | relURL }}?v={{ $v }}">
 <script type="module" src="{{ "olala/js/index.js" | relURL }}?v={{ $v }}"></script>
-<figure class="ol-fig" data-olala="{{ .Get "fig" }}"{{ with .Get "id" }} id="{{ . }}"{{ end }}>
+<figure class="ol-fig" data-olala="{{ $fig }}"{{ with .Get "id" }} id="{{ . }}"{{ end }}>
   <div class="ol-stage is-loading"></div>
-  {{ with .Get "caption" }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+  {{ with .Get "caption" }}<figcaption>{{ . | markdownify }}{{ with $moreHref }} <span class="ol-more">In the article: <a href="{{ . }}">{{ $moreText }}</a></span>{{ end }}</figcaption>{{ end }}
   <noscript><p>This figure is interactive and needs JavaScript. The surrounding text describes what it shows.</p></noscript>
 </figure>

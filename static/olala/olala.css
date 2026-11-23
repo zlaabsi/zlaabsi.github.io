@@ -147,6 +147,37 @@
   margin: 0;
 }
 
+.ol-fig figcaption .ol-more {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ol-muted);
+}
+
+.ol-fig figcaption .ol-more a {
+  color: var(--ol-ink2);
+}
+
+/* Every link in a caption or on the atlas page is underlined: colour alone
+   does not say that a word can be clicked. */
+.ol-fig figcaption a,
+.ol-atlas-body a,
+.ol-view-tag a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: var(--tc-link-rule, currentColor);
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.ol-fig figcaption a:hover,
+.ol-atlas-body a:hover,
+.ol-view-tag a:hover {
+  color: var(--ol-ink, inherit);
+  text-decoration-color: var(--tc-link-rule-hover, currentColor);
+}
+
 /* ---------- controls ---------- */
 
 .ol-fig .ol-panel > * {
@@ -697,10 +728,6 @@
   max-width: 760px;
   font-size: 1.05rem;
   line-height: 1.7;
-}
-
-.ol-atlas-body a {
-  color: var(--theme-accent, #b8860b);
 }
 
 .ol-atlas-body .ol-fig {

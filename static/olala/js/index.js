@@ -1,20 +1,11 @@
 // Mounts every <figure data-olala="name"> on the page, lazily, the first
 // time it approaches the viewport. One module per figure, loaded on demand.
 
-const FIGURES = {
-  arch: () => import("./fig-arch.js"),
-  stack: () => import("./fig-stack.js"),
-  placement: () => import("./fig-placement.js"),
-  memory: () => import("./fig-memory.js"),
-  ssmax: () => import("./fig-ssmax.js"),
-  diff: () => import("./fig-diff.js"),
-  gate: () => import("./fig-gate.js"),
-  tpa: () => import("./fig-tpa.js"),
-  moe: () => import("./fig-moe.js"),
-  norms: () => import("./fig-norms.js"),
-  geonorm: () => import("./fig-geonorm.js"),
-  ratchet: () => import("./fig-ratchet.js"),
-};
+// This loader is requested as index.js?v=…. The same version is passed on to
+// each figure module, so that bumping it in the shortcode refreshes them too.
+const VERSION = new URL(import.meta.url).search;
+const NAMES = ["arch", "stack", "placement", "memory", "ssmax", "diff", "gate", "tpa", "moe", "norms", "geonorm", "ratchet"];
+const FIGURES = Object.fromEntries(NAMES.map((name) => [name, () => import(`./fig-${name}.js${VERSION}`)]));
 
 async function mount(fig) {
   const stage = fig.querySelector(".ol-stage");

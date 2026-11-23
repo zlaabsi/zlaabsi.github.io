@@ -161,7 +161,8 @@
    does not say that a word can be clicked. */
 .ol-fig figcaption a,
 .ol-atlas-body a,
-.ol-view-tag a {
+.ol-view-tag a,
+.ol-view-links a {
   color: inherit;
   text-decoration: underline;
   text-decoration-thickness: 1px;
@@ -173,7 +174,8 @@
 
 .ol-fig figcaption a:hover,
 .ol-atlas-body a:hover,
-.ol-view-tag a:hover {
+.ol-view-tag a:hover,
+.ol-view-links a:hover {
   color: var(--ol-ink, inherit);
   text-decoration-color: var(--tc-link-rule-hover, currentColor);
 }
@@ -734,9 +736,18 @@
   margin: 1.4rem 0 2rem;
 }
 
-.ol-view-tag {
+/* Three steps down from the description: companion line, then source links.
+   Doubled selectors: .ol-atlas-head p sets the size of the description and
+   would otherwise win over a single class. */
+.ol-atlas-head .ol-view-tag {
   color: var(--theme-text-secondary, #5c4f3d);
   font-size: 0.95rem;
+}
+
+.ol-atlas-head .ol-view-links {
+  color: var(--theme-text-secondary, #5c4f3d);
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
 .ol-explorable-list {

@@ -1,0 +1,24 @@
+{{- define "main" }}
+<article class="ol-atlas">
+  <header class="ol-atlas-head">
+    {{ partial "breadcrumbs.html" . }}
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p>{{ . }}</p>{{ end }}
+    {{ with .Params.companion }}
+    <p class="ol-view-tag">Companion article: <a href="{{ .url | relURL }}">{{ .title }}</a></p>
+    {{ end }}
+  </header>
+  <div class="ol-atlas-layout">
+    <nav class="ol-atlas-nav" aria-label="Sections">
+      {{ .TableOfContents }}
+    </nav>
+    <div class="ol-atlas-body">
+      {{ .Content }}
+    </div>
+  </div>
+</article>
+<style>
+  /* The atlas is wider than PaperMod's reading column. */
+  .ol-atlas { margin-inline: calc((100% - min(1240px, 100vw - 2 * var(--gap, 24px))) / 2); max-width: none; padding-inline: 0; }
+</style>
+{{- end }}

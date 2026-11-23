@@ -1,0 +1,13 @@
+{{- /* Interactive Olala architecture figure.
+       Usage: {{< olala fig="geonorm" id="fig-geonorm" caption="..." >}}
+       The stylesheet and loader tags are repeated with every figure on purpose:
+       the browser fetches each URL once and evaluates the module once, and this
+       avoids per-page state that Hugo's dev server keeps between rebuilds. */ -}}
+{{- $v := "20261123b" -}}
+<link rel="stylesheet" href="{{ "olala/olala.css" | relURL }}?v={{ $v }}">
+<script type="module" src="{{ "olala/js/index.js" | relURL }}?v={{ $v }}"></script>
+<figure class="ol-fig" data-olala="{{ .Get "fig" }}"{{ with .Get "id" }} id="{{ . }}"{{ end }}>
+  <div class="ol-stage is-loading"></div>
+  {{ with .Get "caption" }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+  <noscript><p>This figure is interactive and needs JavaScript. The surrounding text describes what it shows.</p></noscript>
+</figure>

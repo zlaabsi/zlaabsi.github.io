@@ -1,0 +1,461 @@
+/* Transformer Circuits look.
+   Values read from the Distill template shared by the 2026 pages on
+   transformer-circuits.pub: white page, text at 80% black, the system
+   sans-serif stack (no web font), uncoloured links with a grey rule.
+   The reference has no dark mode; the dark values below are our own,
+   built on the slate (#141413) and ivory (#faf9f5) of its figures.
+   Loaded after theme.css (file name sorts last). */
+
+:root {
+  --tc-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  --tc-mono: ui-monospace, "SF Mono", Menlo, Consolas, Monaco, monospace;
+  --tc-head: #000;
+  --tc-link-rule: rgba(0, 0, 0, 0.4);
+  --tc-link-rule-hover: rgba(0, 0, 0, 0.8);
+  --tc-quote-rule: rgba(0, 0, 0, 0.2);
+
+  --theme-bg: #fff;
+  --theme-bg-secondary: #fafafa;
+  --theme-text: rgba(0, 0, 0, 0.8);
+  --theme-text-secondary: rgba(0, 0, 0, 0.6);
+  --theme-accent: #141413;
+  --theme-accent-hover: #000;
+  --theme-accent-secondary: #73726c;
+  --theme-border: rgba(0, 0, 0, 0.1);
+  --theme-code-bg: #fafafa;
+  --theme-code-border: #eee;
+
+  --radius: 4px;
+  --theme: #fff;
+  --entry: #fafafa;
+  --primary: rgba(0, 0, 0, 0.8);
+  --secondary: rgba(0, 0, 0, 0.6);
+  --tertiary: #eee;
+  --content: rgba(0, 0, 0, 0.8);
+  --code-bg: #fafafa;
+  --border: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="dark"],
+.dark {
+  --tc-head: #faf9f5;
+  --tc-link-rule: rgba(255, 255, 255, 0.4);
+  --tc-link-rule-hover: rgba(255, 255, 255, 0.8);
+  --tc-quote-rule: rgba(255, 255, 255, 0.22);
+
+  --theme-bg: #141413;
+  --theme-bg-secondary: #1f1e1d;
+  --theme-text: rgba(255, 255, 255, 0.85);
+  --theme-text-secondary: rgba(255, 255, 255, 0.6);
+  --theme-accent: #faf9f5;
+  --theme-accent-hover: #fff;
+  --theme-accent-secondary: #9c9a92;
+  --theme-border: rgba(255, 255, 255, 0.12);
+  --theme-code-bg: #1f1e1d;
+  --theme-code-border: rgba(255, 255, 255, 0.1);
+
+  --theme: #141413;
+  --entry: #1f1e1d;
+  --primary: rgba(255, 255, 255, 0.85);
+  --secondary: rgba(255, 255, 255, 0.6);
+  --tertiary: rgba(255, 255, 255, 0.12);
+  --content: rgba(255, 255, 255, 0.85);
+  --code-bg: #1f1e1d;
+  --code-block-bg: #1f1e1d;
+  --border: rgba(255, 255, 255, 0.12);
+}
+
+body,
+.nav,
+h1, h2, h3, h4, h5, h6,
+.post-title,
+.first-entry .entry-title {
+  font-family: var(--tc-sans);
+}
+
+body {
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4, h5, h6,
+.post-title,
+.entry-header h2,
+.first-entry .entry-title {
+  color: var(--tc-head);
+}
+
+.post-title {
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.post-content {
+  font-size: 1.06rem;
+  line-height: 1.7;
+}
+
+.post-content h2 {
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 2rem 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.post-content h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 2em 0 1em;
+}
+
+.post-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.post-content a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--tc-link-rule);
+  box-shadow: none;
+}
+
+.post-content a:hover {
+  color: inherit;
+  border-bottom-color: var(--tc-link-rule-hover);
+}
+
+.post-content a.anchor,
+.post-content .footnote-ref,
+.post-content .footnote-backref {
+  border-bottom: 0;
+}
+
+blockquote,
+.post-content blockquote {
+  border-left: 2px solid var(--tc-quote-rule);
+  padding-left: 2em;
+  color: var(--theme-text-secondary);
+}
+
+code,
+pre,
+.python-runner__editor,
+.python-runner__output {
+  font-family: var(--tc-mono);
+}
+
+.post-content code:not(pre code) {
+  border-radius: 2px;
+  padding: 2px 3px 1px;
+}
+
+.post-content figure > figcaption,
+.anim-svg figcaption,
+.post-video figcaption {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  font-style: normal;
+  color: var(--theme-text-secondary);
+}
+
+/* The animated ASCII background stays on the home page and list pages only.
+   PaperMod puts class "list" on the body of every non-article page. */
+body:not(.list) .ascii-bg-video {
+  display: none;
+}
+
+#menu .active {
+  color: var(--tc-head);
+}
+
+@media (max-width: 768px) {
+  .post-title { font-size: 40px; }
+  .post-content h2 { font-size: 24px; }
+  .post-content h3 { font-size: 18px; }
+}
+
+/* ---------- navigation ----------
+   The bar is as wide as the content column, so the site name starts where
+   the text starts. The Olala atlas is wider and takes the bar with it. */
+:root {
+  --nav-width: var(--main-width);
+}
+
+body:has(.ol-atlas) {
+  --nav-width: 1240px;
+}
+
+.logo a {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+#menu a {
+  font-size: 14px;
+}
+
+#menu li + li {
+  margin-inline-start: 16px;
+}
+
+#menu .active {
+  font-weight: 500;
+  border-bottom: 1px solid currentColor;
+}
+
+/* ---------- home header ---------- */
+.first-entry.home-info {
+  min-height: 0;
+  margin: 28px 0 40px;
+}
+
+.first-entry.home-info .entry-header h1 {
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.first-entry.home-info .entry-content {
+  max-width: 60ch;
+  margin: 10px 0 14px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--theme-text-secondary);
+}
+
+/* ---------- list entries: a thumbnail, then title, summary, date ---------- */
+.post-entry {
+  margin-bottom: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  transition: none;
+}
+
+.post-entry:active {
+  transform: none;
+}
+
+.post-entry.has-thumb {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.entry-thumb {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border: 1px solid var(--theme-border);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.entry-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  object-fit: contain;
+}
+
+:root[data-theme="dark"] .entry-thumb {
+  background: #f5f4ed;
+  border-color: transparent;
+}
+
+.post-entry .entry-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.post-entry:hover .entry-header h2 {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.post-entry .entry-content {
+  margin: 6px 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--theme-text-secondary);
+  -webkit-line-clamp: 3;
+}
+
+.post-entry .entry-footer {
+  font-size: 13px;
+  color: var(--theme-text-secondary);
+}
+
+/* ---------- newsletter: one line, one field, one note ---------- */
+.newsletter-cta {
+  margin: 3rem 0 0;
+  padding: 1.5rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--theme-border);
+  border-radius: 0;
+  background: none;
+}
+
+.newsletter-cta--subscribe-page {
+  margin-top: 0.5rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.newsletter-cta__label {
+  display: block;
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--tc-head);
+}
+
+.newsletter-cta__controls {
+  max-width: 460px;
+  gap: 0.5rem;
+}
+
+.newsletter-cta__input {
+  padding: 0.55rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.newsletter-cta__button {
+  padding: 0.55rem 1rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--theme-bg);
+}
+
+.newsletter-cta__meta,
+.newsletter-cta__fallback,
+.newsletter-cta__status {
+  margin: 0.6rem 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--theme-text-secondary);
+}
+
+.newsletter-cta__status:empty {
+  display: none;
+}
+
+.newsletter-cta__meta a,
+.newsletter-cta__fallback a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--tc-link-rule);
+}
+
+/* ---------- search: a field, one line of help, the results ---------- */
+.semantic-search-shell {
+  margin-top: 1rem;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.semantic-search-field__label {
+  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.semantic-search-field input {
+  padding: 0.7rem 0.85rem;
+  border-radius: 4px;
+  background: var(--theme-bg);
+  font-size: 1rem;
+}
+
+.semantic-search-note {
+  margin: 0.6rem 0 0;
+  font-size: 13px;
+  color: var(--theme-text-secondary);
+}
+
+.semantic-search-toolbar {
+  margin-top: 1.2rem;
+  font-size: 13px;
+}
+
+/* Only loading and error states are shown; index statistics stay out of the page. */
+.semantic-search-status[data-tone="loading"] {
+  color: var(--theme-text-secondary);
+}
+
+.semantic-search-status[data-tone="ready"],
+.semantic-search-stats {
+  display: none;
+}
+
+.semantic-search-empty {
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  color: var(--theme-text-secondary);
+}
+
+@media (max-width: 600px) {
+  .post-entry.has-thumb {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+
+/* Olala figures: neutral surfaces and the warm greys of the reference figures. */
+/* Doubled class: olala.css is linked later in the page and would win at equal specificity. */
+.ol-fig.ol-fig {
+  --ol-surface: #fff;
+  --ol-panel: #fafafa;
+  --ol-ink: #141413;
+  --ol-ink2: #3d3c39;
+  --ol-muted: #87867f;
+  --ol-rule: #e8e6dc;
+  --ol-grid: #f0eee6;
+  --ol-accent: #141413;
+  --ol-serif: var(--tc-sans);
+}
+
+:root[data-theme="dark"] .ol-fig.ol-fig {
+  --ol-surface: #1a1918;
+  --ol-panel: #1f1e1d;
+  --ol-ink: #faf9f5;
+  --ol-ink2: #c9c7bd;
+  --ol-muted: #87867f;
+  --ol-rule: #3a3936;
+  --ol-grid: #2a2927;
+  --ol-accent: #faf9f5;
+}
+
+.ol-fig.ol-fig > figcaption {
+  font-size: 13px;
+}
+
+.ol-fig.ol-fig .ol-note {
+  font-size: 14px;
+}
+
+.ol-fig svg .ol-mi,
+.ol-three .ol-label3d {
+  font-family: "Source Serif 4", Georgia, serif;
+}

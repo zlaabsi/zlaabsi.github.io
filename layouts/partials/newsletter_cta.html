@@ -19,10 +19,8 @@
 {{- $workerLive := and $siteEnabled (eq $provider "cloudflare-worker") $workerBase -}}
 {{- if or $buttondownLive $workerLive $siteEnabled $showFallback }}
 <section class="newsletter-cta newsletter-cta--{{ $placement }}">
-  <p class="newsletter-cta__eyebrow">Email updates</p>
-  <h2 class="newsletter-cta__title">{{ index $cfg "title" | default "Get notified when I publish or revise an essay" }}</h2>
-  <p class="newsletter-cta__description">{{ index $cfg "description" | default "New essays and meaningful revisions. Low frequency, no spam." }}</p>
-
+  {{- $feed := index $cfg "feedPath" | default "/updates.xml" }}
+  {{- $id := printf "newsletter-email-%s" $placement }}
   {{- if $buttondownLive }}
   <form
     class="newsletter-cta__form"
@@ -30,17 +28,9 @@
     data-provider="buttondown"
     action="https://buttondown.com/api/emails/embed-subscribe/{{ index $buttondown "username" }}"
     method="post">
-    <label class="newsletter-cta__label" for="newsletter-email-{{ $placement }}">Email address</label>
+    <label class="newsletter-cta__label" for="{{ $id }}">Get new essays by email</label>
     <div class="newsletter-cta__controls">
-      <input
-        id="newsletter-email-{{ $placement }}"
-        class="newsletter-cta__input"
-        type="email"
-        name="email"
-        placeholder="you@domain.com"
-        inputmode="email"
-        autocomplete="email"
-        required>
+      <input id="{{ $id }}" class="newsletter-cta__input" type="email" name="email" placeholder="you@domain.com" inputmode="email" autocomplete="email" required>
       <button class="newsletter-cta__button" type="submit">Subscribe</button>
     </div>
     <input type="hidden" name="embed" value="1">
@@ -54,11 +44,8 @@
     <input type="hidden" name="utm_source" value="zlaabsi.github.io">
     <input type="hidden" name="utm_medium" value="site">
     <input type="hidden" name="utm_campaign" value="{{ $placement }}">
-    <p class="newsletter-cta__meta">
-      New articles and substantial revisions only.
-      <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">Prefer RSS?</a>
-    </p>
   </form>
+  <p class="newsletter-cta__meta">Sent only when an essay is published or substantially revised. Also available as an <a href="{{ $feed }}">RSS feed</a>.</p>
   {{- else if $workerLive }}
   <form
     class="newsletter-cta__form"
@@ -69,34 +56,19 @@
     {{- with $page }} data-source-page="{{ .RelPermalink }}"{{- end }}
     method="post"
     novalidate>
-    <label class="newsletter-cta__label" for="newsletter-email-{{ $placement }}">Email address</label>
+    <label class="newsletter-cta__label" for="{{ $id }}">Get new essays by email</label>
     <div class="newsletter-cta__controls">
-      <input
-        id="newsletter-email-{{ $placement }}"
-        class="newsletter-cta__input"
-        type="email"
-        name="email"
-        placeholder="you@domain.com"
-        inputmode="email"
-        autocomplete="email"
-        required>
+      <input id="{{ $id }}" class="newsletter-cta__input" type="email" name="email" placeholder="you@domain.com" inputmode="email" autocomplete="email" required>
       <button class="newsletter-cta__button" type="submit">Subscribe</button>
     </div>
-    <p class="newsletter-cta__meta">
-      New articles and substantial revisions only.
-      <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">Prefer RSS?</a>
-    </p>
-    {{- if and (not $deliveryReady) $deliveryNote }}
-    <p class="newsletter-cta__fallback">{{ $deliveryNote }}</p>
-    {{- end }}
     <p class="newsletter-cta__status" aria-live="polite"></p>
   </form>
+  <p class="newsletter-cta__meta">Sent only when an essay is published or substantially revised. Also available as an <a href="{{ $feed }}">RSS feed</a>.</p>
+  {{- if and (not $deliveryReady) $deliveryNote }}
+  <p class="newsletter-cta__fallback">{{ $deliveryNote }}</p>
+  {{- end }}
   {{- else }}
-  <div class="newsletter-cta__fallback">
-    The updates feed is already live at
-    <a href="{{ index $cfg "feedPath" | default "/updates.xml" }}">/updates.xml</a>.
-    The email form will appear here as soon as the Cloudflare backend is deployed.
-  </div>
+  <p class="newsletter-cta__fallback">Email sign-up is not available yet. New essays are announced in the <a href="{{ $feed }}">RSS feed</a>.</p>
   {{- end }}
 </section>
 {{- end }}

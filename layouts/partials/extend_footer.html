@@ -279,6 +279,7 @@
   var video = document.querySelector('.ascii-bg-video');
   if (!video) return;
   if (window.matchMedia('(max-width: 768px)').matches) return;
+  if (getComputedStyle(video).display === 'none') return;
 
   var sources = ['/videos/ascii-bg.mp4', '/videos/ascii-bg-2.mp4'{{ if ne .Kind "page" }}, '/videos/ascii-bg-3.mp4'{{ end }}];
   var KEY = 'ascii-bg';

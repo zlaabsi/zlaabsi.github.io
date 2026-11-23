@@ -526,6 +526,24 @@
   cursor: pointer;
 }
 
+/* A diagram redrawn for a narrow screen: less padding around it and larger
+   type, since the drawing is scaled down to the width of the screen. */
+.ol-fig .ol-canvas.is-tight {
+  padding: 10px 6px 6px;
+}
+
+.ol-fig svg.is-tight text {
+  font-size: 14.5px;
+}
+
+.ol-fig svg.is-tight .ol-t2 {
+  font-size: 13.5px;
+}
+
+.ol-fig svg.is-tight .ol-th {
+  font-size: 15px;
+}
+
 /* Clickable blocks in wiring diagrams. */
 .ol-fig .ol-hint-line {
   margin: 0 0 10px;

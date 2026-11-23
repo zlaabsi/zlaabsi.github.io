@@ -185,6 +185,9 @@ export default function mount(root) {
   const FY = 36;
   const FW = 462;
   const FH = 576;
+  // On a narrow screen the frame is redrawn 376 wide, with its columns closer together.
+  const fw = () => (narrow ? 376 : FW);
+  const nx = (wide, tight) => (narrow ? FX + tight : wide);
   const pickSub = (key, viaKeyboard) => {
     sub = sub === key ? null : key;
     if (viaKeyboard) refocus = key;
@@ -192,7 +195,7 @@ export default function mount(root) {
   };
 
   function frame(title, subtitle) {
-    frameNode = gDetail.append("rect").attr("x", FX).attr("y", FY).attr("width", FW).attr("height", FH).attr("rx", 14).attr("fill", "none").attr("stroke", "var(--ol-ink2)").attr("stroke-width", 1.4).attr("stroke-dasharray", "2 5").attr("stroke-linecap", "round").node();
+    frameNode = gDetail.append("rect").attr("x", FX).attr("y", FY).attr("width", fw()).attr("height", FH).attr("rx", 14).attr("fill", "none").attr("stroke", "var(--ol-ink2)").attr("stroke-width", 1.4).attr("stroke-dasharray", "2 5").attr("stroke-linecap", "round").node();
     gDetail.append("text").attr("class", "ol-th").attr("x", FX + 18).attr("y", FY + 28).text(title);
     if (subtitle) small(gDetail, FX + 18, FY + 46, subtitle);
   }
@@ -200,34 +203,37 @@ export default function mount(root) {
   function attention() {
     const g = gDetail;
     frame(`Layer ${layer}: differential attention`, "one of the 7 attention layers");
-    const xq = 372, xk = 486, xv = 612, xg = 722, xm = 518;
+    const xq = nx(372, 46), xk = nx(486, 140), xv = nx(612, 250), xg = nx(722, 344), xm = nx(518, 188);
+    const po = narrow ? 26 : 28; // half the distance between the two factor projections
+    const pw = narrow ? 48 : 52;
+    const nw = narrow ? 70 : 74;
     const y = { out: 112, mul: 156, diff: 204, sdpa: 262, ss: 326, rms: 378, shift: 430, kron: 484, lin: 540, bus: 584 };
     const on = (k) => sub === k;
     // input bus
     wire(g, [[xq, y.bus], [xg, y.bus]], { head: false });
     small(g, xq - 34, y.bus + 18, "layer input x");
-    for (const x of [xq, xk - 28, xk + 28, xv - 28, xv + 28, xg]) wire(g, [[x, y.bus], [x, y.lin + 15]]);
+    for (const x of [xq, xk - po, xk + po, xv - po, xv + po, xg]) wire(g, [[x, y.bus], [x, y.lin + 15]]);
     // Q
     box(g, "a-proj", xq, y.lin, 64, "Linear", { onPick: pickSub, active: on("a-proj") });
     wire(g, [[xq, y.lin - 14], [xq, y.rms + 15]]);
-    box(g, "a-rms", xq, y.rms, 74, "RMSNorm", { onPick: pickSub, active: on("a-rms") });
+    box(g, "a-rms", xq, y.rms, nw, "RMSNorm", { onPick: pickSub, active: on("a-rms") });
     wire(g, [[xq, y.rms - 14], [xq, y.ss + 15]]);
-    box(g, "a-ssmax", xq, y.ss, 74, "SSMax", { cls: "c-noise", onPick: pickSub, active: on("a-ssmax") });
+    box(g, "a-ssmax", xq, y.ss, nw, "SSMax", { cls: "c-noise", onPick: pickSub, active: on("a-ssmax") });
     wire(g, [[xq, y.ss - 14], [xq, y.sdpa + 16]]);
     small(g, xq + 8, y.sdpa + 34, "Q");
     // K and V: rank-4 factors, outer product, token shift
     for (const [x, name] of [[xk, "K"], [xv, "V"]]) {
-      for (const d of [6, 3]) g.append("rect").attr("class", "ol-box").attr("x", x - 28 - 26 + d).attr("y", y.lin - 14 - d).attr("width", 52).attr("height", 28).attr("rx", 5);
-      box(g, "a-tpa", x - 28, y.lin, 52, "Linear", { onPick: pickSub, active: on("a-tpa") });
-      box(g, "a-tpa", x + 28, y.lin, 52, "Linear", { onPick: pickSub, active: on("a-tpa") });
-      wire(g, [[x - 28, y.lin - 14], [x - 28, y.kron], [x - 12, y.kron]]);
-      wire(g, [[x + 28, y.lin - 14], [x + 28, y.kron], [x + 12, y.kron]]);
+      for (const d of [6, 3]) g.append("rect").attr("class", "ol-box").attr("x", x - po - pw / 2 + d).attr("y", y.lin - 14 - d).attr("width", pw).attr("height", 28).attr("rx", 5);
+      box(g, "a-tpa", x - po, y.lin, pw, "Linear", { onPick: pickSub, active: on("a-tpa") });
+      box(g, "a-tpa", x + po, y.lin, pw, "Linear", { onPick: pickSub, active: on("a-tpa") });
+      wire(g, [[x - po, y.lin - 14], [x - po, y.kron], [x - 12, y.kron]]);
+      wire(g, [[x + po, y.lin - 14], [x + po, y.kron], [x + 12, y.kron]]);
       circleNode(g, "a-tpa", x, y.kron, "⊗", pickSub, on("a-tpa"), "outer product");
       wire(g, [[x, y.kron - 11], [x, y.shift + 15]]);
       box(g, "a-shift", x, y.shift, 84, "token shift", { cls: "c-geo", onPick: pickSub, active: on("a-shift") });
       if (name === "K") {
         wire(g, [[x, y.shift - 14], [x, y.rms + 15]]);
-        box(g, "a-rms", x, y.rms, 74, "RMSNorm", { onPick: pickSub, active: on("a-rms") });
+        box(g, "a-rms", x, y.rms, nw, "RMSNorm", { onPick: pickSub, active: on("a-rms") });
         wire(g, [[x, y.rms - 14], [x, y.sdpa + 16]]);
       } else wire(g, [[x, y.shift - 14], [x, y.sdpa + 16]]);
       small(g, x + 8, y.sdpa + 34, name);
@@ -235,18 +241,24 @@ export default function mount(root) {
     small(g, (xk + xv) / 2, y.kron - 2, "rank 4,", "middle");
     small(g, (xk + xv) / 2, y.kron + 14, "cached", "middle");
     // attention, subtraction, gate
-    box(g, "a-sdpa", xm, y.sdpa, 340, "scaled dot-product attention", { hgt: 30, onPick: pickSub, active: on("a-sdpa") });
+    box(g, "a-sdpa", xm, y.sdpa, narrow ? 330 : 340, "scaled dot-product attention", { hgt: 30, onPick: pickSub, active: on("a-sdpa") });
     wire(g, [[xm, y.sdpa - 15], [xm, y.diff + 16]]);
-    box(g, "a-diff", xm, y.diff, 200, "differential subtraction", { cls: "c-attn", hgt: 30, onPick: pickSub, active: on("a-diff") });
-    small(g, xm + 110, y.diff - 2, "36 signal heads,");
-    small(g, xm + 110, y.diff + 14, "12 noise");
+    box(g, "a-diff", xm, y.diff, narrow ? 180 : 200, "differential subtraction", { cls: "c-attn", hgt: 30, onPick: pickSub, active: on("a-diff") });
+    if (narrow) small(g, xm - 18, y.mul + 4, "36 signal, 12 noise heads", "end");
+    else {
+      small(g, xm + 110, y.diff - 2, "36 signal and");
+      small(g, xm + 110, y.diff + 14, "12 noise heads");
+    }
     wire(g, [[xm, y.diff - 15], [xm, y.mul + 12]]);
     circleNode(g, "a-gate", xm, y.mul, "×", pickSub, on("a-gate"), "gate product");
-    box(g, "a-gate", xg, y.lin, 64, "Linear", { onPick: pickSub, active: on("a-gate") });
+    box(g, "a-gate", xg, y.lin, narrow ? 52 : 64, "Linear", { onPick: pickSub, active: on("a-gate") });
     wire(g, [[xg, y.lin - 14], [xg, y.ss + 12]]);
     circleNode(g, "a-gate", xg, y.ss, "σ", pickSub, on("a-gate"), "SiLU gate");
-    small(g, xg - 16, y.ss + 4, "SiLU gate,", "end");
-    small(g, xg - 16, y.ss + 20, "zero-centered", "end");
+    if (narrow) small(g, xg - 16, y.ss + 4, "SiLU gate", "end");
+    else {
+      small(g, xg - 16, y.ss + 4, "SiLU gate,", "end");
+      small(g, xg - 16, y.ss + 20, "zero-centered", "end");
+    }
     wire(g, [[xg, y.ss - 11], [xg, y.mul], [xm + 12, y.mul]]);
     wire(g, [[xm, y.mul - 11], [xm, y.out + 15]]);
     box(g, "a-out", xm, y.out, 64, "Linear", { onPick: pickSub, active: on("a-out") });
@@ -255,7 +267,7 @@ export default function mount(root) {
   function mamba() {
     const g = gDetail;
     frame(`Layer ${layer}: Mamba-3`, "one of the 29 linear-mixer layers");
-    const xm = 470, xg = 660;
+    const xm = nx(470, 124), xg = nx(660, 310);
     const y = { out: 120, mul: 172, ssm: 240, rope: 308, norm: 362, proj: 426, lin: 494, bus: 548 };
     const on = (k) => sub === k;
     wire(g, [[xm, y.bus], [xg, y.bus]], { head: false });
@@ -274,8 +286,11 @@ export default function mount(root) {
     wire(g, [[xm + 36, y.rope - 14], [xm + 36, y.ssm + 17]]);
     box(g, "m-ssm", xm, y.ssm, 204, "Mamba-3 state-space model", { cls: "c-mamba", hgt: 32, onPick: pickSub, active: on("m-ssm") });
     small(g, xm - 8, y.ssm - 24, "rank 4, state 128", "end");
-    small(g, FX + FW - 22, FY + 28, "state of one head", "end");
-    g.append("text").attr("x", FX + FW - 22).attr("y", FY + 48).attr("text-anchor", "end").text("Sₜ = αₜ Sₜ₋₁ + Δtₜ Σᵣ kᵣ ⊗ vᵣ");
+    // The recurrence sits in the top right corner; on a narrow frame that corner
+    // holds the subtitle, so it moves to the bottom.
+    const ey = narrow ? FY + 546 : FY + 28;
+    small(g, FX + fw() - 22, ey, "state of one head", "end");
+    g.append("text").attr("x", FX + fw() - 22).attr("y", ey + 20).attr("text-anchor", "end").text("Sₜ = αₜ Sₜ₋₁ + Δtₜ Σᵣ kᵣ ⊗ vᵣ");
     wire(g, [[xm, y.ssm - 16], [xm, y.mul + 12]]);
     circleNode(g, "m-gate", xm, y.mul, "×", pickSub, on("m-gate"), "gate product");
     box(g, "m-gate", xg, y.lin, 90, "Linear", { onPick: pickSub, active: on("m-gate") });
@@ -283,7 +298,7 @@ export default function mount(root) {
     box(g, "m-gate", xg, y.proj, 90, "Linear", { cls: "c-mamba", onPick: pickSub, active: on("m-gate") });
     wire(g, [[xg, y.proj - 14], [xg, y.rope + 12]]);
     circleNode(g, "m-gate", xg, y.rope, "σ", pickSub, on("m-gate"), "SiLU gate");
-    small(g, xg + 18, y.rope + 4, "SiLU gate");
+    small(g, narrow ? xg - 18 : xg + 18, y.rope + 4, "SiLU gate", narrow ? "end" : "start");
     wire(g, [[xg, y.rope - 11], [xg, y.mul], [xm + 12, y.mul]]);
     wire(g, [[xm, y.mul - 11], [xm, y.out + 15]]);
     box(g, "m-out", xm, y.out, 90, "Linear", { onPick: pickSub, active: on("m-out") });
@@ -292,7 +307,7 @@ export default function mount(root) {
   function moe() {
     const g = gDetail;
     frame("Latent-MoE", "the feed-forward block after every mixer");
-    const xm = 470, xr = 690;
+    const xm = nx(470, 136), xr = nx(690, 326);
     const y = { up: 124, sum: 196, e1: 290, e2: 330, proj: 470, bus: 540 };
     const on = (k) => sub === k;
     wire(g, [[xm, y.bus], [xr, y.bus]], { head: false });
@@ -300,10 +315,10 @@ export default function mount(root) {
     wire(g, [[xm, y.bus], [xm, y.proj + 15]]);
     wire(g, [[xr, y.bus], [xr, y.proj + 15]]);
     box(g, "e-proj", xm, y.proj, 90, "Linear", { onPick: pickSub, active: on("e-proj") });
-    small(g, xm + 54, y.proj - 2, "latent projection");
-    small(g, xm + 54, y.proj + 14, "1,536 → 384");
-    box(g, "e-router", xr, y.proj, 90, "Linear", { onPick: pickSub, active: on("e-router") });
-    small(g, xr, y.proj + 34, "router", "middle");
+    if (!narrow) small(g, xm + 54, y.proj - 2, "latent projection");
+    small(g, xm + 54, y.proj + (narrow ? 4 : 14), "1,536 → 384");
+    box(g, "e-router", xr, y.proj, narrow ? 80 : 90, "Linear", { onPick: pickSub, active: on("e-router") });
+    small(g, xr - 8, y.proj + 34, "router", "end");
     // into the experts
     wire(g, [[xm, y.proj - 14], [xm, y.e2 + 34], [xm - 62, y.e2 + 34], [xm - 62, y.e2 + 15]]);
     wire(g, [[xm, y.e2 + 34], [xm + 62, y.e2 + 34], [xm + 62, y.e2 + 15]]);
@@ -311,7 +326,8 @@ export default function mount(root) {
     box(g, "e-experts", xm + 62, y.e1, 116, "latent expert", { cls: "c-moe", onPick: pickSub, active: on("e-experts"), dim: true });
     box(g, "e-experts", xm - 62, y.e2, 116, "latent expert", { cls: "c-moe", onPick: pickSub, active: on("e-experts"), dim: true });
     box(g, "e-experts", xm + 62, y.e2, 116, "latent expert", { cls: "c-moe", onPick: pickSub, active: on("e-experts") });
-    small(g, xm + 128, y.e2 + 20, "granularity 4");
+    if (narrow) small(g, xm + 72, y.e2 + 52, "granularity 4");
+    else small(g, xm + 128, y.e2 + 20, "granularity 4");
     wire(g, [[xr, y.proj - 14], [xr, (y.e1 + y.e2) / 2], [xm + 124, (y.e1 + y.e2) / 2]]);
     small(g, xr + 4, (y.e1 + y.e2) / 2 - 26, "top 6", "end");
     small(g, xr + 4, (y.e1 + y.e2) / 2 - 10, "of 256", "end");
@@ -327,7 +343,7 @@ export default function mount(root) {
   function geodesic() {
     const g = gDetail;
     frame("Geodesic write", "how every block output joins the stream");
-    const cx = 500, cy = 330, R = 120;
+    const cx = nx(500, 170), cy = 330, R = narrow ? 110 : 120;
     g.append("circle").attr("cx", cx).attr("cy", cy).attr("r", R).attr("fill", "none").attr("stroke", "var(--ol-muted)").attr("stroke-width", 1.2);
     const at = (a) => [cx + R * Math.sin(a), cy - R * Math.cos(a)];
     const [x0, y0] = at(-0.5);
@@ -338,7 +354,7 @@ export default function mount(root) {
     arrow(g, x0, y0, x0 + 96, y0 - 52, "c-violet", { width: 2 });
     small(g, cx + 12, cy - 26, "residual x");
     small(g, x0 + 70, y0 - 58, "block output s");
-    small(g, x1 + 12, y1 + 4, "new x, still on the sphere");
+    small(g, x1 + 12, y1 + 4, narrow ? "new x, on the sphere" : "new x, still on the sphere");
     small(g, cx, cy + R + 34, "the stream moves along the arc, by an angle set", "middle");
     small(g, cx, cy + R + 50, "by the tangent part of s and a learned step size", "middle");
   }
@@ -352,22 +368,25 @@ export default function mount(root) {
     const g = gDetail;
     frame(title, subtitle);
     rows.forEach(([k, v], i) => {
-      small(g, FX + 40, FY + 110 + i * 34, k);
-      g.append("text").attr("x", FX + 250).attr("y", FY + 110 + i * 34).attr("font-weight", 600).text(v);
-      g.append("line").attr("stroke", "var(--ol-grid)").attr("x1", FX + 40).attr("x2", FX + FW - 40).attr("y1", FY + 122 + i * 34).attr("y2", FY + 122 + i * 34);
+      const pad = narrow ? 22 : 40;
+      small(g, FX + pad, FY + 110 + i * 34, k);
+      g.append("text").attr("x", FX + (narrow ? 190 : 250)).attr("y", FY + 110 + i * 34).attr("font-weight", 600).text(v);
+      g.append("line").attr("stroke", "var(--ol-grid)").attr("x1", FX + pad).attr("x2", FX + fw() - pad).attr("y1", FY + 122 + i * 34).attr("y2", FY + 122 + i * 34);
     });
   }
 
-  // Wide: the frame sits beside the model. Narrow: it goes under it, so that
-  // nothing has to be found by scrolling sideways.
+  // Wide: the frame sits beside the model. Narrow: it goes under it, drawn
+  // narrower and with larger type, so that the whole figure fits the screen
+  // and nothing has to be found by scrolling sideways.
   function layout() {
     const want = canvas.clientWidth > 0 && canvas.clientWidth < 620;
     if (want === narrow && s.attr("data-laid")) return false;
     narrow = want;
-    s.attr("data-laid", 1);
+    s.attr("data-laid", 1).classed("is-tight", narrow);
+    canvas.classList.toggle("is-tight", narrow);
     if (narrow) {
-      s.attr("viewBox", "0 0 482 1224").attr("width", 482).attr("height", 1224).style("min-width", "420px");
-      gMain.attr("transform", "translate(-20,0)");
+      s.attr("viewBox", "0 0 396 1224").attr("width", 396).attr("height", 1224).style("min-width", "0");
+      gMain.attr("transform", "translate(48,0)");
       gDetail.attr("transform", `translate(${10 - FX},${H + 14 - FY})`);
     } else {
       s.attr("viewBox", `0 0 ${W} ${H}`).attr("width", W).attr("height", H).style("min-width", null);

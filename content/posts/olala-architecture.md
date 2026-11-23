@@ -124,9 +124,11 @@ Differential attention softens the pressure to put mass somewhere but does not r
 The usual choice is a sigmoid. At initialisation, with zero-mean weights, a sigmoid gate sits at one half, so the layer starts by halving its own output, and reaching values near one requires large weights that weight decay keeps pulling back. The report's variant asks for a gate that is the identity when the weights are small, so that the weights encode only the deviation from identity, which is exactly what weight decay should shrink. It tries three forms:
 
 $$
-\text{ZCG-1: } y \odot \mathrm{SiLU}(W_g x) + 1, \qquad
-\text{ZCG-2: } y \odot \big(\mathrm{SiLU}(W_g x) + 1\big), \qquad
-\text{ZCG-3: } y \odot \mathrm{SiLU}(W_g x + c).
+\begin{aligned}
+\text{ZCG-1:}\quad & y \odot \mathrm{SiLU}(W_g x) + 1, \\
+\text{ZCG-2:}\quad & y \odot \big(\mathrm{SiLU}(W_g x) + 1\big), \\
+\text{ZCG-3:}\quad & y \odot \mathrm{SiLU}(W_g x + c).
+\end{aligned}
 $$
 
 {{< olala fig="gate" id="fig-gate" caption="The four gates as functions of the pre-activation, over the distribution that pre-activation has at initialisation. The marked point is the expected gate value, computed by numerical integration for the gate and offset selected." >}}

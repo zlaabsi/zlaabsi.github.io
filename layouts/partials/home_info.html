@@ -1,0 +1,15 @@
+{{- /* Home header. The site name already sits in the navigation bar, so the
+       heading here is the tagline and the line under it says what the site covers. */ -}}
+{{- with site.Params.homeInfoParams }}
+<article class="first-entry home-info">
+  <header class="entry-header">
+    <h1>{{ .Content | markdownify }}</h1>
+  </header>
+  <div class="entry-content">
+    {{ site.Params.description }}
+  </div>
+  <footer class="entry-footer">
+    {{ partial "social_icons.html" (dict "align" .AlignSocialIconsTo) }}
+  </footer>
+</article>
+{{- end -}}

@@ -1,0 +1,5 @@
+# Thumbnail shown beside each post on list pages, keyed by the post's file name.
+# A `thumbnail` in a post's own front matter takes precedence.
+combinatorial-game-theory: /images/cgt/grundy_values.svg
+kv-cache-quantization-theory: /images/kvquant/thumb_attention_cache.svg
+turboquant-embed: /images/turboquant/03_recall_vs_compression.svg

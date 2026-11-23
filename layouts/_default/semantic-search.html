@@ -19,22 +19,13 @@
 ) | resources.Minify | fingerprint }}
 
 <header class="page-header semantic-search-header">
-  <h1>{{- (printf "%s&nbsp;" .Title ) | htmlUnescape -}}
-    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
-  </h1>
-  <div class="post-description">
-    Semantic + exact-match search across the published site. The query is embedded in your browser, and the compressed index is searched locally with TurboQuant.
-  </div>
+  <h1>{{ .Title }}</h1>
 </header>
 
 <section class="semantic-search-shell" data-semantic-search>
   <form id="semanticSearchForm" class="semantic-search-form">
     <label class="semantic-search-field" for="semanticSearchInput">
-      <span class="semantic-search-field__label">Query</span>
+      <span class="semantic-search-field__label">Search the essays</span>
       <input
         id="semanticSearchInput"
         type="search"
@@ -42,26 +33,16 @@
         autocomplete="off"
         spellcheck="false"
         placeholder="{{ .Params.placeholder | default `Search concepts, methods, and posts...` }}"
-        aria-label="Semantic search"
       >
     </label>
   </form>
+
+  <p class="semantic-search-note">Finds passages by meaning as well as by exact words. Everything runs in your browser.</p>
 
   <div class="semantic-search-toolbar">
     <div id="semanticSearchStatus" class="semantic-search-status" data-tone="loading">Loading semantic index...</div>
     <div id="semanticSearchStats" class="semantic-search-stats"></div>
   </div>
-
-  <div class="semantic-search-chips" aria-label="Suggested searches">
-    <button type="button" data-semantic-query="quantization">quantization</button>
-    <button type="button" data-semantic-query="nim xor strategy">nim xor strategy</button>
-    <button type="button" data-semantic-query="browser vector search">browser vector search</button>
-    <button type="button" data-semantic-query="sprague grundy theorem">sprague grundy theorem</button>
-  </div>
-
-  <p class="semantic-search-note">
-    Published pages only. Results can jump to specific sections inside long articles.
-  </p>
 
   <p id="semanticSearchEmpty" class="semantic-search-empty" hidden></p>
   <ul id="semanticSearchResults" class="semantic-search-results" aria-live="polite"></ul>

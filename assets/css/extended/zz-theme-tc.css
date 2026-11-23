@@ -174,28 +174,250 @@ body:not(.list) .ascii-bg-video {
   color: var(--tc-head);
 }
 
-.newsletter-cta {
-  background: var(--theme-bg-secondary);
-}
-
-/* The card title is an h2 inside .post-content: keep it out of the section-heading style. */
-.post-content .newsletter-cta__title {
-  font-size: 1.55rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.newsletter-cta__button {
-  color: var(--theme-bg);
-}
-
 @media (max-width: 768px) {
   .post-title { font-size: 40px; }
   .post-content h2 { font-size: 24px; }
   .post-content h3 { font-size: 18px; }
+}
+
+/* ---------- navigation ----------
+   The bar is as wide as the content column, so the site name starts where
+   the text starts. The Olala atlas is wider and takes the bar with it. */
+:root {
+  --nav-width: var(--main-width);
+}
+
+body:has(.ol-atlas) {
+  --nav-width: 1240px;
+}
+
+.logo a {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+#menu a {
+  font-size: 14px;
+}
+
+#menu li + li {
+  margin-inline-start: 16px;
+}
+
+#menu .active {
+  font-weight: 500;
+  border-bottom: 1px solid currentColor;
+}
+
+/* ---------- home header ---------- */
+.first-entry.home-info {
+  min-height: 0;
+  margin: 28px 0 40px;
+}
+
+.first-entry.home-info .entry-header h1 {
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.first-entry.home-info .entry-content {
+  max-width: 60ch;
+  margin: 10px 0 14px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--theme-text-secondary);
+}
+
+/* ---------- list entries: a thumbnail, then title, summary, date ---------- */
+.post-entry {
+  margin-bottom: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  transition: none;
+}
+
+.post-entry:active {
+  transform: none;
+}
+
+.post-entry.has-thumb {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.entry-thumb {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border: 1px solid var(--theme-border);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.entry-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  object-fit: contain;
+}
+
+:root[data-theme="dark"] .entry-thumb {
+  background: #f5f4ed;
+  border-color: transparent;
+}
+
+.post-entry .entry-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.post-entry:hover .entry-header h2 {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.post-entry .entry-content {
+  margin: 6px 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--theme-text-secondary);
+  -webkit-line-clamp: 3;
+}
+
+.post-entry .entry-footer {
+  font-size: 13px;
+  color: var(--theme-text-secondary);
+}
+
+/* ---------- newsletter: one line, one field, one note ---------- */
+.newsletter-cta {
+  margin: 3rem 0 0;
+  padding: 1.5rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--theme-border);
+  border-radius: 0;
+  background: none;
+}
+
+.newsletter-cta--subscribe-page {
+  margin-top: 0.5rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.newsletter-cta__label {
+  display: block;
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--tc-head);
+}
+
+.newsletter-cta__controls {
+  max-width: 460px;
+  gap: 0.5rem;
+}
+
+.newsletter-cta__input {
+  padding: 0.55rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.newsletter-cta__button {
+  padding: 0.55rem 1rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--theme-bg);
+}
+
+.newsletter-cta__meta,
+.newsletter-cta__fallback,
+.newsletter-cta__status {
+  margin: 0.6rem 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--theme-text-secondary);
+}
+
+.newsletter-cta__status:empty {
+  display: none;
+}
+
+.newsletter-cta__meta a,
+.newsletter-cta__fallback a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--tc-link-rule);
+}
+
+/* ---------- search: a field, one line of help, the results ---------- */
+.semantic-search-shell {
+  margin-top: 1rem;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.semantic-search-field__label {
+  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.semantic-search-field input {
+  padding: 0.7rem 0.85rem;
+  border-radius: 4px;
+  background: var(--theme-bg);
+  font-size: 1rem;
+}
+
+.semantic-search-note {
+  margin: 0.6rem 0 0;
+  font-size: 13px;
+  color: var(--theme-text-secondary);
+}
+
+.semantic-search-toolbar {
+  margin-top: 1.2rem;
+  font-size: 13px;
+}
+
+/* Only loading and error states are shown; index statistics stay out of the page. */
+.semantic-search-status[data-tone="loading"] {
+  color: var(--theme-text-secondary);
+}
+
+.semantic-search-status[data-tone="ready"],
+.semantic-search-stats {
+  display: none;
+}
+
+.semantic-search-empty {
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  color: var(--theme-text-secondary);
+}
+
+@media (max-width: 600px) {
+  .post-entry.has-thumb {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 14px;
+  }
 }
 
 /* Olala figures: neutral surfaces and the warm greys of the reference figures. */

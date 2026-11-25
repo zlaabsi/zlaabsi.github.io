@@ -13,6 +13,8 @@
     "CORS_ORIGINS": "https://zlaabsi.github.io,http://localhost:1313,http://127.0.0.1:1313",
     "PUBLIC_API_BASE_URL": "https://zlaabsi-growth-api.zakaria-laa.workers.dev",
     "NEWSLETTER_ENABLED": "true",
+    "ACCESS_TEAM_DOMAIN": "zlaabsi-growth.cloudflareaccess.com",
+    "ADMIN_ACCESS_AUD": "3451333e50828bfa840828806c664e2647b05d283d7a39e7626264eaeedb4c7c",
     "RESEND_REPLY_TO": "zakaria.laabsi@gmail.com"
   },
   "triggers": {

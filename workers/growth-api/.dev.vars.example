@@ -1,3 +1,6 @@
 ADMIN_TOKEN=change-me
 RESEND_API_KEY=
 RESEND_FROM=Zakaria Laabsi <updates@example.com>
+# Comma-separated emails allowed to open /dashboard through Cloudflare Access.
+# Set it as a secret, not in wrangler.jsonc: wrangler secret put ADMIN_ACCESS_ALLOWED_EMAILS
+ADMIN_ACCESS_ALLOWED_EMAILS=you@example.com

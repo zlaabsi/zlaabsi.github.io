@@ -5,6 +5,9 @@ type DispatchStatus = "pending" | "sent" | "partial" | "failed";
 
 interface Env {
   GROWTH_DB: D1Database;
+  ACCESS_TEAM_DOMAIN?: string;
+  ADMIN_ACCESS_ALLOWED_EMAILS?: string;
+  ADMIN_ACCESS_AUD?: string;
   ADMIN_TOKEN?: string;
   CORS_ORIGINS?: string;
   NEWSLETTER_ENABLED?: string;
@@ -101,6 +104,33 @@ const ADMIN_PATHS = new Set([
   "/api/admin/dispatch-now",
 ]);
 
+interface AccessJwtHeader {
+  alg?: string;
+  kid?: string;
+  typ?: string;
+}
+
+interface AccessJwtPayload {
+  aud?: string | string[];
+  email?: string;
+  exp?: number;
+  iss?: string;
+  nbf?: number;
+}
+
+interface AccessJwk extends JsonWebKey {
+  kid?: string;
+  kty?: string;
+}
+
+let accessJwksCache:
+  | {
+      expiresAt: number;
+      keys: AccessJwk[];
+      teamDomain: string;
+    }
+  | null = null;
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (request.method === "OPTIONS") {
@@ -135,7 +165,7 @@ export default {
       }
 
       if (ADMIN_PATHS.has(url.pathname)) {
-        if (!isAuthorized(request, env)) {
+        if (!(await isAuthorized(request, env))) {
           return json({ ok: false, error: "Unauthorized" }, 401, request, env);
         }
 
@@ -864,24 +894,51 @@ async function sendDispatchEmail(
 ): Promise<{ status: DeliveryStatus; messageId: string | null; error: string | null }> {
   const siteBaseUrl = stripTrailingSlash(env.SITE_BASE_URL || "https://zlaabsi.github.io");
   const apiBaseUrl = stripTrailingSlash(env.PUBLIC_API_BASE_URL || siteBaseUrl);
+  const rssUrl = `${siteBaseUrl}/updates.xml`;
   const unsubscribeUrl = `${apiBaseUrl}/unsubscribe?token=${encodeURIComponent(subscriber.unsubscribe_token)}`;
-  const articleUrl = dispatch.feed_url;
-  const subjectPrefix = dispatch.feed_kind === "updated" ? "Updated article" : "New article";
+  const isUpdated = dispatch.feed_kind === "updated";
+  const subjectPrefix = isUpdated ? "Revised essay" : "New essay";
   const subject = `[Zakaria Laabsi] ${subjectPrefix}: ${dispatch.clean_title}`;
-  const summary = dispatch.summary || "A fresh update is available on the blog.";
-  const html = renderEmailHtml(dispatch, articleUrl, unsubscribeUrl, summary);
-  const text = renderEmailText(dispatch, articleUrl, unsubscribeUrl, summary);
+  const summary = dispatch.summary || (isUpdated
+    ? "A substantial revision has been made to this essay."
+    : "A fresh piece has been published on the blog.");
+  const readTime = estimateReadTime(summary);
+  const publishedAt = formatEmailDate(dispatch.published_at);
+
+  const variables: Record<string, string> = isUpdated
+    ? {
+        ARTICLE_TITLE: dispatch.clean_title,
+        ARTICLE_URL: dispatch.feed_url,
+        UPDATE_SUMMARY: summary,
+        ARTICLE_READ_TIME: readTime,
+        ARTICLE_UPDATED_AT: publishedAt,
+        SITE_URL: siteBaseUrl,
+        RSS_URL: rssUrl,
+        UNSUBSCRIBE_URL: unsubscribeUrl,
+      }
+    : {
+        ARTICLE_TITLE: dispatch.clean_title,
+        ARTICLE_URL: dispatch.feed_url,
+        ARTICLE_SUMMARY: summary,
+        ARTICLE_READ_TIME: readTime,
+        ARTICLE_PUBLISHED_AT: publishedAt,
+        SITE_URL: siteBaseUrl,
+        RSS_URL: rssUrl,
+        UNSUBSCRIBE_URL: unsubscribeUrl,
+      };
 
   return sendResendEmail(env, {
     to: subscriber.email,
     subject,
-    html,
-    text,
     idempotencyKey: `${dispatch.feed_guid}:${subscriber.email}`,
     tags: [
       { name: "kind", value: dispatch.feed_kind },
       { name: "entry_guid", value: dispatch.feed_guid.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 200) },
     ],
+    template: {
+      alias: isUpdated ? "blog-updated-article" : "blog-new-article",
+      variables,
+    },
   });
 }
 
@@ -894,28 +951,33 @@ async function sendWelcomeEmail(
   const siteBaseUrl = stripTrailingSlash(env.SITE_BASE_URL || "https://zlaabsi.github.io");
   const apiBaseUrl = stripTrailingSlash(env.PUBLIC_API_BASE_URL || siteBaseUrl);
   const unsubscribeUrl = `${apiBaseUrl}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
-  const updatesUrl = `${siteBaseUrl}/updates.xml`;
-  const sourceUrl = sourcePage ? `${siteBaseUrl}${sourcePage}` : siteBaseUrl;
+  const rssUrl = `${siteBaseUrl}/updates.xml`;
   const subject = "[Zakaria Laabsi] Subscription confirmed";
-  const html =
-    `<p>You are now subscribed to blog updates from Zakaria Laabsi.</p>` +
-    `<p>You will only receive emails for new essays and substantial revisions.</p>` +
-    `<p><a href="${escapeHtml(sourceUrl)}">Return to the page you subscribed from</a><br>` +
-    `<a href="${escapeHtml(updatesUrl)}">Prefer RSS instead?</a><br>` +
-    `<a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a></p>`;
-  const text =
-    `You are now subscribed to blog updates from Zakaria Laabsi.\n\n` +
-    `Return: ${sourceUrl}\n` +
-    `RSS: ${updatesUrl}\n` +
-    `Unsubscribe: ${unsubscribeUrl}`;
+
+  const latest = await fetchLatestDispatch(env, siteBaseUrl);
+  void sourcePage;
+
+  const variables: Record<string, string> = {
+    SITE_URL: siteBaseUrl,
+    SITE_NAME: "Zakaria Laabsi",
+    RSS_URL: rssUrl,
+    LATEST_ARTICLE_TITLE: latest?.title || "Browse the catalog",
+    LATEST_ARTICLE_URL: latest?.url || siteBaseUrl,
+    LATEST_ARTICLE_SUMMARY:
+      latest?.summary ||
+      "Visit the site to browse the full catalog of essays and notes.",
+    UNSUBSCRIBE_URL: unsubscribeUrl,
+  };
 
   const delivery = await sendResendEmail(env, {
     to: email,
     subject,
-    html,
-    text,
     idempotencyKey: `welcome:${email}`,
     tags: [{ name: "kind", value: "welcome" }],
+    template: {
+      alias: "blog-welcome",
+      variables,
+    },
   });
 
   await env.GROWTH_DB.prepare(
@@ -947,10 +1009,9 @@ async function sendResendEmail(
   message: {
     to: string;
     subject: string;
-    html: string;
-    text: string;
     idempotencyKey: string;
     tags?: Array<{ name: string; value: string }>;
+    template: { alias: string; variables: Record<string, string> };
   },
 ): Promise<{ status: DeliveryStatus; messageId: string | null; error: string | null }> {
   if (!env.RESEND_API_KEY || !env.RESEND_FROM) {
@@ -974,8 +1035,10 @@ async function sendResendEmail(
         to: [message.to],
         reply_to: env.RESEND_REPLY_TO || undefined,
         subject: message.subject,
-        html: message.html,
-        text: message.text,
+        template: {
+          id: message.template.alias,
+          variables: message.template.variables,
+        },
         tags: message.tags,
       }),
     });
@@ -1095,52 +1158,191 @@ function parseFeedItem(itemXml: string): FeedItem | null {
   };
 }
 
-function renderEmailHtml(
-  dispatch: DispatchRow,
-  articleUrl: string,
-  unsubscribeUrl: string,
-  summary: string,
-): string {
-  const kindLabel = dispatch.feed_kind === "updated" ? "Updated article" : "New article";
-  return `
-  <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #1f1f1f; padding: 24px;">
-    <p style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #8a6a24; margin: 0 0 12px;">${kindLabel}</p>
-    <h1 style="margin: 0 0 16px; font-size: 24px; line-height: 1.2;">${escapeHtml(dispatch.clean_title)}</h1>
-    <p style="margin: 0 0 18px;">${escapeHtml(summary)}</p>
-    <p style="margin: 0 0 18px;"><a href="${escapeHtml(
-      articleUrl,
-    )}" style="display: inline-block; padding: 10px 14px; background: #b8860b; color: #fff8ea; text-decoration: none; border-radius: 8px;">Read the update</a></p>
-    <p style="margin: 22px 0 0; color: #555;">You are receiving this because you subscribed to blog updates on zlaabsi.github.io.</p>
-    <p style="margin: 6px 0 0;"><a href="${escapeHtml(unsubscribeUrl)}" style="color: #8a6a24;">Unsubscribe</a></p>
-  </div>`;
+async function fetchLatestDispatch(
+  env: Env,
+  siteBaseUrl: string,
+): Promise<{ title: string; url: string; summary: string } | null> {
+  const row = await env.GROWTH_DB.prepare(
+    `SELECT clean_title, feed_url, summary
+     FROM newsletter_dispatches
+     WHERE status = 'sent'
+     ORDER BY published_at DESC, id DESC
+     LIMIT 1`,
+  ).first<{ clean_title: string; feed_url: string; summary: string | null }>();
+
+  if (!row) return null;
+  void siteBaseUrl;
+  return {
+    title: row.clean_title,
+    url: row.feed_url,
+    summary: row.summary || "A recent piece on the blog.",
+  };
 }
 
-function renderEmailText(
-  dispatch: DispatchRow,
-  articleUrl: string,
-  unsubscribeUrl: string,
-  summary: string,
-): string {
-  const kindLabel = dispatch.feed_kind === "updated" ? "Updated article" : "New article";
-  return `${kindLabel}: ${dispatch.clean_title}
-
-${summary}
-
-Read: ${articleUrl}
-Unsubscribe: ${unsubscribeUrl}`;
+function estimateReadTime(summary: string): string {
+  const words = summary.trim().split(/\s+/).length;
+  const minutes = Math.max(3, Math.round(words / 200) + 3);
+  return `${minutes} min read`;
 }
 
-function isAuthorized(request: Request, env: Env): boolean {
-  const expected = env.ADMIN_TOKEN;
-  if (!expected) {
-    return false;
+function formatEmailDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+async function isAuthorized(request: Request, env: Env): Promise<boolean> {
+  if (hasValidAdminToken(request, env)) {
+    return true;
   }
+  return hasValidAccessSession(request, env);
+}
+
+function hasValidAdminToken(request: Request, env: Env): boolean {
+  const expected = env.ADMIN_TOKEN?.trim();
+  if (!expected) return false;
+
   const authHeader = request.headers.get("authorization");
   const headerToken =
     authHeader?.toLowerCase().startsWith("bearer ")
       ? authHeader.slice("bearer ".length).trim()
       : request.headers.get("x-admin-token")?.trim() || "";
   return headerToken === expected;
+}
+
+async function hasValidAccessSession(request: Request, env: Env): Promise<boolean> {
+  const teamDomain = stripTrailingSlash(env.ACCESS_TEAM_DOMAIN || "");
+  const expectedAud = env.ADMIN_ACCESS_AUD?.trim();
+  if (!teamDomain || !expectedAud) return false;
+
+  const jwt = getAccessJwt(request);
+  if (!jwt) return false;
+
+  const payload = await verifyAccessJwt(jwt, teamDomain, expectedAud);
+  if (!payload) return false;
+
+  const allowedEmails = parseCsv(env.ADMIN_ACCESS_ALLOWED_EMAILS).map((email) => email.toLowerCase());
+  if (allowedEmails.length > 0) {
+    const email = payload.email?.toLowerCase();
+    if (!email || !allowedEmails.includes(email)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function getAccessJwt(request: Request): string | null {
+  const assertion = request.headers.get("cf-access-jwt-assertion")?.trim();
+  if (assertion) return assertion;
+
+  const cookieHeader = request.headers.get("cookie") || "";
+  const cookies = cookieHeader.split(";").map((part) => part.trim());
+  for (const cookie of cookies) {
+    const separator = cookie.indexOf("=");
+    if (separator === -1) continue;
+    const name = cookie.slice(0, separator);
+    if (name === "CF_Authorization") {
+      return decodeURIComponent(cookie.slice(separator + 1));
+    }
+  }
+  return null;
+}
+
+async function verifyAccessJwt(
+  jwt: string,
+  teamDomain: string,
+  expectedAud: string,
+): Promise<AccessJwtPayload | null> {
+  const parts = jwt.split(".");
+  if (parts.length !== 3) return null;
+
+  let header: AccessJwtHeader;
+  let payload: AccessJwtPayload;
+  try {
+    header = decodeJwtSegment<AccessJwtHeader>(parts[0]);
+    payload = decodeJwtSegment<AccessJwtPayload>(parts[1]);
+  } catch {
+    return null;
+  }
+
+  if (header.alg !== "RS256" || !header.kid) return null;
+  if (!hasAudience(payload.aud, expectedAud)) return null;
+
+  const expectedIssuer = `https://${teamDomain}`;
+  if (stripTrailingSlash(payload.iss || "") !== expectedIssuer) return null;
+
+  const now = Math.floor(Date.now() / 1000);
+  if (typeof payload.exp !== "number" || payload.exp <= now) return null;
+  if (typeof payload.nbf === "number" && payload.nbf > now + 30) return null;
+
+  const keys = await getAccessJwks(teamDomain);
+  const jwk = keys.find((key) => key.kid === header.kid);
+  if (!jwk || jwk.kty !== "RSA") return null;
+
+  const signingInput = new TextEncoder().encode(`${parts[0]}.${parts[1]}`);
+  const signature = base64UrlToBytes(parts[2]);
+  const key = await crypto.subtle.importKey(
+    "jwk",
+    jwk,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false,
+    ["verify"],
+  );
+
+  const verified = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, signature, signingInput);
+  return verified ? payload : null;
+}
+
+async function getAccessJwks(teamDomain: string): Promise<AccessJwk[]> {
+  const now = Date.now();
+  if (accessJwksCache && accessJwksCache.teamDomain === teamDomain && accessJwksCache.expiresAt > now) {
+    return accessJwksCache.keys;
+  }
+
+  const response = await fetch(`https://${teamDomain}/cdn-cgi/access/certs`);
+  if (!response.ok) {
+    throw new Error("Unable to load Cloudflare Access certificates");
+  }
+  const data = (await response.json()) as { keys?: AccessJwk[] };
+  const keys = Array.isArray(data.keys) ? data.keys : [];
+  accessJwksCache = {
+    expiresAt: now + 10 * 60 * 1000,
+    keys,
+    teamDomain,
+  };
+  return keys;
+}
+
+function decodeJwtSegment<T>(segment: string): T {
+  const bytes = base64UrlToBytes(segment);
+  return JSON.parse(new TextDecoder().decode(bytes)) as T;
+}
+
+function base64UrlToBytes(value: string): Uint8Array {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), "=");
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+function hasAudience(actual: string | string[] | undefined, expected: string): boolean {
+  return Array.isArray(actual) ? actual.includes(expected) : actual === expected;
+}
+
+function parseCsv(value: string | undefined): string[] {
+  return (value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function withCorsHeaders(headers: Headers, request: Request, env: Env): Headers {

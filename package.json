@@ -7,7 +7,8 @@
     "growth:worker:dev": "wrangler dev --config workers/growth-api/wrangler.jsonc --local --test-scheduled",
     "growth:worker:deploy": "wrangler deploy --config workers/growth-api/wrangler.jsonc",
     "growth:db:apply:local": "wrangler d1 migrations apply zlaabsi-growth --local --config workers/growth-api/wrangler.jsonc",
-    "growth:db:apply:remote": "wrangler d1 migrations apply zlaabsi-growth --remote --config workers/growth-api/wrangler.jsonc"
+    "growth:db:apply:remote": "wrangler d1 migrations apply zlaabsi-growth --remote --config workers/growth-api/wrangler.jsonc",
+    "growth:dashboard": "(sleep 8 && open http://localhost:8788/dashboard) & wrangler dev --config workers/growth-api/wrangler.local.jsonc --port 8788"
   },
   "dependencies": {
     "@huggingface/transformers": "4.0.1",

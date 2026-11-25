@@ -1,0 +1,23 @@
+// Runs the worker on this machine against the production database, to open the
+// dashboard without the Cloudflare Access code: npm run growth:dashboard
+// LOCAL_ADMIN only opens the admin routes to requests made through localhost.
+// No cron and no newsletter here, so nothing is ever sent from this copy.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "zlaabsi-growth-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-14",
+  "vars": {
+    "SITE_BASE_URL": "https://zlaabsi.github.io",
+    "NEWSLETTER_ENABLED": "false",
+    "LOCAL_ADMIN": "true"
+  },
+  "d1_databases": [
+    {
+      "binding": "GROWTH_DB",
+      "database_name": "zlaabsi-growth",
+      "database_id": "55cf03b5-aec5-4faf-a86a-99739c73790d",
+      "remote": true
+    }
+  ]
+}

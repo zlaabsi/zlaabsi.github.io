@@ -5,6 +5,9 @@ Generate the link-preview cards (1200 x 630) shown when a page of the site is sh
   static/images/og/site.png                     the site card: shark, name, tagline
   static/images/og/<section>-<file name>.png    one card per post and explorable:
                                                 its title beside its thumbnail
+  static/images/og/shark.png                    the shark alone, for the welcome email
+  static/posts/<file name>/email.png            the illustration of the newsletter
+                                                email for that post: its thumbnail
 
 The cards are laid out as HTML and rasterised by headless Chrome, so they use
 the same system font stack as the site and show each thumbnail exactly as the
@@ -15,7 +18,9 @@ Run it after adding a post, renaming one, or changing a title or thumbnail:
     python3 scripts/generate_og_cards.py
 
 Needs Pillow, PyYAML and Google Chrome. layouts/partials/share-image.html picks
-the card up by file name; no front matter is needed.
+the card up by file name; no front matter is needed. The email templates in
+workers/growth-api/templates/ load the illustration from the article's own URL,
+and layouts/index.updates.xml stops the build when a post has none.
 """
 
 import html
@@ -46,6 +51,18 @@ CARD_BG = "#141413"
 FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
 # Same filter as .entry-thumb img in dark mode: white becomes #141414, hues are kept.
 DARK_FILTER = "invert(0.92) hue-rotate(180deg)"
+
+# X and LinkedIn show a card in a frame nearer 16:9 than 1200 x 630 and cut up to
+# 40 px off each side. The side margin leaves 60 px after that cut. The room
+# comes out of the title column, never out of the thumbnail frame.
+MARGIN = 100
+FRAME_W, FRAME_H = 564, 376
+FRAME_TOP = (H - FRAME_H) // 2
+GAP = 44
+
+# Shown 600 px wide in the email, so drawn at twice that. One image serves light
+# and dark mail alike, because Gmail cannot swap images by colour scheme.
+EMAIL_W, EMAIL_H = 1200, 800
 
 BASE_CSS = f"""
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
@@ -79,6 +96,15 @@ p {{ color: #b4b4b4; font-size: 27px; font-weight: 400; margin-top: 12px; }}
 <div class="text"><h1>{html.escape(SITE_NAME)}</h1><p>{html.escape(TAGLINE)}</p></div>"""
 
 
+def shark_card() -> str:
+    """The shark alone, centred, on the card background."""
+    return f"""<!doctype html><meta charset="utf-8"><style>{BASE_CSS}
+body {{ background: {CARD_BG}; }}
+img {{ position: absolute; left: 0; top: 42px; width: {W}px; height: {H}px; mix-blend-mode: lighten; }}
+</style>
+<img src="SHARK">"""
+
+
 def title_markup(title: str) -> str:
     """Escaped title in which a hyphenated word such as Mamba-3 never breaks at its hyphen."""
     words = [html.escape(word) for word in title.split(" ")]
@@ -86,21 +112,21 @@ def title_markup(title: str) -> str:
 
 
 def page_card(title: str, thumb: Path | None) -> str:
-    size = 64 if len(title) <= 24 else 52 if len(title) <= 45 else 44
+    size = 64 if len(title) <= 24 else 48 if len(title) <= 45 else 44
     frame = ""
-    column = W - 2 * 64
+    column = W - 2 * MARGIN
     if thumb:
-        column = 452
+        column -= FRAME_W + GAP
         frame = f'<div class="frame"><img src="{thumb.as_uri()}"></div>'
     return f"""<!doctype html><meta charset="utf-8"><style>{BASE_CSS}
 body {{ background: {CARD_BG}; }}
-.text {{ position: absolute; left: 64px; top: 127px; bottom: 127px; width: {column}px;
+.text {{ position: absolute; left: {MARGIN}px; top: {FRAME_TOP}px; bottom: {FRAME_TOP}px; width: {column}px;
   display: flex; flex-direction: column; justify-content: space-between; }}
 h1 {{ color: #faf9f5; font-size: {size}px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.14;
   text-wrap: balance; }}
 .nb {{ white-space: nowrap; }}
 p {{ color: rgba(255, 255, 255, 0.6); font-size: 27px; font-weight: 400; }}
-.frame {{ position: absolute; right: 64px; top: 127px; width: 564px; height: 376px;
+.frame {{ position: absolute; right: {MARGIN}px; top: {FRAME_TOP}px; width: {FRAME_W}px; height: {FRAME_H}px;
   border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 10px; overflow: hidden; background: #141414; }}
 .frame img {{ display: block; width: 100%; height: 100%; object-fit: contain; filter: {DARK_FILTER}; }}
 </style>
@@ -108,7 +134,17 @@ p {{ color: rgba(255, 255, 255, 0.6); font-size: 27px; font-weight: 400; }}
 {frame}"""
 
 
-def render(markup: str, out: Path, work: Path) -> None:
+def email_figure(thumb: Path) -> str:
+    return f"""<!doctype html><meta charset="utf-8"><style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+html, body {{ width: {EMAIL_W}px; height: {EMAIL_H}px; overflow: hidden; background: #fff; }}
+img {{ display: block; width: 100%; height: 100%; padding: 36px; object-fit: contain; }}
+</style>
+<img src="{thumb.as_uri()}">"""
+
+
+def render(markup: str, out: Path, work: Path, size: tuple[int, int] = (W, H)) -> None:
+    width, height = size
     page = work / f"{out.stem}.html"
     shot = work / f"{out.stem}.png"
     page.write_text(markup, encoding="utf-8")
@@ -121,7 +157,7 @@ def render(markup: str, out: Path, work: Path) -> None:
             "--force-device-scale-factor=1",
             f"--user-data-dir={work / 'chrome-profile'}",
             # Taller than the card: the window is cropped below, whatever Chrome reserves.
-            f"--window-size={W},{H + 200}",
+            f"--window-size={width},{height + 200}",
             "--virtual-time-budget=4000",
             f"--screenshot={shot}",
             page.as_uri(),
@@ -131,9 +167,9 @@ def render(markup: str, out: Path, work: Path) -> None:
         timeout=180,
     )
     img = Image.open(shot).convert("RGB")
-    if img.width < W or img.height < H:
-        sys.exit(f"{out.name}: Chrome returned {img.width} x {img.height}, expected at least {W} x {H}")
-    img.crop((0, 0, W, H)).save(out, "PNG", optimize=True)
+    if img.width < width or img.height < height:
+        sys.exit(f"{out}: Chrome returned {img.width} x {img.height}, expected at least {width} x {height}")
+    img.crop((0, 0, width, height)).save(out, "PNG", optimize=True)
 
 
 def front_matter(path: Path) -> dict:
@@ -166,6 +202,8 @@ def main() -> None:
         shark_background(shark)
         render(site_card(shark), OUT / "site.png", work)
         print("site.png")
+        render(shark_card().replace("SHARK", shark.as_uri()), OUT / "shark.png", work)
+        print("shark.png")
 
         for section in SECTIONS:
             for path in sorted((ROOT / "content" / section).glob("*.md")):
@@ -178,6 +216,14 @@ def main() -> None:
                 thumb = thumbnail_of(path.stem, meta, table)
                 render(page_card(meta["title"], thumb), out, work)
                 print(f"{out.name}  {'with ' + thumb.name if thumb else 'no thumbnail'}")
+
+                if section == "posts":
+                    if not thumb:
+                        sys.exit(f"{path.name}: a post needs a thumbnail for its newsletter email")
+                    figure = STATIC / "posts" / path.stem / "email.png"
+                    figure.parent.mkdir(parents=True, exist_ok=True)
+                    render(email_figure(thumb), figure, work, (EMAIL_W, EMAIL_H))
+                    print(f"posts/{path.stem}/email.png")
 
 
 if __name__ == "__main__":

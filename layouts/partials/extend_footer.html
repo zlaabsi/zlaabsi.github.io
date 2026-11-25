@@ -439,6 +439,102 @@
     }
   }
 
+  // Share controls: "Copy link" everywhere, and at the top of the page the
+  // device's own share sheet on phones, a small menu elsewhere.
+  document.querySelectorAll('[data-share="copy"]').forEach(function (copy) {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+    copy.hidden = false;
+    copy.addEventListener('click', function () {
+      navigator.clipboard.writeText(copy.getAttribute('data-share-url')).then(function () {
+        copy.classList.add('is-copied');
+        copy.setAttribute('title', 'Link copied');
+        window.setTimeout(function () { copy.classList.remove('is-copied'); copy.setAttribute('title', 'Copy link'); }, 2000);
+      });
+    });
+  });
+  document.querySelectorAll('.share-top').forEach(function (menu) {
+    var summary = menu.querySelector('summary');
+    summary.addEventListener('click', function (event) {
+      if (!navigator.share || !window.matchMedia('(pointer: coarse)').matches) return;
+      event.preventDefault();
+      trackEvent('share', { context: 'native', targetPath: window.location.pathname }, { allowBeacon: false, keepalive: true });
+      navigator.share({ title: summary.getAttribute('data-share-title'), url: summary.getAttribute('data-share-url') }).catch(function () {});
+    });
+    document.addEventListener('click', function (event) {
+      if (menu.open && !menu.contains(event.target)) menu.open = false;
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') menu.open = false;
+    });
+  });
+
+  // From the second article or explorable someone reads, one invitation to the
+  // newsletter, once they are well into the page. Never for a subscriber, and
+  // not again for thirty days after "No thanks". The counter is a plain number.
+  function inviteToNewsletter() {
+    if (!growth.newsletterEnabled || !growth.readingPage) return;
+    var state = storageGet('site-newsletter') || '';
+    if (state === 'subscribed') return;
+    if (state.indexOf('dismissed:') === 0 && Date.now() - Number(state.slice(10)) < 30 * 86400000) return;
+    var reads = (Number(storageGet('site-reads')) || 0) + 1;
+    storageSet('site-reads', String(reads));
+    if (reads < 2) return;
+
+    var shown = false;
+    function close(remember) {
+      var layer = document.querySelector('.invite');
+      if (!layer) return;
+      if (remember) storageSet('site-newsletter', 'dismissed:' + Date.now());
+      layer.remove();
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(event) {
+      if (event.key === 'Escape') close(true);
+    }
+    function show() {
+      if (shown) return;
+      shown = true;
+      window.removeEventListener('scroll', onScroll);
+      var existing = document.querySelector('.newsletter-cta__form[data-provider="cloudflare-worker"]');
+      var layer = document.createElement('div');
+      layer.className = 'invite';
+      layer.innerHTML =
+        '<div class="invite__card" role="dialog" aria-modal="true" aria-labelledby="invite-title">' +
+        '<button type="button" class="invite__close" aria-label="Close">&times;</button>' +
+        '<h2 id="invite-title">Get the next one first.</h2>' +
+        '<p>One email when a new essay or explorable is out. No digests, no promotions.</p>' +
+        '<form class="newsletter-cta__form invite__form" data-provider="cloudflare-worker" data-placement="popup" method="post" novalidate>' +
+        '<input class="newsletter-cta__input" type="email" name="email" placeholder="you@domain.com" inputmode="email" autocomplete="email" aria-label="Email address" required>' +
+        '<button class="newsletter-cta__button" type="submit">Send me the next essay</button>' +
+        '<p class="newsletter-cta__status" aria-live="polite"></p>' +
+        '</form>' +
+        '<button type="button" class="invite__later">No thanks</button>' +
+        '</div>';
+      var form = layer.querySelector('form');
+      form.dataset.deliveryReady = existing ? existing.dataset.deliveryReady : 'true';
+      form.dataset.sourcePage = window.location.pathname;
+      layer.addEventListener('click', function (event) {
+        var target = eventElement(event.target);
+        if (target === layer || (target && target.closest('.invite__close, .invite__later'))) close(true);
+      });
+      document.addEventListener('keydown', onKey);
+      document.addEventListener('site-newsletter-subscribed', function () {
+        window.setTimeout(function () { close(false); }, 2600);
+      });
+      document.body.appendChild(layer);
+      layer.querySelector('input').focus({ preventScroll: true });
+    }
+    function onScroll() {
+      var doc = document.documentElement;
+      if (((window.scrollY || 0) + window.innerHeight) / Math.max(doc.scrollHeight, 1) > 0.35) show();
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.setTimeout(function () {
+      if (document.visibilityState === 'visible') show();
+    }, 30000);
+  }
+  inviteToNewsletter();
+
   if (growth.newsletterEnabled) {
     document.addEventListener('submit', function (event) {
       var form = event.target.closest('.newsletter-cta__form[data-provider="cloudflare-worker"]');
@@ -480,6 +576,8 @@
             : 'Subscribed.';
         }
         status.dataset.state = 'success';
+        storageSet('site-newsletter', 'subscribed');
+        document.dispatchEvent(new CustomEvent('site-newsletter-subscribed'));
       }).catch(function (error) {
         console.debug('site-growth subscribe failed', error);
         status.textContent = error && error.message

@@ -21,7 +21,8 @@
     trackPageviews: {{ if index $analytics "trackPageviews" }}true{{ else }}false{{ end }},
     trackArticleClicks: {{ if index $analytics "trackArticleClicks" }}true{{ else }}false{{ end }},
     trackNewsletterSignups: {{ if index $analytics "trackNewsletterSignups" }}true{{ else }}false{{ end }},
-    trackClickHeatmap: {{ if index $analytics "trackClickHeatmap" }}true{{ else }}false{{ end }}
+    trackClickHeatmap: {{ if index $analytics "trackClickHeatmap" }}true{{ else }}false{{ end }},
+    readingPage: {{ if and .IsPage (in (slice "posts" "explorables") .Section) }}true{{ else }}false{{ end }}
   };
 
   if (!growth.apiBase) {
@@ -57,7 +58,9 @@
   }
 
   // Nothing is stored and no identifier is sent until the reader accepts.
-  // Without consent the only event is a page view with no visitor or session.
+  // Without consent a few essential events still go out, with no visitor or
+  // session: page views, reading time, article clicks and shares.
+  var ESSENTIAL_EVENTS = { page_view: true, engagement: true, article_click: true, share: true };
   var CONSENT_KEY = 'site-growth-consent';
   var VISITOR_KEY = 'site-growth-visitor-id';
   var SESSION_KEY = 'site-growth-session-id';
@@ -93,11 +96,22 @@
     return value || null;
   }
 
+  // Without consent only the referring site is kept, not the full address.
+  function referrerFor(full) {
+    if (!document.referrer) return null;
+    if (full) return document.referrer;
+    try {
+      return new URL(document.referrer).origin + '/';
+    } catch (err) {
+      return null;
+    }
+  }
+
   function baseEventPayload() {
     return {
       pathname: window.location.pathname,
       pageTitle: document.title,
-      referrer: hasConsent() ? (document.referrer || null) : null,
+      referrer: referrerFor(hasConsent()),
       visitorId: getVisitorId(),
       sessionId: getSessionId()
     };
@@ -188,7 +202,7 @@
     if (!growth.analyticsEnabled) {
       return Promise.resolve(false);
     }
-    if (eventType !== 'page_view' && !hasConsent()) {
+    if (!ESSENTIAL_EVENTS[eventType] && !hasConsent()) {
       return Promise.resolve(false);
     }
     return postJson(growth.apiBase + '/api/track', Object.assign(baseEventPayload(), {
@@ -217,8 +231,8 @@
         targetPath: url.pathname,
         targetText: clickLabel(link),
         context: clickContext(link),
-        xRatio: ratios.xRatio,
-        yRatio: ratios.yRatio
+        xRatio: hasConsent() ? ratios.xRatio : null,
+        yRatio: hasConsent() ? ratios.yRatio : null
       }, { allowBeacon: false, keepalive: true });
     }, true);
   }
@@ -266,7 +280,6 @@
   }
 
   function sendEngagement() {
-    if (!hasConsent()) return;
     var total = activeMs + (visibleSince !== null ? Date.now() - visibleSince : 0);
     if (total < 1000 || total - lastSentMs < 1000) return;
     lastSentMs = total;
@@ -322,10 +335,8 @@
     trackEvent('figure_interact', { context: 'figure', targetText: name }, { allowBeacon: false, keepalive: true });
   }
 
-  var behaviourStarted = false;
-  function startBehaviourTracking() {
-    if (behaviourStarted || !growth.analyticsEnabled || !hasConsent()) return;
-    behaviourStarted = true;
+  // Runs for everyone: reading time and shares, without identifiers.
+  function startEssentialTracking() {
     noteScroll();
     window.addEventListener('scroll', noteScroll, { passive: true });
     document.addEventListener('visibilitychange', function () {
@@ -344,6 +355,13 @@
       if (document.visibilityState === 'visible') sendEngagement();
     }, 15000);
     document.addEventListener('click', noteShare, true);
+  }
+
+  // Runs only after consent: impressions and figure use.
+  var behaviourStarted = false;
+  function startBehaviourTracking() {
+    if (behaviourStarted || !growth.analyticsEnabled || !hasConsent()) return;
+    behaviourStarted = true;
     document.addEventListener('pointerdown', noteFigureUse, true);
     document.addEventListener('input', noteFigureUse, true);
     watchImpressions();
@@ -363,12 +381,12 @@
     var banner = document.createElement('div');
     banner.className = 'consent-banner';
     banner.setAttribute('role', 'dialog');
-    banner.setAttribute('aria-label', 'Reading statistics');
+    banner.setAttribute('aria-label', 'Analytics');
     banner.innerHTML =
-      '<p>This site can measure how its pages are read: pages viewed, time spent, scrolling and clicks, linked to a random identifier kept in your browser. Nothing is shared with third parties and there are no ads.</p>' +
+      '<p>This site uses analytics to improve your experience. Nothing is shared with third parties and there are no ads.</p>' +
       '<div class="consent-banner__actions">' +
-      '<button type="button" data-consent="denied">Decline</button>' +
-      '<button type="button" data-consent="granted">Accept</button>' +
+      '<button type="button" class="consent-banner__decline" data-consent="denied">Decline</button>' +
+      '<button type="button" class="consent-banner__accept" data-consent="granted">Accept</button>' +
       '</div>';
     banner.addEventListener('click', function (event) {
       var button = eventElement(event.target);
@@ -381,22 +399,43 @@
     document.body.appendChild(banner);
   }
 
+  // The question is only asked once someone has started reading an article
+  // or an explorable: after some scrolling, or ten seconds on the page.
+  function askWhenReading() {
+    if (!growth.readingPage) return;
+    var asked = false;
+    function ask() {
+      if (asked) return;
+      asked = true;
+      window.removeEventListener('scroll', onScroll);
+      if (!storageGet(CONSENT_KEY)) showConsentBanner();
+    }
+    function onScroll() {
+      if ((window.scrollY || 0) > 300) ask();
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.setTimeout(function () {
+      if (document.visibilityState === 'visible') ask();
+    }, 10000);
+  }
+
   if (growth.analyticsEnabled) {
     var footer = document.querySelector('.footer');
     if (footer) {
       var reopen = document.createElement('button');
       reopen.type = 'button';
       reopen.className = 'consent-reopen';
-      reopen.textContent = 'Reading statistics: your choice';
+      reopen.textContent = 'Analytics preferences';
       reopen.addEventListener('click', showConsentBanner);
       footer.appendChild(reopen);
     }
+    startEssentialTracking();
     var choice = storageGet(CONSENT_KEY);
     if (choice === 'granted') {
       startBehaviourTracking();
-    } else if (choice !== 'denied') {
+    } else {
       forgetIdentifiers();
-      showConsentBanner();
+      if (choice !== 'denied') askWhenReading();
     }
   }
 

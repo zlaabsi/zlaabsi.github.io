@@ -559,15 +559,27 @@ body:has(.ol-atlas) {
   padding: 8px 14px;
   font: inherit;
   font-weight: 600;
-  color: var(--tc-head);
-  background: transparent;
-  border: 1px solid var(--theme-accent-secondary);
+  border: 0;
   border-radius: var(--radius);
   cursor: pointer;
 }
 
-.consent-banner button:hover {
-  border-color: var(--tc-head);
+.consent-banner__accept {
+  color: var(--theme-bg);
+  background: var(--theme-accent);
+}
+
+.consent-banner__accept:hover {
+  background: var(--theme-accent-hover);
+}
+
+.consent-banner__decline {
+  color: var(--theme-text-secondary);
+  background: transparent;
+}
+
+.consent-banner__decline:hover {
+  color: var(--theme-text);
 }
 
 .consent-reopen {

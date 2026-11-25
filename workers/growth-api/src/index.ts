@@ -91,6 +91,10 @@ const ALLOWED_EVENT_TYPES = new Set([
   "article_click",
   "newsletter_signup",
   "ui_click",
+  "engagement",
+  "impression",
+  "figure_interact",
+  "share",
 ]);
 
 const ADMIN_PATHS = new Set([

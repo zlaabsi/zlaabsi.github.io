@@ -56,31 +56,48 @@
     } catch (err) {}
   }
 
+  // Nothing is stored and no identifier is sent until the reader accepts.
+  // Without consent the only event is a page view with no visitor or session.
+  var CONSENT_KEY = 'site-growth-consent';
+  var VISITOR_KEY = 'site-growth-visitor-id';
+  var SESSION_KEY = 'site-growth-session-id';
+
+  function hasConsent() {
+    return storageGet(CONSENT_KEY) === 'granted';
+  }
+
+  function forgetIdentifiers() {
+    try {
+      window.localStorage.removeItem(VISITOR_KEY);
+      window.sessionStorage.removeItem(SESSION_KEY);
+    } catch (err) {}
+  }
+
   function getVisitorId() {
-    var key = 'site-growth-visitor-id';
-    var value = storageGet(key);
+    if (!hasConsent()) return null;
+    var value = storageGet(VISITOR_KEY);
     if (!value && window.crypto && typeof window.crypto.randomUUID === 'function') {
       value = window.crypto.randomUUID();
-      storageSet(key, value);
+      storageSet(VISITOR_KEY, value);
     }
-    return value || 'anonymous';
+    return value || null;
   }
 
   function getSessionId() {
-    var key = 'site-growth-session-id';
-    var value = sessionGet(key);
+    if (!hasConsent()) return null;
+    var value = sessionGet(SESSION_KEY);
     if (!value && window.crypto && typeof window.crypto.randomUUID === 'function') {
       value = window.crypto.randomUUID();
-      sessionSet(key, value);
+      sessionSet(SESSION_KEY, value);
     }
-    return value || 'session';
+    return value || null;
   }
 
   function baseEventPayload() {
     return {
       pathname: window.location.pathname,
       pageTitle: document.title,
-      referrer: document.referrer || null,
+      referrer: hasConsent() ? (document.referrer || null) : null,
       visitorId: getVisitorId(),
       sessionId: getSessionId()
     };
@@ -171,6 +188,9 @@
     if (!growth.analyticsEnabled) {
       return Promise.resolve(false);
     }
+    if (eventType !== 'page_view' && !hasConsent()) {
+      return Promise.resolve(false);
+    }
     return postJson(growth.apiBase + '/api/track', Object.assign(baseEventPayload(), {
       eventType: eventType
     }, extra || {}), options).catch(function (error) {
@@ -211,13 +231,173 @@
       var link = target.closest('a[href]');
       if (link && isTrackableArticleLink(link)) return;
       var ratios = clickRatios(event);
+      var internal = null;
+      if (link) {
+        try {
+          var linkUrl = new URL(link.href, window.location.origin);
+          if (linkUrl.origin === window.location.origin) internal = linkUrl.pathname;
+        } catch (err) {}
+      }
       trackEvent('ui_click', {
         context: clickContext(target),
-        targetText: clickLabel(target),
+        targetPath: internal,
+        targetText: clickLabel(link || target),
         xRatio: ratios.xRatio,
         yRatio: ratios.yRatio
       }, { allowBeacon: false, keepalive: true });
     }, true);
+  }
+
+  // Time actually spent with the page visible, and how far it was scrolled.
+  // The running total is sent every 15 s of reading and again when the page
+  // is hidden, since the last request of a page is not always delivered.
+  // Rows share a pageId; the dashboard keeps the largest total of each.
+  var pageId = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : String(Date.now());
+  var activeMs = 0;
+  var visibleSince = document.visibilityState === 'visible' ? Date.now() : null;
+  var maxScroll = 0;
+  var lastSentMs = 0;
+
+  function noteScroll() {
+    var doc = document.documentElement;
+    var full = Math.max(doc.scrollHeight, 1);
+    var reached = Math.min(1, ((window.scrollY || 0) + (window.innerHeight || 0)) / full);
+    if (reached > maxScroll) maxScroll = reached;
+  }
+
+  function sendEngagement() {
+    if (!hasConsent()) return;
+    var total = activeMs + (visibleSince !== null ? Date.now() - visibleSince : 0);
+    if (total < 1000 || total - lastSentMs < 1000) return;
+    lastSentMs = total;
+    trackEvent('engagement', {
+      meta: { pageId: pageId, activeMs: Math.round(total), maxScroll: Math.round(maxScroll * 100) / 100 }
+    }, { allowBeacon: false, keepalive: true });
+  }
+
+  // One impression per article card or figure and per page view, counted
+  // when at least half of it has been on screen.
+  function watchImpressions() {
+    if (!('IntersectionObserver' in window)) return;
+    var seen = new Set();
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.5) return;
+        var el = entry.target;
+        observer.unobserve(el);
+        var payload = null;
+        if (el.matches('.post-entry')) {
+          var link = el.querySelector('a.entry-link, a[href]');
+          if (!link) return;
+          var url = new URL(link.href, window.location.origin);
+          payload = { context: 'article-card', targetPath: url.pathname, targetText: clickLabel(el.querySelector('.entry-header') || link) };
+        } else {
+          var name = el.getAttribute('data-olala') || el.id || 'figure';
+          payload = { context: 'figure', targetText: name };
+        }
+        var key = payload.context + ':' + (payload.targetPath || payload.targetText);
+        if (seen.has(key)) return;
+        seen.add(key);
+        trackEvent('impression', payload, { allowBeacon: false, keepalive: true });
+      });
+    }, { threshold: [0.5] });
+    document.querySelectorAll('.post-entry, figure[data-olala]').forEach(function (el) { observer.observe(el); });
+  }
+
+  function noteShare(event) {
+    var target = eventElement(event.target);
+    var control = target && target.closest('[data-share]');
+    if (!control) return;
+    trackEvent('share', { context: control.getAttribute('data-share'), targetPath: window.location.pathname }, { allowBeacon: false, keepalive: true });
+  }
+
+  var touchedFigures = new Set();
+  function noteFigureUse(event) {
+    var target = eventElement(event.target);
+    var figure = target && target.closest('figure[data-olala]');
+    if (!figure) return;
+    var name = figure.getAttribute('data-olala');
+    if (touchedFigures.has(name)) return;
+    touchedFigures.add(name);
+    trackEvent('figure_interact', { context: 'figure', targetText: name }, { allowBeacon: false, keepalive: true });
+  }
+
+  var behaviourStarted = false;
+  function startBehaviourTracking() {
+    if (behaviourStarted || !growth.analyticsEnabled || !hasConsent()) return;
+    behaviourStarted = true;
+    noteScroll();
+    window.addEventListener('scroll', noteScroll, { passive: true });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') {
+        sendEngagement();
+        if (visibleSince !== null) {
+          activeMs += Date.now() - visibleSince;
+          visibleSince = null;
+        }
+      } else {
+        visibleSince = Date.now();
+      }
+    });
+    window.addEventListener('pagehide', sendEngagement);
+    window.setInterval(function () {
+      if (document.visibilityState === 'visible') sendEngagement();
+    }, 15000);
+    document.addEventListener('click', noteShare, true);
+    document.addEventListener('pointerdown', noteFigureUse, true);
+    document.addEventListener('input', noteFigureUse, true);
+    watchImpressions();
+  }
+
+  function setConsent(value) {
+    storageSet(CONSENT_KEY, value);
+    if (value === 'granted') {
+      startBehaviourTracking();
+    } else {
+      forgetIdentifiers();
+    }
+  }
+
+  function showConsentBanner() {
+    if (document.querySelector('.consent-banner')) return;
+    var banner = document.createElement('div');
+    banner.className = 'consent-banner';
+    banner.setAttribute('role', 'dialog');
+    banner.setAttribute('aria-label', 'Reading statistics');
+    banner.innerHTML =
+      '<p>This site can measure how its pages are read: pages viewed, time spent, scrolling and clicks, linked to a random identifier kept in your browser. Nothing is shared with third parties and there are no ads.</p>' +
+      '<div class="consent-banner__actions">' +
+      '<button type="button" data-consent="denied">Decline</button>' +
+      '<button type="button" data-consent="granted">Accept</button>' +
+      '</div>';
+    banner.addEventListener('click', function (event) {
+      var button = eventElement(event.target);
+      button = button && button.closest('button[data-consent]');
+      if (!button) return;
+      event.stopPropagation();
+      setConsent(button.getAttribute('data-consent'));
+      banner.remove();
+    }, true);
+    document.body.appendChild(banner);
+  }
+
+  if (growth.analyticsEnabled) {
+    var footer = document.querySelector('.footer');
+    if (footer) {
+      var reopen = document.createElement('button');
+      reopen.type = 'button';
+      reopen.className = 'consent-reopen';
+      reopen.textContent = 'Reading statistics: your choice';
+      reopen.addEventListener('click', showConsentBanner);
+      footer.appendChild(reopen);
+    }
+    var choice = storageGet(CONSENT_KEY);
+    if (choice === 'granted') {
+      startBehaviourTracking();
+    } else if (choice !== 'denied') {
+      forgetIdentifiers();
+      showConsentBanner();
+    }
   }
 
   if (growth.newsletterEnabled) {

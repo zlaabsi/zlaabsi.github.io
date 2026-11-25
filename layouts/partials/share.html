@@ -1,0 +1,38 @@
+{{- /* Share links for an article or an explorable. Plain links, so they work
+       without JavaScript; the script only adds "Copy link" and the device's
+       own share sheet. Clicks are counted by extend_footer.html, after consent. */ -}}
+{{- $url := .Permalink -}}
+{{- $title := .Title -}}
+<nav class="share-links" aria-label="Share this page">
+  <span class="share-links__label">Share</span>
+  <a data-share="x" href="https://x.com/intent/post?{{ (querify "url" $url "text" $title) | safeURL }}" target="_blank" rel="noopener">X</a>
+  <a data-share="linkedin" href="https://www.linkedin.com/sharing/share-offsite/?{{ (querify "url" $url) | safeURL }}" target="_blank" rel="noopener">LinkedIn</a>
+  <a data-share="facebook" href="https://www.facebook.com/sharer/sharer.php?{{ (querify "u" $url) | safeURL }}" target="_blank" rel="noopener">Facebook</a>
+  <a data-share="whatsapp" href="https://wa.me/?{{ (querify "text" (printf "%s %s" $title $url)) | safeURL }}" target="_blank" rel="noopener">WhatsApp</a>
+  <a data-share="reddit" href="https://www.reddit.com/submit?{{ (querify "url" $url "title" $title) | safeURL }}" target="_blank" rel="noopener">Reddit</a>
+  <a data-share="email" href="mailto:?{{ (querify "subject" $title "body" $url) | replaceRE `\+` "%20" | safeURL }}">Email</a>
+  <button type="button" data-share="copy" data-share-url="{{ $url }}" hidden>Copy link</button>
+  <button type="button" data-share="native" data-share-url="{{ $url }}" data-share-title="{{ $title }}" hidden>More</button>
+</nav>
+<script>
+(function () {
+  var nav = document.currentScript.previousElementSibling;
+  var copy = nav.querySelector('[data-share="copy"]');
+  var more = nav.querySelector('[data-share="native"]');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    copy.hidden = false;
+    copy.addEventListener('click', function () {
+      navigator.clipboard.writeText(copy.getAttribute('data-share-url')).then(function () {
+        copy.textContent = 'Link copied';
+        window.setTimeout(function () { copy.textContent = 'Copy link'; }, 2000);
+      });
+    });
+  }
+  if (navigator.share) {
+    more.hidden = false;
+    more.addEventListener('click', function () {
+      navigator.share({ title: more.getAttribute('data-share-title'), url: more.getAttribute('data-share-url') }).catch(function () {});
+    });
+  }
+})();
+</script>

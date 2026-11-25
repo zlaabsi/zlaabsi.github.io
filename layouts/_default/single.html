@@ -43,6 +43,7 @@
   {{- end }}
 
   {{- if eq .Section "posts" }}
+  {{- partial "share.html" . -}}
   {{- partial "newsletter_cta.html" (dict "Page" . "Placement" "post-footer") -}}
   {{- end }}
 

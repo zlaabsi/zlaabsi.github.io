@@ -841,7 +841,7 @@ const BODY_HTML = `
           <strong>Worker live</strong>
           <small id="last-refresh">No refresh yet</small>
         </div>
-        <button class="sidebar-clear" type="button" data-action="clear-token" aria-label="Clear admin token">
+        <button class="sidebar-clear" type="button" data-action="logout" aria-label="End Access session">
           ${ICONS.x}
         </button>
       </div>
@@ -867,19 +867,15 @@ const BODY_HTML = `
           <button class="tab" type="button" data-value="90" role="tab" aria-selected="false">90d</button>
         </div>
         <button class="btn btn-ghost" type="button" data-action="toggle-settings" aria-expanded="false" aria-haspopup="dialog">
-          ${ICONS.key}<span>Token</span>
+          ${ICONS.key}<span>Session</span>
         </button>
         <button id="refresh" class="btn btn-primary" type="button">
           ${ICONS.refresh}<span>Refresh</span>
         </button>
         <div class="popover" id="settings-popover" role="dialog" aria-label="Admin settings" hidden>
           <div>
-            <p class="popover-title">Admin access</p>
-            <p class="popover-description">Paste the worker admin token. Stored in this browser's sessionStorage only.</p>
-          </div>
-          <div class="field">
-            <label class="field-label" for="token">Admin token</label>
-            <input id="token" class="input" type="password" autocomplete="off" placeholder="Paste from Wrangler secret">
+            <p class="popover-title">Cloudflare Access</p>
+            <p class="popover-description">This dashboard is protected by Cloudflare Access. Your browser session is sent as an HttpOnly Access cookie.</p>
           </div>
           <button id="dispatch" class="btn btn-sm" type="button" style="justify-content: flex-start;">
             ${ICONS.send}<span>Dispatch newsletter now</span>
@@ -894,7 +890,7 @@ const BODY_HTML = `
           <h1>Site Growth Dashboard</h1>
           <p>Private analytics for pageviews, click paths, subscriber growth, and newsletter operations.</p>
         </div>
-        <p id="status-line" class="alert">${ICONS.info}<span>Enter your admin token to unlock the dashboard.</span></p>
+        <p id="status-line" class="alert">${ICONS.info}<span>Loading protected analytics…</span></p>
       </section>
 
       <section id="overview" class="section">
@@ -941,7 +937,7 @@ const BODY_HTML = `
             </div>
             <div class="card-content">
               <div id="timeline-list" class="timeline-list">
-                <div class="empty-state">No events loaded yet. Refresh after entering a valid token.</div>
+                <div class="empty-state">No events loaded yet. Refresh after your Access session is active.</div>
               </div>
             </div>
           </div>
@@ -1044,7 +1040,6 @@ const CLIENT_JS = `
   };
 
   var state = {
-    token: sessionStorage.getItem("growth-admin-token") || "",
     days: Number(sessionStorage.getItem("growth-dashboard-days") || 30),
     series: sessionStorage.getItem("growth-dashboard-series") || "both",
     selectedEventId: null,
@@ -1053,7 +1048,6 @@ const CLIENT_JS = `
     lastSummary: null
   };
 
-  var tokenInput = document.getElementById("token");
   var refreshButton = document.getElementById("refresh");
   var dispatchButton = document.getElementById("dispatch");
   var statusLine = document.getElementById("status-line");
@@ -1075,8 +1069,6 @@ const CLIENT_JS = `
   var sidebarOverlayEl = document.getElementById("sidebar-overlay");
   var settingsPopoverEl = document.getElementById("settings-popover");
   var settingsTrigger = document.querySelector('[data-action="toggle-settings"]');
-
-  tokenInput.value = state.token;
 
   // ------- Utilities -------
   function escapeHtml(value) {
@@ -1103,14 +1095,10 @@ const CLIENT_JS = `
       .format(new Date(value.replace(" ", "T") + "Z"));
   }
 
-  function authHeaders() {
-    return state.token ? { Authorization: "Bearer " + state.token } : {};
-  }
-
   async function api(path, options) {
     options = options || {};
-    var headers = Object.assign({}, authHeaders(), options.headers || {});
-    var response = await fetch(path, Object.assign({}, options, { headers: headers }));
+    var headers = Object.assign({}, options.headers || {});
+    var response = await fetch(path, Object.assign({}, options, { headers: headers, credentials: "same-origin" }));
     var contentType = response.headers.get("content-type") || "";
     var body = contentType.indexOf("application/json") >= 0 ? await response.json() : await response.text();
     if (!response.ok) {
@@ -1597,16 +1585,8 @@ const CLIENT_JS = `
 
   // ------- Refresh / Dispatch -------
   async function refreshDashboard() {
-    state.token = tokenInput.value.trim();
-    sessionStorage.setItem("growth-admin-token", state.token);
     sessionStorage.setItem("growth-dashboard-days", String(state.days));
     sessionStorage.setItem("growth-dashboard-series", state.series);
-
-    if (!state.token) {
-      setStatus("Enter the admin token to load private analytics.", "error");
-      openSettings(true);
-      return;
-    }
 
     setStatus("Refreshing dashboard…");
 
@@ -1638,17 +1618,13 @@ const CLIENT_JS = `
       setStatus("Dashboard refreshed.", "ok");
     } catch (error) {
       console.error(error);
-      setStatus(error.message || "Dashboard refresh failed.", "error");
+      var message = error.message || "Dashboard refresh failed.";
+      if (message === "Unauthorized") message = "Cloudflare Access session required. Reload this page to sign in.";
+      setStatus(message, "error");
     }
   }
 
   async function runDispatch() {
-    state.token = tokenInput.value.trim();
-    if (!state.token) {
-      setStatus("Enter the admin token before dispatching.", "error");
-      openSettings(true);
-      return;
-    }
     setStatus("Running newsletter dispatch…");
     try {
       var result = await api("/api/admin/dispatch-now", { method: "POST" });
@@ -1659,11 +1635,13 @@ const CLIENT_JS = `
       );
     } catch (error) {
       console.error(error);
-      setStatus(error.message || "Newsletter dispatch failed.", "error");
+      var message = error.message || "Newsletter dispatch failed.";
+      if (message === "Unauthorized") message = "Cloudflare Access session required. Reload this page to sign in.";
+      setStatus(message, "error");
     }
   }
 
-  // ------- Sidebar / popover / token -------
+  // ------- Sidebar / popover / session -------
   function toggleSidebar(force) {
     var nextOpen = force != null ? force : sidebarEl.getAttribute("data-state") !== "open";
     sidebarEl.setAttribute("data-state", nextOpen ? "open" : "closed");
@@ -1675,20 +1653,16 @@ const CLIENT_JS = `
     if (nextOpen) {
       settingsPopoverEl.removeAttribute("hidden");
       settingsTrigger.setAttribute("aria-expanded", "true");
-      setTimeout(function () { tokenInput.focus(); }, 0);
     } else {
       settingsPopoverEl.setAttribute("hidden", "");
       settingsTrigger.setAttribute("aria-expanded", "false");
     }
   }
 
-  function clearToken() {
-    if (!window.confirm("Clear the admin token from this browser?")) return;
-    state.token = "";
-    tokenInput.value = "";
-    sessionStorage.removeItem("growth-admin-token");
-    setStatus("Admin token cleared. Enter a new one to reload data.");
-    openSettings(true);
+  function logoutAccessSession() {
+    if (!window.confirm("End the Cloudflare Access session for this dashboard?")) return;
+    var redirect = window.location.origin + "/dashboard";
+    window.location.href = "/cdn-cgi/access/logout?redirect_url=" + encodeURIComponent(redirect);
   }
 
   // ------- Event wiring -------
@@ -1711,7 +1685,7 @@ const CLIENT_JS = `
       state.days = v;
       setTabState("days", v);
       sessionStorage.setItem("growth-dashboard-days", String(v));
-      if (state.token) refreshDashboard();
+      refreshDashboard();
     });
   });
 
@@ -1762,11 +1736,11 @@ const CLIENT_JS = `
     openSettings(false);
   });
 
-  var clearBtn = document.querySelector('[data-action="clear-token"]');
-  if (clearBtn) {
-    clearBtn.addEventListener("click", function (e) {
+  var logoutBtn = document.querySelector('[data-action="logout"]');
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function (e) {
       e.stopPropagation();
-      clearToken();
+      logoutAccessSession();
     });
   }
 
@@ -1794,19 +1768,7 @@ const CLIENT_JS = `
     }
   });
 
-  tokenInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      openSettings(false);
-      refreshDashboard();
-    }
-  });
-
-  if (state.token) {
-    refreshDashboard();
-  } else {
-    setStatus("Enter your admin token to unlock the dashboard.");
-  }
+  refreshDashboard();
 })();
 `;
 

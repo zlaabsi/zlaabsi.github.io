@@ -3,6 +3,12 @@
 {{- $items := slice -}}
 {{- range where site.RegularPages "Section" "posts" -}}
   {{- $page := . -}}
+  {{- /* The newsletter email shows <post URL>email.png. Without it the email
+         would go out with a broken image, so the build stops here instead. */ -}}
+  {{- $figure := printf "static/posts/%s/email.png" $page.File.ContentBaseName -}}
+  {{- if not (fileExists $figure) -}}
+    {{- errorf "%s is missing: run python3 scripts/generate_og_cards.py before publishing %s" $figure $page.File.Path -}}
+  {{- end -}}
   {{- $notifyAt := $page.PublishDate -}}
   {{- $eventType := "new" -}}
   {{- with $page.Params.notify_lastmod -}}
@@ -46,7 +52,7 @@
       <link>{{ $page.Permalink }}</link>
       <guid isPermaLink="false">{{ printf "%s?rev=%d" $page.Permalink $notifyAt.Unix }}</guid>
       <pubDate>{{ $notifyAt.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
-      <description>{{- if eq $eventType "updated" -}}Updated on {{ $notifyAt.Format "January 2, 2006" }}. {{- else -}}Published on {{ $page.PublishDate.Format "January 2, 2006" }}. {{- end -}}{{ with $page.Description | html }}{{ . }}{{ else }}{{ $page.Summary | html }}{{ end }}</description>
+      <description>{{- if eq $eventType "updated" -}}Updated on {{ $notifyAt.Format "January 2, 2006" }}.{{- else -}}Published on {{ $page.PublishDate.Format "January 2, 2006" }}.{{- end }} {{ with $page.Description | html }}{{ . }}{{ else }}{{ $page.Summary | html }}{{ end }}</description>
     </item>
     {{- end }}
   </channel>

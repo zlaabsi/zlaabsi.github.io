@@ -16,6 +16,7 @@ interface Env {
   RESEND_API_KEY?: string;
   RESEND_FROM?: string;
   RESEND_REPLY_TO?: string;
+  RESEND_WEBHOOK_SECRET?: string;
   SITE_BASE_URL?: string;
 }
 
@@ -276,6 +277,10 @@ export default {
         return handleTrack(request, env);
       }
 
+      if (url.pathname === "/api/webhooks/resend" && request.method === "POST") {
+        return handleResendWebhook(request, env);
+      }
+
       return json({ ok: false, error: "Not found" }, 404, request, env);
     } catch (error) {
       console.error("site-growth-api error", error);
@@ -385,6 +390,98 @@ async function handleSubscribe(request: Request, env: Env, ctx: ExecutionContext
     request,
     env,
   );
+}
+
+const EMAIL_EVENT_TYPES = new Set([
+  "email.sent",
+  "email.delivered",
+  "email.delivery_delayed",
+  "email.opened",
+  "email.clicked",
+  "email.bounced",
+  "email.complained",
+]);
+
+// Resend signs its webhooks the Svix way: HMAC-SHA256 of "id.timestamp.body"
+// with the base64 part of the whsec_ secret. Unsigned or stale calls are refused.
+async function handleResendWebhook(request: Request, env: Env): Promise<Response> {
+  const secret = env.RESEND_WEBHOOK_SECRET;
+  if (!secret) {
+    return json({ ok: false, error: "Webhook is not configured." }, 503, request, env);
+  }
+
+  const id = request.headers.get("svix-id");
+  const timestamp = request.headers.get("svix-timestamp");
+  const signatures = request.headers.get("svix-signature");
+  const body = await request.text();
+  if (!id || !timestamp || !signatures) {
+    return json({ ok: false, error: "Missing signature." }, 401, request, env);
+  }
+
+  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
+  if (!Number.isFinite(age) || age > 300) {
+    return json({ ok: false, error: "Stale signature." }, 401, request, env);
+  }
+
+  const keyBytes = Uint8Array.from(atob(secret.replace(/^whsec_/, "")), (c) => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey("raw", keyBytes, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${id}.${timestamp}.${body}`));
+  const expected = btoa(String.fromCharCode(...new Uint8Array(mac)));
+  const valid = signatures
+    .split(" ")
+    .map((part) => part.split(",")[1])
+    .some((candidate) => candidate !== undefined && timingSafeEqual(candidate, expected));
+  if (!valid) {
+    return json({ ok: false, error: "Invalid signature." }, 401, request, env);
+  }
+
+  let event: { type?: string; created_at?: string; data?: Record<string, any> };
+  try {
+    event = JSON.parse(body);
+  } catch {
+    return json({ ok: false, error: "Invalid body." }, 400, request, env);
+  }
+
+  const eventType = sanitizeText(event.type, 64);
+  if (!eventType || !EMAIL_EVENT_TYPES.has(eventType)) {
+    return json({ ok: true, ignored: true }, 200, request, env);
+  }
+
+  const data = event.data ?? {};
+  const recipient = Array.isArray(data.to) ? data.to[0] : data.to;
+  await env.GROWTH_DB.prepare(
+    `INSERT OR IGNORE INTO email_events (
+      webhook_id,
+      event_type,
+      provider_message_id,
+      recipient,
+      subject,
+      link,
+      occurred_at,
+      created_at
+    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, CURRENT_TIMESTAMP)`,
+  )
+    .bind(
+      id,
+      eventType.replace(/^email\./, ""),
+      sanitizeText(data.email_id, 128),
+      sanitizeText(typeof recipient === "string" ? recipient.toLowerCase() : null, 255),
+      sanitizeText(data.subject, 255),
+      sanitizeText(data.click?.link, 1024),
+      sanitizeText(event.created_at, 64) ?? new Date().toISOString(),
+    )
+    .run();
+
+  return json({ ok: true }, 200, request, env);
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 async function handleTrack(request: Request, env: Env): Promise<Response> {

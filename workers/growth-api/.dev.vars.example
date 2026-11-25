@@ -4,3 +4,5 @@ RESEND_FROM=Zakaria Laabsi <updates@example.com>
 # Comma-separated emails allowed to open /dashboard through Cloudflare Access.
 # Set it as a secret, not in wrangler.jsonc: wrangler secret put ADMIN_ACCESS_ALLOWED_EMAILS
 ADMIN_ACCESS_ALLOWED_EMAILS=you@example.com
+# Signing secret of the Resend webhook that posts to /api/webhooks/resend.
+RESEND_WEBHOOK_SECRET=whsec_replace_me

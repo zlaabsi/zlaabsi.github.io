@@ -193,10 +193,22 @@ function publicHtmlPathForUrl(url, publicRoot) {
   return path.join(publicRoot, cleanPath, 'index.html');
 }
 
-function extractPostContentHtml(html) {
+// Page furniture that is not reading matter: scripts, styles and the share controls.
+function stripNonContent(html) {
+  return html
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ')
+    .replace(/<nav class=(?:"share-links|share-links)[\s\S]*?<\/nav>/gi, ' ')
+    .replace(/<details class=(?:"share-top"|share-top)[\s\S]*?<\/details>/gi, ' ');
+}
+
+function extractPostContentHtml(rawHtml) {
+  const html = stripNonContent(rawHtml);
   const startMatch = /<div class=(?:"post-content"|post-content)[^>]*>/i.exec(html);
   if (!startMatch || startMatch.index === undefined) {
-    return html;
+    // Pages without a post body (the explorables): keep the article only, so the
+    // last section does not run on into the site footer and its scripts.
+    const article = /<article\b[^>]*>([\s\S]*?)<\/article>/i.exec(html);
+    return article ? article[1] : html;
   }
 
   const contentStart = startMatch.index + startMatch[0].length;

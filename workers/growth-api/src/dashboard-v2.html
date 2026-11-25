@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Site statistics</title>
+<style>
+:root {
+  --bg: #fff; --panel: #fafafa; --head: #000; --text: #333; --muted: #6b6b6b;
+  --rule: #e6e6e6; --ink: #141413; --bar: #141413; --bar-soft: #cfcfcf;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #141413; --panel: #1f1e1d; --head: #faf9f5; --text: #dcdcdc; --muted: #a1a1a1;
+    --rule: #303030; --ink: #faf9f5; --bar: #faf9f5; --bar-soft: #55544f; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.5; }
+a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 24px; margin-bottom: 8px; }
+header.top h1 { margin: 0; font-size: 30px; line-height: 1.1; color: var(--head); letter-spacing: -0.01em; }
+.period { margin-left: auto; display: flex; gap: 4px; }
+.period button { font: inherit; font-size: 13px; padding: 5px 11px; color: var(--muted); background: none; border: 1px solid var(--rule); border-radius: 4px; cursor: pointer; }
+.period button[aria-pressed="true"] { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+.status { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+nav.sections { position: sticky; top: 0; z-index: 5; display: flex; gap: 18px; overflow-x: auto; padding: 10px 0; margin-bottom: 8px; background: var(--bg); border-bottom: 1px solid var(--rule); font-size: 14px; white-space: nowrap; }
+nav.sections a { border: 0; color: var(--muted); }
+nav.sections a:hover { color: var(--head); }
+section { padding-top: 34px; }
+section > h2 { margin: 0 0 4px; font-size: 22px; color: var(--head); letter-spacing: -0.01em; }
+section > p.lede { margin: 0 0 16px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.kpi { padding: 14px 16px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 0 -1px -1px 0; }
+.kpi b { display: block; font-size: 26px; line-height: 1.15; color: var(--head); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 28px 32px; }
+.block h3 { margin: 0 0 2px; font-size: 15px; color: var(--head); }
+.block p.note { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.num, th.num { text-align: right; padding-right: 0; padding-left: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.path { font-family: var(--mono); font-size: 12.5px; word-break: break-all; }
+.scroll { overflow-x: auto; }
+.empty { color: var(--muted); font-size: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.chart { width: 100%; height: 170px; display: block; }
+.chart rect { fill: var(--bar); } .chart rect.soft { fill: var(--bar-soft); }
+.chart text { fill: var(--muted); font-size: 10px; font-family: var(--sans); }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; background: var(--bar); vertical-align: -1px; }
+.legend i.soft { background: var(--bar-soft); }
+.meter { display: inline-block; width: 64px; height: 6px; margin-right: 8px; background: var(--rule); vertical-align: 1px; }
+.meter i { display: block; height: 100%; background: var(--bar); }
+.heat { display: grid; gap: 1px; width: 100%; max-width: 420px; aspect-ratio: 3 / 4; background: var(--rule); border: 1px solid var(--rule); }
+.heat div { background: var(--panel); }
+select { font: inherit; font-size: 13px; padding: 5px 8px; color: var(--text); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; max-width: 100%; }
+.tag { display: inline-block; font-size: 11px; padding: 1px 6px; border: 1px solid var(--rule); border-radius: 3px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Site statistics</h1>
+    <div class="period" role="group" aria-label="Period">
+      <button type="button" data-days="7">7 days</button>
+      <button type="button" data-days="30">30 days</button>
+      <button type="button" data-days="90">90 days</button>
+    </div>
+  </header>
+  <p class="status" id="status">Loading…</p>
+  <nav class="sections">
+    <a href="#overview">Overview</a><a href="#articles">Articles</a><a href="#impressions">Impressions</a>
+    <a href="#sources">Sources</a><a href="#behaviour">Behaviour</a><a href="#shares">Shares</a>
+    <a href="#newsletter">Newsletter</a><a href="#events">Latest events</a>
+  </nav>
+
+  <section id="overview">
+    <h2>Overview</h2>
+    <p class="lede">Page views and reading time count every visit. Visitors and sessions only count readers who accepted analytics.</p>
+    <div class="kpis" id="kpis"></div>
+    <div style="margin-top:22px">
+      <svg class="chart" id="daily" role="img" aria-label="Page views and identified visitors per day"></svg>
+      <div class="legend"><span><i class="soft"></i>Page views</span><span><i></i>Identified visitors</span></div>
+    </div>
+  </section>
+
+  <section id="articles">
+    <h2>Articles and pages</h2>
+    <p class="lede">Reading time is the time the page was actually visible, averaged over visits of at least one second.</p>
+    <div class="scroll"><table id="pages"></table></div>
+  </section>
+
+  <section id="impressions">
+    <h2>Impressions</h2>
+    <p class="lede">Four different things are called impressions. They are kept apart because they are measured in different places.</p>
+    <div class="grid2">
+      <div class="block"><h3>Article cards on the site</h3><p class="note">A card counts when half of it has been on screen. After consent only.</p><div class="scroll"><table id="cards"></table></div></div>
+      <div class="block"><h3>Interactive figures</h3><p class="note">Seen on screen, and used at least once. After consent only.</p><div class="scroll"><table id="figures"></table></div></div>
+      <div class="block"><h3>Google Search</h3><p class="note">Impressions and clicks in search results come from Search Console.</p><div class="empty">Not connected. Search Console has to be linked to show these numbers here.</div></div>
+      <div class="block"><h3>Social networks</h3><p class="note">Views of posts are only visible inside each network. This is the traffic they sent.</p><div class="scroll"><table id="social"></table></div></div>
+    </div>
+  </section>
+
+  <section id="sources">
+    <h2>Where readers come from</h2>
+    <p class="lede">The site a visit arrived from, when the browser says so. Direct visits and private links carry none.</p>
+    <div class="scroll"><table id="referrers"></table></div>
+  </section>
+
+  <section id="behaviour">
+    <h2>Behaviour</h2>
+    <div class="grid2">
+      <div class="block"><h3>Menu sections</h3><p class="note">Clicks in the top navigation. After consent only.</p><div class="scroll"><table id="sections"></table></div></div>
+      <div class="block"><h3>Next page</h3><p class="note">Most frequent moves from one page to another within a session.</p><div class="scroll"><table id="journeys"></table></div></div>
+      <div class="block"><h3>Click map</h3><p class="note">Where a page gets clicked, from top to bottom.</p>
+        <select id="heat-path" aria-label="Page"></select>
+        <p class="note" id="heat-note" style="margin-top:8px"></p>
+        <div class="heat" id="heat"></div></div>
+    </div>
+  </section>
+
+  <section id="shares">
+    <h2>Shares</h2>
+    <p class="lede">Clicks on the share links under articles and explorables. A click opens the network; it does not prove a post.</p>
+    <div class="grid2">
+      <div class="block"><h3>By network</h3><div class="scroll"><table id="share-net"></table></div></div>
+      <div class="block"><h3>By page</h3><div class="scroll"><table id="share-page"></table></div></div>
+    </div>
+  </section>
+
+  <section id="newsletter">
+    <h2>Newsletter</h2>
+    <p class="lede">Opens are overstated: Apple Mail and Gmail load images on their own. Clicks are the reliable number.</p>
+    <div class="kpis" id="news-kpis"></div>
+    <div class="grid2" style="margin-top:22px">
+      <div class="block" style="grid-column:1/-1"><h3>Emails sent for each article</h3><div class="scroll"><table id="dispatches"></table></div></div>
+      <div class="block"><h3>Subscriptions and unsubscriptions</h3><div class="scroll"><table id="sub-days"></table></div></div>
+      <div class="block"><h3>Links clicked in emails</h3><div class="scroll"><table id="email-links"></table></div></div>
+    </div>
+  </section>
+
+  <section id="events">
+    <h2>Latest events</h2>
+    <div class="scroll"><table id="recent"></table></div>
+  </section>
+</div>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var nf = new Intl.NumberFormat('en-US');
+  var days = Number(localStorage.getItem('stats-days')) || 30;
+
+  function n(v) { return nf.format(Number(v) || 0); }
+  function pct(a, b) { return Number(b) > 0 ? Math.round(((Number(a) || 0) / Number(b)) * 100) + '%' : '–'; }
+  function dur(ms) {
+    ms = Number(ms) || 0;
+    if (!ms) return '–';
+    var s = Math.round(ms / 1000);
+    return s < 60 ? s + 's' : Math.floor(s / 60) + 'm ' + String(s % 60).padStart(2, '0') + 's';
+  }
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function day(v) { return v ? new Date(v + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '–'; }
+  function stamp(v) { return v ? new Date(String(v).replace(' ', 'T') + 'Z').toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–'; }
+
+  // columns: [label, cell(row) -> html, 'num' | 'path' | '']
+  function table(id, rows, columns, emptyText) {
+    var el = $(id);
+    if (!rows || !rows.length) {
+      el.outerHTML = '<div class="empty" id="' + id + '">' + esc(emptyText || 'Nothing recorded in this period.') + '</div>';
+      return;
+    }
+    var html = '<thead><tr>' + columns.map(function (c) { return '<th class="' + (c[2] === 'num' ? 'num' : '') + '">' + esc(c[0]) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr>' + columns.map(function (c) { return '<td class="' + (c[2] || '') + '">' + c[1](r) + '</td>'; }).join('') + '</tr>';
+    });
+    if (el.tagName !== 'TABLE') { el.outerHTML = '<table id="' + id + '"></table>'; el = $(id); }
+    el.innerHTML = html + '</tbody>';
+  }
+
+  function kpis(id, items) {
+    $(id).innerHTML = items.map(function (i) { return '<div class="kpi"><b>' + esc(i[0]) + '</b><span>' + esc(i[1]) + '</span></div>'; }).join('');
+  }
+
+  function meter(share) {
+    return '<span class="meter"><i style="width:' + Math.round(Math.max(0, Math.min(1, share)) * 100) + '%"></i></span>';
+  }
+
+  function dailyChart(rows) {
+    var svg = $('daily');
+    var W = 1100, H = 170, padB = 18, padT = 6;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    if (!rows.length) { svg.innerHTML = '<text x="0" y="20">Nothing recorded in this period.</text>'; return; }
+    var max = Math.max.apply(null, rows.map(function (r) { return Number(r.page_views) || 0; }).concat([1]));
+    var step = W / rows.length, bw = Math.max(2, Math.min(26, step * 0.62));
+    var out = '';
+    rows.forEach(function (r, i) {
+      var x = i * step + (step - bw) / 2;
+      var h1 = ((Number(r.page_views) || 0) / max) * (H - padB - padT);
+      var h2 = ((Number(r.visitors) || 0) / max) * (H - padB - padT);
+      out += '<rect class="soft" x="' + x.toFixed(1) + '" y="' + (H - padB - h1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h1.toFixed(1) + '"><title>' + esc(day(r.day)) + ': ' + n(r.page_views) + ' page views</title></rect>';
+      out += '<rect x="' + (x + bw * 0.25).toFixed(1) + '" y="' + (H - padB - h2).toFixed(1) + '" width="' + (bw * 0.5).toFixed(1) + '" height="' + h2.toFixed(1) + '"><title>' + esc(day(r.day)) + ': ' + n(r.visitors) + ' identified visitors</title></rect>';
+      if (i === 0 || i === rows.length - 1 || (rows.length > 14 && i % Math.ceil(rows.length / 6) === 0)) {
+        out += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="' + (i === 0 ? 'start' : i === rows.length - 1 ? 'end' : 'middle') + '">' + esc(day(r.day)) + '</text>';
+      }
+    });
+    svg.innerHTML = out;
+  }
+
+  // Also matches app referrers such as android-app://com.linkedin.android.
+  var SOCIAL = [['X', /(^|\.)(x\.com|twitter\.com|t\.co)$|com\.twitter\./], ['LinkedIn', /(^|\.)(linkedin\.com|lnkd\.in)$|com\.linkedin\./], ['Facebook', /(^|\.)(facebook\.com|fb\.com|fb\.me)$|com\.facebook\./],
+    ['Reddit', /(^|\.)reddit\.com$|com\.reddit\./], ['WhatsApp', /(^|\.)(whatsapp\.com|wa\.me)$|com\.whatsapp/], ['Hacker News', /(^|\.)ycombinator\.com$/], ['Bluesky', /(^|\.)bsky\.app$/], ['YouTube', /(^|\.)youtube\.com$/]];
+  var MENU = { posts: '/posts/', explorables: '/explorables/', projects: '/projects/', about: '/about/', tags: '/tags/', archives: '/archives/', search: '/search/', subscribe: '/subscribe/' };
+
+  // Older clicks only carry the link text; newer ones carry the destination.
+  function menuSections(rows) {
+    var totals = {};
+    rows.forEach(function (r) {
+      var target = String(r.target || '');
+      var path = target.charAt(0) === '/' ? target : MENU[target.toLowerCase()] || (/^Zakaria Laabsi/.test(target) ? '/' : null);
+      if (path) totals[path] = (totals[path] || 0) + Number(r.clicks);
+    });
+    return Object.keys(totals).map(function (k) { return { target: k, clicks: totals[k] }; }).sort(function (a, b) { return b.clicks - a.clicks; });
+  }
+  function host(ref) { try { return new URL(ref).hostname.replace(/^www\./, ''); } catch (e) { return null; } }
+
+  function sources(referrers) {
+    var hosts = {}, social = {};
+    referrers.forEach(function (r) {
+      var h = host(r.referrer);
+      if (!h || h === 'zlaabsi.github.io' || h === 'localhost' || h === '127.0.0.1') return;
+      hosts[h] = (hosts[h] || 0) + Number(r.visits);
+      SOCIAL.forEach(function (s) { if (s[1].test(h)) social[s[0]] = (social[s[0]] || 0) + Number(r.visits); });
+    });
+    var list = function (o) { return Object.keys(o).map(function (k) { return { name: k, visits: o[k] }; }).sort(function (a, b) { return b.visits - a.visits; }); };
+    return { hosts: list(hosts).slice(0, 25), social: list(social) };
+  }
+
+  async function get(path) {
+    var response = await fetch(path, { credentials: 'same-origin' });
+    if (!response.ok) throw new Error(response.status === 401 ? 'Not signed in.' : 'Request failed (' + response.status + ').');
+    return response.json();
+  }
+
+  async function heatmap(path) {
+    var data = await get('/api/admin/heatmap?days=' + days + '&xBins=12&yBins=16&path=' + encodeURIComponent(path));
+    var max = Math.max.apply(null, data.cells.map(function (c) { return c.count; }).concat([1]));
+    var el = $('heat');
+    el.style.gridTemplateColumns = 'repeat(' + data.xBins + ', 1fr)';
+    el.innerHTML = data.cells.map(function (c) {
+      return '<div title="' + c.count + ' clicks"' + (c.count ? ' style="background: color-mix(in srgb, var(--bar) ' + Math.round(12 + (c.count / max) * 88) + '%, var(--panel))"' : '') + '></div>';
+    }).join('');
+    $('heat-note').textContent = n(data.totalClicks) + ' clicks recorded on this page.';
+  }
+
+  async function load() {
+    document.querySelectorAll('.period button').forEach(function (b) { b.setAttribute('aria-pressed', String(Number(b.dataset.days) === days)); });
+    $('status').textContent = 'Loading…';
+    var d;
+    try { d = await get('/api/admin/report?days=' + days); }
+    catch (error) { $('status').textContent = error.message; return; }
+    var t = d.totals || {};
+    $('status').textContent = 'Last ' + d.days + ' days, updated ' + new Date(d.generatedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '.';
+
+    kpis('kpis', [
+      [n(t.page_views), 'page views'],
+      [n(t.visitors), 'identified visitors'],
+      [n(t.sessions), 'identified sessions'],
+      [dur(t.avg_ms), 'average reading time'],
+      [t.avg_scroll == null ? '–' : Math.round(t.avg_scroll * 100) + '%', 'average scroll depth'],
+      [pct(t.identified_views, t.page_views), 'of views identified'],
+      [n(t.shares), 'share clicks']
+    ]);
+    dailyChart(d.daily || []);
+
+    var reads = {}; (d.reads || []).forEach(function (r) { reads[r.pathname] = r; });
+    var shares = {}; ((d.shares || {}).byPage || []).forEach(function (r) { shares[r.target_path] = r.shares; });
+    var maxViews = Math.max.apply(null, (d.pages || []).map(function (p) { return Number(p.views); }).concat([1]));
+    table('pages', d.pages, [
+      ['Page', function (r) { return esc(r.pathname); }, 'path'],
+      ['Views', function (r) { return meter(r.views / maxViews) + n(r.views); }, 'num'],
+      ['Identified readers', function (r) { return n(r.visitors); }, 'num'],
+      ['Reading time', function (r) { return dur((reads[r.pathname] || {}).avg_ms); }, 'num'],
+      ['Scroll', function (r) { var s = (reads[r.pathname] || {}).avg_scroll; return s == null ? '–' : Math.round(s * 100) + '%'; }, 'num'],
+      ['Shares', function (r) { return n(shares[r.pathname]); }, 'num']
+    ]);
+
+    var clicks = {}; (d.impressions.cardClicks || []).forEach(function (r) { clicks[r.target_path] = r.clicks; });
+    table('cards', d.impressions.cards, [
+      ['Article', function (r) { return esc(r.target_path); }, 'path'],
+      ['Seen', function (r) { return n(r.impressions); }, 'num'],
+      ['Clicked', function (r) { return n(clicks[r.target_path]); }, 'num'],
+      ['Rate', function (r) { return pct(clicks[r.target_path], r.impressions); }, 'num']
+    ], 'No card impression recorded yet.');
+    table('figures', d.impressions.figures, [
+      ['Figure', function (r) { return esc(r.figure) + ' <span class="tag">' + esc((r.pathname || '').replace(/\/$/, '').split('/').pop()) + '</span>'; }, ''],
+      ['Seen', function (r) { return n(r.impressions); }, 'num'],
+      ['Used', function (r) { return n(r.interactions); }, 'num'],
+      ['Rate', function (r) { return pct(r.interactions, r.impressions); }, 'num']
+    ], 'No figure impression recorded yet.');
+
+    var src = sources(d.referrers || []);
+    table('social', src.social, [['Network', function (r) { return esc(r.name); }, ''], ['Visits sent', function (r) { return n(r.visits); }, 'num']], 'No visit from a social network in this period.');
+    table('referrers', src.hosts, [['Site', function (r) { return esc(r.name); }, 'path'], ['Visits', function (r) { return n(r.visits); }, 'num']], 'No referring site in this period.');
+
+    table('sections', menuSections(d.sections || []), [['Section', function (r) { return esc(r.target); }, 'path'], ['Clicks', function (r) { return n(r.clicks); }, 'num']], 'No menu click recorded yet.');
+    table('journeys', d.journeys, [['From', function (r) { return esc(r.from_path); }, 'path'], ['To', function (r) { return esc(r.to_path); }, 'path'], ['Times', function (r) { return n(r.times); }, 'num']], 'No journey recorded yet.');
+    table('share-net', d.shares.byNetwork, [['Network', function (r) { return esc(r.network); }, ''], ['Clicks', function (r) { return n(r.shares); }, 'num']], 'No share click recorded yet.');
+    table('share-page', d.shares.byPage, [['Page', function (r) { return esc(r.target_path); }, 'path'], ['Clicks', function (r) { return n(r.shares); }, 'num']], 'No share click recorded yet.');
+
+    var nl = d.newsletter || {}, subs = nl.subscribers || {};
+    var mail = {}; (nl.emailTotals || []).forEach(function (r) { mail[r.event_type] = r.emails; });
+    kpis('news-kpis', [
+      [n(subs.active), 'active subscribers'],
+      [n(subs.unsubscribed), 'unsubscribed'],
+      [n(mail.delivered), 'emails delivered'],
+      [n(mail.opened), 'emails opened'],
+      [n(mail.clicked), 'emails clicked'],
+      [n((Number(mail.bounced) || 0) + (Number(mail.complained) || 0)), 'bounced or reported']
+    ]);
+    table('dispatches', nl.dispatches, [
+      ['Article', function (r) { return esc(r.clean_title) + (r.feed_kind === 'updated' ? ' <span class="tag">revised</span>' : ''); }, ''],
+      ['Sent', function (r) { return esc(day(String(r.published_at).slice(0, 10))); }, 'num'],
+      ['Recipients', function (r) { return n(r.recipient_count); }, 'num'],
+      ['Delivered', function (r) { return n(r.delivered); }, 'num'],
+      ['Opened', function (r) { return n(r.opened) + ' <span class="tag">' + pct(r.opened, r.recipient_count) + '</span>'; }, 'num'],
+      ['Clicked', function (r) { return n(r.clicked) + ' <span class="tag">' + pct(r.clicked, r.recipient_count) + '</span>'; }, 'num'],
+      ['Failed', function (r) { return n(r.failed); }, 'num']
+    ], 'No newsletter sent yet.');
+    table('sub-days', nl.days, [['Day', function (r) { return esc(day(r.day)); }, ''], ['Subscribed', function (r) { return n(r.joined); }, 'num'], ['Unsubscribed', function (r) { return n(r.left_list); }, 'num']], 'No change in this period.');
+    table('email-links', nl.emailLinks, [['Link', function (r) { return esc(r.link); }, 'path'], ['Clicks', function (r) { return n(r.clicks); }, 'num']], 'No email click recorded yet.');
+
+    table('recent', d.recent, [
+      ['When', function (r) { return esc(stamp(r.created_at)); }, ''],
+      ['Event', function (r) { return esc(r.event_type) + (r.identified ? '' : ' <span class="tag">anonymous</span>'); }, ''],
+      ['Page', function (r) { return esc(r.pathname); }, 'path'],
+      ['Detail', function (r) { return esc([r.context, r.target].filter(Boolean).join(' · ')); }, 'path']
+    ]);
+
+    var select = $('heat-path');
+    var current = select.value;
+    select.innerHTML = (d.pages || []).map(function (p) { return '<option>' + esc(p.pathname) + '</option>'; }).join('');
+    if (current) select.value = current;
+    if (select.value) heatmap(select.value).catch(function () { $('heat-note').textContent = 'Click map unavailable.'; });
+  }
+
+  document.querySelectorAll('.period button').forEach(function (b) {
+    b.addEventListener('click', function () { days = Number(b.dataset.days); localStorage.setItem('stats-days', String(days)); load(); });
+  });
+  $('heat-path').addEventListener('change', function () { heatmap(this.value); });
+  load();
+})();
+</script>
+</body>
+</html>

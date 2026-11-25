@@ -1,4 +1,6 @@
 import { renderDashboardHTML } from "./dashboard";
+import dashboardPage from "./dashboard-v2.html";
+import { getReport } from "./report";
 
 type DeliveryStatus = "sent" | "failed";
 type DispatchStatus = "pending" | "sent" | "partial" | "failed";
@@ -17,6 +19,7 @@ interface Env {
   RESEND_FROM?: string;
   RESEND_REPLY_TO?: string;
   RESEND_WEBHOOK_SECRET?: string;
+  LOCAL_ADMIN?: string;
   SITE_BASE_URL?: string;
 }
 
@@ -99,6 +102,7 @@ const ALLOWED_EVENT_TYPES = new Set([
 ]);
 
 const ADMIN_PATHS = new Set([
+  "/api/admin/report",
   "/api/admin/summary",
   "/api/admin/top-pages",
   "/api/admin/top-clicks",
@@ -162,6 +166,10 @@ export default {
       }
 
       if (url.pathname === "/dashboard") {
+        return html(dashboardPage);
+      }
+
+      if (url.pathname === "/dashboard/legacy") {
         return html(renderDashboardHTML());
       }
 
@@ -172,6 +180,10 @@ export default {
       if (ADMIN_PATHS.has(url.pathname)) {
         if (!(await isAuthorized(request, env))) {
           return json({ ok: false, error: "Unauthorized" }, 401, request, env);
+        }
+
+        if (url.pathname === "/api/admin/report" && request.method === "GET") {
+          return json(await getReport(env.GROWTH_DB, cleanDays(url.searchParams.get("days"))), 200, request, env);
         }
 
         if (url.pathname === "/api/admin/summary" && request.method === "GET") {
@@ -1297,6 +1309,12 @@ function formatEmailDate(iso: string): string {
 }
 
 async function isAuthorized(request: Request, env: Env): Promise<boolean> {
+  // Local use only: wrangler dev started with --var LOCAL_ADMIN:true, and the
+  // request must also come through localhost. It is never set in production.
+  const host = new URL(request.url).hostname;
+  if (env.LOCAL_ADMIN === "true" && (host === "localhost" || host === "127.0.0.1")) {
+    return true;
+  }
   if (hasValidAdminToken(request, env)) {
     return true;
   }

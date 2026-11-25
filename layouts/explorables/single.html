@@ -4,9 +4,12 @@
     {{ partial "breadcrumbs.html" . }}
     <h1>{{ .Title }}</h1>
     {{ with .Description }}<p>{{ . }}</p>{{ end }}
-    {{ with .Params.companion }}
-    <p class="ol-view-tag">Companion article: <a href="{{ .url | relURL }}">{{ .title }}</a></p>
-    {{ end }}
+    <div class="post-meta-row">
+      {{ with .Params.companion }}
+      <p class="ol-view-tag">Companion article: <a href="{{ .url | relURL }}">{{ .title }}</a></p>
+      {{ else }}<span></span>{{ end }}
+      {{ partial "share.html" (dict "Page" . "Variant" "top") }}
+    </div>
     {{ with .Params.links }}
     <p class="ol-view-links">{{ range $i, $l := . }}{{ if $i }} · {{ end }}<a href="{{ $l.url }}">{{ $l.title }}</a>{{ end }}</p>
     {{ end }}
@@ -17,7 +20,7 @@
     </nav>
     <div class="ol-atlas-body">
       {{ .Content }}
-      {{ partial "share.html" . }}
+      {{ partial "share.html" (dict "Page" . "Variant" "bottom") }}
     </div>
   </div>
 </article>

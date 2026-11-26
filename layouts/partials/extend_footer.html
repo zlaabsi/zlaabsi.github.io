@@ -107,6 +107,43 @@
     }
   }
 
+  // The owner's own browsers send nothing. Opening the site once with the
+  // personal link ?owner=<token> marks the browser, here and on the server,
+  // which then also drops this browser's past visits from the statistics.
+  var OWNER_KEY = 'site-growth-owner';
+
+  var ownerLinkOpened = new URLSearchParams(window.location.search).has('owner');
+
+  function isOwner() {
+    return ownerLinkOpened || storageGet(OWNER_KEY) === '1';
+  }
+
+  function claimOwnerBrowser() {
+    var params = new URLSearchParams(window.location.search);
+    var token = params.get('owner');
+    if (!token) return;
+    params.delete('owner');
+    var clean = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
+    try { window.history.replaceState(null, '', clean); } catch (err) {}
+    var visitorId = storageGet(VISITOR_KEY);
+    if (!visitorId && window.crypto && typeof window.crypto.randomUUID === 'function') {
+      visitorId = window.crypto.randomUUID();
+      storageSet(VISITOR_KEY, visitorId);
+    }
+    postJson(growth.apiBase + '/api/owner', { token: token, visitorId: visitorId }, { allowBeacon: false, keepalive: false })
+      .then(function () {
+        storageSet(OWNER_KEY, '1');
+        var note = document.createElement('div');
+        note.className = 'owner-note';
+        note.setAttribute('role', 'status');
+        note.textContent = 'This browser is now left out of the statistics.';
+        document.body.appendChild(note);
+        window.setTimeout(function () { note.remove(); }, 4000);
+      })
+      .catch(function () {});
+  }
+  claimOwnerBrowser();
+
   function baseEventPayload() {
     return {
       pathname: window.location.pathname,
@@ -200,6 +237,9 @@
 
   function trackEvent(eventType, extra, options) {
     if (!growth.analyticsEnabled) {
+      return Promise.resolve(false);
+    }
+    if (isOwner()) {
       return Promise.resolve(false);
     }
     if (!ESSENTIAL_EVENTS[eventType] && !hasConsent()) {
@@ -435,7 +475,7 @@
       startBehaviourTracking();
     } else {
       forgetIdentifiers();
-      if (choice !== 'denied') askWhenReading();
+      if (choice !== 'denied' && !isOwner()) askWhenReading();
     }
   }
 
@@ -472,7 +512,7 @@
   // newsletter, once they are well into the page. Never for a subscriber, and
   // not again for thirty days after "No thanks". The counter is a plain number.
   function inviteToNewsletter() {
-    if (!growth.newsletterEnabled || !growth.readingPage) return;
+    if (!growth.newsletterEnabled || !growth.readingPage || isOwner()) return;
     var state = storageGet('site-newsletter') || '';
     if (state === 'subscribed') return;
     if (state.indexOf('dismissed:') === 0 && Date.now() - Number(state.slice(10)) < 30 * 86400000) return;

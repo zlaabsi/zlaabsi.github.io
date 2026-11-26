@@ -7,6 +7,11 @@ async function all(db: D1Database, sql: string, ...binds: unknown[]): Promise<Ro
   return result.results ?? [];
 }
 
+// Every query reads events through this view, which leaves out the browsers
+// marked as the owner's. Anonymous events cannot be attributed and are kept.
+const EVENTS = `(SELECT * FROM events
+  WHERE visitor_id IS NULL OR visitor_id NOT IN (SELECT visitor_id FROM excluded_visitors))`;
+
 export async function getReport(db: D1Database, days: number): Promise<Record<string, unknown>> {
   const since = `-${days} days`;
 
@@ -17,7 +22,7 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
            json_extract(meta_json, '$.pageId') AS page_id,
            MIN(MAX(json_extract(meta_json, '$.activeMs')), 1800000) AS active_ms,
            MAX(json_extract(meta_json, '$.maxScroll')) AS max_scroll
-    FROM events
+    FROM ${EVENTS} AS events
     WHERE event_type = 'engagement' AND created_at >= datetime('now', ?1)
     GROUP BY pathname, page_id`;
 
@@ -41,16 +46,18 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
     emailTotals,
     emailLinks,
     recent,
+    subscriberList,
+    visitors,
   ] = await Promise.all([
     all(
       db,
       `SELECT
          SUM(event_type = 'page_view') AS page_views,
          SUM(event_type = 'page_view' AND visitor_id IS NOT NULL) AS identified_views,
-         COUNT(DISTINCT visitor_id) AS visitors,
-         COUNT(DISTINCT session_id) AS sessions,
+         COUNT(DISTINCT NULLIF(visitor_id, 'anonymous')) AS visitors,
+         COUNT(DISTINCT NULLIF(session_id, 'session')) AS sessions,
          SUM(event_type = 'share') AS shares
-       FROM events WHERE created_at >= datetime('now', ?1)`,
+       FROM ${EVENTS} AS events WHERE created_at >= datetime('now', ?1)`,
       since,
     ),
     all(db, `SELECT COUNT(*) AS reads, AVG(active_ms) AS avg_ms, AVG(max_scroll) AS avg_scroll FROM (${READS})`, since),
@@ -59,14 +66,14 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
       `SELECT date(created_at) AS day,
               SUM(event_type = 'page_view') AS page_views,
               COUNT(DISTINCT visitor_id) AS visitors
-       FROM events WHERE created_at >= datetime('now', ?1)
+       FROM ${EVENTS} AS events WHERE created_at >= datetime('now', ?1)
        GROUP BY day ORDER BY day`,
       since,
     ),
     all(
       db,
       `SELECT pathname, COUNT(*) AS views, COUNT(DISTINCT visitor_id) AS visitors
-       FROM events
+       FROM ${EVENTS} AS events
        WHERE event_type = 'page_view' AND created_at >= datetime('now', ?1) AND pathname IS NOT NULL
        GROUP BY pathname ORDER BY views DESC LIMIT 40`,
       since,
@@ -80,7 +87,7 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
     all(
       db,
       `SELECT target_path, COUNT(*) AS impressions
-       FROM events
+       FROM ${EVENTS} AS events
        WHERE event_type = 'impression' AND context = 'article-card' AND created_at >= datetime('now', ?1)
        GROUP BY target_path ORDER BY impressions DESC LIMIT 40`,
       since,
@@ -88,9 +95,9 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
     all(
       db,
       `SELECT target_path, COUNT(*) AS clicks
-       FROM events
+       FROM ${EVENTS} AS events
        WHERE event_type = 'article_click' AND context = 'listing' AND created_at >= datetime('now', ?1)
-         AND created_at >= (SELECT COALESCE(MIN(created_at), '9999') FROM events WHERE event_type = 'impression')
+         AND created_at >= (SELECT COALESCE(MIN(created_at), '9999') FROM ${EVENTS} AS events WHERE event_type = 'impression')
        GROUP BY target_path`,
       since,
     ),
@@ -99,7 +106,7 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
       `SELECT pathname, target_text AS figure,
               SUM(event_type = 'impression') AS impressions,
               SUM(event_type = 'figure_interact') AS interactions
-       FROM events
+       FROM ${EVENTS} AS events
        WHERE context = 'figure' AND event_type IN ('impression', 'figure_interact')
          AND created_at >= datetime('now', ?1)
        GROUP BY pathname, figure ORDER BY impressions DESC LIMIT 60`,
@@ -108,7 +115,7 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
     all(
       db,
       `SELECT referrer, COUNT(*) AS visits
-       FROM events
+       FROM ${EVENTS} AS events
        WHERE event_type = 'page_view' AND referrer IS NOT NULL AND referrer != ''
          AND created_at >= datetime('now', ?1)
        GROUP BY referrer ORDER BY visits DESC LIMIT 200`,
@@ -117,7 +124,7 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
     all(
       db,
       `SELECT COALESCE(target_path, target_text) AS target, COUNT(*) AS clicks
-       FROM events
+       FROM ${EVENTS} AS events
        WHERE event_type = 'ui_click' AND context = 'nav' AND created_at >= datetime('now', ?1)
        GROUP BY target ORDER BY clicks DESC LIMIT 20`,
       since,
@@ -125,14 +132,14 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
     all(
       db,
       `SELECT context AS network, COUNT(*) AS shares
-       FROM events WHERE event_type = 'share' AND created_at >= datetime('now', ?1)
+       FROM ${EVENTS} AS events WHERE event_type = 'share' AND created_at >= datetime('now', ?1)
        GROUP BY network ORDER BY shares DESC`,
       since,
     ),
     all(
       db,
       `SELECT target_path, COUNT(*) AS shares
-       FROM events WHERE event_type = 'share' AND created_at >= datetime('now', ?1)
+       FROM ${EVENTS} AS events WHERE event_type = 'share' AND created_at >= datetime('now', ?1)
        GROUP BY target_path ORDER BY shares DESC LIMIT 20`,
       since,
     ),
@@ -141,7 +148,7 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
       `SELECT from_path, to_path, COUNT(*) AS times FROM (
          SELECT pathname AS from_path,
                 LEAD(pathname) OVER (PARTITION BY session_id ORDER BY id) AS to_path
-         FROM events
+         FROM ${EVENTS} AS events
          WHERE event_type = 'page_view' AND session_id IS NOT NULL AND created_at >= datetime('now', ?1)
        )
        WHERE to_path IS NOT NULL AND to_path != from_path
@@ -194,7 +201,39 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
       db,
       `SELECT created_at, event_type, pathname, context, COALESCE(target_path, target_text) AS target,
               visitor_id IS NOT NULL AS identified
-       FROM events ORDER BY id DESC LIMIT 40`,
+       FROM ${EVENTS} AS events ORDER BY id DESC LIMIT 40`,
+    ),
+    all(
+      db,
+      `SELECT s.email, s.status, s.placement, s.source_page, s.created_at, s.unsubscribed_at,
+              COUNT(DISTINCT CASE WHEN e.event_type = 'delivered' THEN e.provider_message_id END) AS delivered,
+              COUNT(DISTINCT CASE WHEN e.event_type = 'opened' THEN e.provider_message_id END) AS opened,
+              COUNT(DISTINCT CASE WHEN e.event_type = 'clicked' THEN e.provider_message_id END) AS clicked,
+              MAX(CASE WHEN e.event_type IN ('opened', 'clicked') THEN e.occurred_at END) AS last_activity
+       FROM subscribers s
+       LEFT JOIN email_events e ON e.recipient = lower(s.email)
+       GROUP BY s.id ORDER BY s.created_at DESC`,
+    ),
+    all(
+      db,
+      // The most active browsers, plus every excluded one, so the owner can
+      // recognise their own devices and mark or unmark them.
+      `SELECT e.visitor_id, COUNT(*) AS views, COUNT(DISTINCT date(e.created_at)) AS days,
+              MIN(e.created_at) AS first_seen, MAX(e.created_at) AS last_seen,
+              (SELECT pathname FROM events e2 WHERE e2.visitor_id = e.visitor_id AND e2.event_type = 'page_view'
+               GROUP BY pathname ORDER BY COUNT(*) DESC LIMIT 1) AS top_page,
+              x.source AS excluded_by
+       FROM events e
+       LEFT JOIN excluded_visitors x ON x.visitor_id = e.visitor_id
+       WHERE e.event_type = 'page_view' AND e.visitor_id IN (
+         SELECT visitor_id FROM (
+           SELECT visitor_id FROM events
+           WHERE event_type = 'page_view' AND visitor_id IS NOT NULL AND visitor_id != 'anonymous'
+           GROUP BY visitor_id ORDER BY COUNT(*) DESC LIMIT 15
+         )
+         UNION SELECT visitor_id FROM excluded_visitors
+       )
+       GROUP BY e.visitor_id ORDER BY views DESC`,
     ),
   ]);
 
@@ -219,5 +258,7 @@ export async function getReport(db: D1Database, days: number): Promise<Record<st
       emailLinks,
     },
     recent,
+    subscribers: subscriberList,
+    visitors,
   };
 }

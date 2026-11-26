@@ -20,6 +20,7 @@ interface Env {
   RESEND_REPLY_TO?: string;
   RESEND_WEBHOOK_SECRET?: string;
   LOCAL_ADMIN?: string;
+  OWNER_TOKEN?: string;
   SITE_BASE_URL?: string;
 }
 
@@ -111,6 +112,7 @@ const ADMIN_PATHS = new Set([
   "/api/admin/email-deliveries",
   "/api/admin/heatmap",
   "/api/admin/dispatch-now",
+  "/api/admin/exclude",
 ]);
 
 interface AccessJwtHeader {
@@ -274,6 +276,10 @@ export default {
           );
         }
 
+        if (url.pathname === "/api/admin/exclude" && request.method === "POST") {
+          return handleExclude(request, env);
+        }
+
         if (url.pathname === "/api/admin/dispatch-now" && request.method === "POST") {
           return json(await dispatchPendingNewsletters(env), 200, request, env);
         }
@@ -287,6 +293,10 @@ export default {
 
       if (url.pathname === "/api/track" && request.method === "POST") {
         return handleTrack(request, env);
+      }
+
+      if (url.pathname === "/api/owner" && request.method === "POST") {
+        return handleOwner(request, env);
       }
 
       if (url.pathname === "/api/webhooks/resend" && request.method === "POST") {
@@ -402,6 +412,44 @@ async function handleSubscribe(request: Request, env: Env, ctx: ExecutionContext
     request,
     env,
   );
+}
+
+// The owner's personal link (?owner=<OWNER_TOKEN>) marks the browser it is
+// opened in: its visitor id is excluded from the statistics, past and future.
+async function handleOwner(request: Request, env: Env): Promise<Response> {
+  const payload = await readPayload(request);
+  const token = sanitizeText(payload.token, 128);
+  const visitorId = sanitizeText(payload.visitorId, 64);
+  const expected = env.OWNER_TOKEN?.trim();
+  if (!expected || !token || !timingSafeEqual(token, expected)) {
+    return json({ ok: false, error: "Unknown link." }, 403, request, env);
+  }
+  if (visitorId) {
+    await env.GROWTH_DB.prepare(
+      `INSERT OR IGNORE INTO excluded_visitors (visitor_id, source) VALUES (?1, 'owner-link')`,
+    )
+      .bind(visitorId)
+      .run();
+  }
+  return json({ ok: true }, 200, request, env);
+}
+
+async function handleExclude(request: Request, env: Env): Promise<Response> {
+  const payload = await readPayload(request);
+  const visitorId = sanitizeText(payload.visitorId, 64);
+  if (!visitorId) {
+    return json({ ok: false, error: "Missing visitor." }, 400, request, env);
+  }
+  if (payload.exclude === false) {
+    await env.GROWTH_DB.prepare(`DELETE FROM excluded_visitors WHERE visitor_id = ?1`).bind(visitorId).run();
+  } else {
+    await env.GROWTH_DB.prepare(
+      `INSERT OR IGNORE INTO excluded_visitors (visitor_id, source) VALUES (?1, 'dashboard')`,
+    )
+      .bind(visitorId)
+      .run();
+  }
+  return json({ ok: true }, 200, request, env);
 }
 
 const EMAIL_EVENT_TYPES = new Set([
@@ -835,6 +883,7 @@ async function getHeatmap(
     `SELECT x_ratio, y_ratio
      FROM events
      WHERE event_type IN ('ui_click', 'article_click')
+       AND (visitor_id IS NULL OR visitor_id NOT IN (SELECT visitor_id FROM excluded_visitors))
        AND pathname = ?1
        AND x_ratio IS NOT NULL
        AND y_ratio IS NOT NULL

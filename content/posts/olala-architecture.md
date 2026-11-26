@@ -180,6 +180,8 @@ with $A < 0$ learned per head and $\Delta t_t > 0$ computed from the input. This
 
 The argument for rank four is about hardware, not expressivity alone. Decoding from a state-space layer is bound by memory bandwidth: the state is read and written every step, and the single-output form performs about 2.5 arithmetic operations per byte moved, two orders of magnitude below what accelerators sustain on matrix products. A rank-$R$ update turns the write into a small matrix-matrix product and multiplies the useful work by up to $R$ at the same state size and the same latency. In the benchmark this takes validation loss from 2.789 (Gated DeltaNet) to 2.781 (Mamba-3, rank one) to 2.775 (rank four).
 
+{{< olala fig="mimo" id="fig-mimo" caption="One step of a Mamba-3 head as the matrices it adds up, on one colour scale: the part of the old state that survives, the write, and the new state. The write is the product of R key columns and R value rows; select a column or a row to see its term alone. Below: arithmetic per byte of state moved, and the validation loss of the two ranks and of the mixer they replace. Keys and values are random." >}}
+
 One detail of this section becomes important later. Supporting tensor parallelism over these layers required removing the normalisation inside the kernel, which would otherwise force a collective communication in the middle of it. At small scale, once the normalisation scheme of section 5 was in place, the difference was below the noise floor (2.900 against 2.897), so the norm was removed. Keep that in mind for section 6.
 
 ## 4. The feed-forward block: Latent-MoE

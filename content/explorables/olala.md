@@ -2,7 +2,7 @@
 title: "Olala, taken apart"
 date: 2026-11-22
 draft: false
-description: "Thirteen interactive figures on the architecture of Olala-v1.0-mini-7A1B, a hybrid Mamba-3 and attention mixture-of-experts language model. Each concept is drawn in the dimension that suits it: flat where the idea is a curve or a wiring diagram, layered where it is a stack, solid where it is a sphere."
+description: "Fourteen interactive figures on the architecture of Olala-v1.0-mini-7A1B, a hybrid Mamba-3 and attention mixture-of-experts language model. Each concept is drawn in the dimension that suits it: flat where the idea is a curve or a wiring diagram, layered where it is a stack, solid where it is a sphere."
 math: true
 thumbnail: "/images/olala/architecture.svg"
 companion:
@@ -56,6 +56,12 @@ Four fixes are stacked inside each of the seven attention layers. Each one answe
 **The cache.** Keys and values are stored as a few pairs of short vectors and rebuilt by outer products. This one is layered: the object is a stack of rank-one sheets above the tensor they sum to.
 
 {{< olala fig="tpa" caption="Cached factors, the rank-one sheets they generate, and the dense tensor those sheets average to." >}}
+
+## The linear mixer
+
+Each Mamba-3 head keeps a fraction of its state and adds a write. In the multi-output form the write is not one outer product but four, which is a small matrix product. Drawn flat, as the three matrices of the sum: the state stays the same size at any rank, and only the arithmetic done on it grows.
+
+{{< olala fig="mimo" caption="One step of a Mamba-3 head as the matrices it adds up, with the rank of the write as a control; then arithmetic per byte of state moved, and validation loss for the two ranks." >}}
 
 ## The feed-forward block
 

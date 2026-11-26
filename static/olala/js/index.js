@@ -4,7 +4,7 @@
 // This loader is requested as index.js?v=…. The same version is passed on to
 // each figure module, so that bumping it in the shortcode refreshes them too.
 const VERSION = new URL(import.meta.url).search;
-const NAMES = ["arch", "stack", "placement", "memory", "ssmax", "diff", "gate", "tpa", "moe", "expert", "norms", "geonorm", "ratchet"];
+const NAMES = ["arch", "stack", "placement", "memory", "ssmax", "diff", "gate", "tpa", "mimo", "moe", "expert", "norms", "geonorm", "ratchet"];
 const FIGURES = Object.fromEntries(NAMES.map((name) => [name, () => import(`./fig-${name}.js${VERSION}`)]));
 
 async function mount(fig) {
